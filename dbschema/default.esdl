@@ -14,7 +14,8 @@ module default {
 
     type User {
         required identity: ext::auth::Identity;
-        required username: str;
+        required email: str;
+        username: str;
         avatar: str;
         createdAt: datetime {
             rewrite insert using (datetime_of_statement());

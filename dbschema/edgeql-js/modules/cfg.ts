@@ -64,8 +64,8 @@ export type $AbstractConfigλShape = $.typeutil.flatten<$ConfigObjectλShape & {
   "force_database_error": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, true>;
   "_pg_prepared_statement_cache_size": $.PropertyDesc<_std.$int16, $.Cardinality.One, false, false, false, true>;
   "<cfg[is cfg::ExtensionConfig]": $.LinkDesc<$ExtensionConfig, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
-  "<cfg[is ext::auth::SMTPConfig]": $.LinkDesc<_extauth.$SMTPConfig, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<cfg[is ext::auth::AuthConfig]": $.LinkDesc<_extauth.$AuthConfig, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
+  "<cfg[is ext::auth::SMTPConfig]": $.LinkDesc<_extauth.$SMTPConfig, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<cfg": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $AbstractConfig = $.ObjectType<"cfg::AbstractConfig", $AbstractConfigλShape, null, [

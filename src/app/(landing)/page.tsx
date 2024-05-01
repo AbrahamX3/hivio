@@ -13,10 +13,7 @@ export default async function Component() {
     <div className="flex flex-col min-h-[100dvh]">
       <header className="px-4 lg:px-6 h-14 flex items-center fixed w-full backdrop-blur supports-[backdrop-filter]:bg-primary/60">
         <Link className="flex items-center justify-center" href="#">
-          <p className="text-2xl font-bold">
-            <span>Seen</span>
-            <span>It</span>
-          </p>
+          <p className="text-2xl font-bold">Hivio</p>
         </Link>
         <nav className="ml-auto flex gap-4 items-center align-middle sm:gap-6">
           <Link
@@ -52,7 +49,7 @@ export default async function Component() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl text-secondary md:text-5xl lg:text-6xl/none">
-                  Your watchlist, amplified with SeenIt
+                  Your watchlist, amplified with Hivio
                 </h1>
                 <p className="mx-auto max-w-[700px] md:text-xl text-secondary">
                   Add and organize your favorite shows and movies, and discover

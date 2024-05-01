@@ -1,27 +1,47 @@
 import { auth } from "@/lib/edgedb";
 import { redirect } from "next/navigation";
-import { Octokit } from "octokit";
+
+export interface GoogleResponse {
+  sub: string;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  email: string;
+  email_verified: boolean;
+  locale: string;
+}
 
 const { GET, POST } = auth.createAuthRouteHandlers({
-  async onOAuthCallback({ isSignUp, tokenData, provider }) {
+  async onOAuthCallback({ isSignUp, tokenData, provider, error }) {
+    console.log("onOAuthCallback", isSignUp, tokenData, provider, error);
     if (isSignUp) {
-      if (tokenData.provider_token && provider === "builtin::oauth_github") {
+      if (tokenData.provider_token && provider === "builtin::oauth_google") {
         const client = auth.getSession().client;
 
-        const { data } = await new Octokit({
-          auth: tokenData.provider_token,
-        }).request("GET /user");
+        const oauthURL = new URL(
+          "https://www.googleapis.com/oauth2/v3/userinfo"
+        );
+        oauthURL.searchParams.set("access_token", tokenData.provider_token);
+
+        const result = await fetch(oauthURL);
+
+        if (!result.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const userInfo = (await result.json()) as GoogleResponse;
 
         await client.query(
           `
           insert User {
-            username := <str>$username,
+            email := <str>$email,
             avatar := <optional str>$avatar,
             identity := (global ext::auth::ClientTokenIdentity)
           }`,
           {
-            username: data.login,
-            avatar: data.avatar_url,
+            email: userInfo.email,
+            avatar: userInfo.picture,
           }
         );
       }

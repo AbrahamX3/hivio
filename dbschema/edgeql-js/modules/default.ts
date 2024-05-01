@@ -12,27 +12,28 @@ export type $TitleStatus = {
   "UNFINISHED": $.$expr_Literal<$TitleStatus>;
   "FINISHED": $.$expr_Literal<$TitleStatus>;
 } & $.EnumType<"default::TitleStatus", ["UPCOMING", "PENDING", "WATCHING", "UNFINISHED", "FINISHED"]>;
-const TitleStatus: $TitleStatus = $.makeType<$TitleStatus>(_.spec, "d76718fd-0702-11ef-8f1d-13b90def468d", _.syntax.literal);
+const TitleStatus: $TitleStatus = $.makeType<$TitleStatus>(_.spec, "9e37980e-079f-11ef-bb5a-73b80a8f74e0", _.syntax.literal);
 
 export type $TitleType = {
   "MOVIE": $.$expr_Literal<$TitleType>;
   "SERIES": $.$expr_Literal<$TitleType>;
 } & $.EnumType<"default::TitleType", ["MOVIE", "SERIES"]>;
-const TitleType: $TitleType = $.makeType<$TitleType>(_.spec, "d749c984-0702-11ef-a022-e53dab41908e", _.syntax.literal);
+const TitleType: $TitleType = $.makeType<$TitleType>(_.spec, "9e21c106-079f-11ef-92c6-89e6fdabf231", _.syntax.literal);
 
 export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "identity": $.LinkDesc<_extauth.$Identity, $.Cardinality.One, {}, false, false,  false, false>;
   "avatar": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "updatedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
-  "username": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
+  "email": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
+  "username": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "<createdBy[is List]": $.LinkDesc<$List, $.Cardinality.Many, {}, false, false,  false, false>;
   "<createdBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $User = $.ObjectType<"default::User", $UserλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $User = $.makeType<$User>(_.spec, "d74f3c7f-0702-11ef-853c-8fe0ed0cc245", _.syntax.literal);
+const $User = $.makeType<$User>(_.spec, "9e261b33-079f-11ef-a62a-edda3afb3094", _.syntax.literal);
 
 const User: $.$expr_PathNode<$.TypeSet<$User, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($User, $.Cardinality.Many), null);
 
@@ -41,7 +42,7 @@ export type $CurrentUserλShape = $.typeutil.flatten<$UserλShape & {
 type $CurrentUser = $.ObjectType<"default::CurrentUser", $CurrentUserλShape, null, [
   ...$User['__exclusives__'],
 ]>;
-const $CurrentUser = $.makeType<$CurrentUser>(_.spec, "d76631bd-0702-11ef-beeb-4dcfff6c9fd6", _.syntax.literal);
+const $CurrentUser = $.makeType<$CurrentUser>(_.spec, "9e371d66-079f-11ef-893e-61c577e47229", _.syntax.literal);
 
 const CurrentUser: $.$expr_PathNode<$.TypeSet<$CurrentUser, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($CurrentUser, $.Cardinality.Many), null);
 
@@ -56,7 +57,7 @@ export type $ListλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
 type $List = $.ObjectType<"default::List", $ListλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $List = $.makeType<$List>(_.spec, "d7672c63-0702-11ef-b21a-9909a2dda5d8", _.syntax.literal);
+const $List = $.makeType<$List>(_.spec, "9e37b01c-079f-11ef-9336-b3cca8f08902", _.syntax.literal);
 
 const List: $.$expr_PathNode<$.TypeSet<$List, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($List, $.Cardinality.Many), null);
 
@@ -78,7 +79,7 @@ export type $TitleλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
 type $Title = $.ObjectType<"default::Title", $TitleλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $Title = $.makeType<$Title>(_.spec, "d749e65e-0702-11ef-881f-2b319d6b6580", _.syntax.literal);
+const $Title = $.makeType<$Title>(_.spec, "9e21d2b8-079f-11ef-9e58-2f39cbdf3162", _.syntax.literal);
 
 const Title: $.$expr_PathNode<$.TypeSet<$Title, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Title, $.Cardinality.Many), null);
 
@@ -88,7 +89,7 @@ const $default__globals: {  CurrentUser: _.syntax.$expr_Global<
               $.Cardinality.AtMostOne
               >} = {  CurrentUser: _.syntax.makeGlobal(
               "default::CurrentUser",
-              $.makeType(_.spec, "d76631bd-0702-11ef-beeb-4dcfff6c9fd6", _.syntax.literal),
+              $.makeType(_.spec, "9e371d66-079f-11ef-893e-61c577e47229", _.syntax.literal),
               $.Cardinality.AtMostOne) as any};
 
 

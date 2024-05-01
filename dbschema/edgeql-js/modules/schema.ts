@@ -539,8 +539,8 @@ export type $SourceλShape = $.typeutil.flatten<$Object_32faaa35947553cf88fce68e
 }>;
 type $Source = $.ObjectType<"schema::Source", $SourceλShape, null, [
   ...$Object_32faaa35947553cf88fce68ecf1be4d9['__exclusives__'],
-  {indexes: {__element__: $Index, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {pointers: {__element__: $Pointer, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {indexes: {__element__: $Index, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $Source = $.makeType<$Source>(_.spec, "0368bb5e-ae06-5c00-9316-15095185b828", _.syntax.literal);
 
@@ -692,12 +692,6 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is schema::Trigger]": $.LinkDesc<$Trigger, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is schema::ObjectType]": $.LinkDesc<$ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is schema::Extension]": $.LinkDesc<$Extension, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is ext::auth::ClientTokenIdentity]": $.LinkDesc<_extauth.$ClientTokenIdentity, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is Title]": $.LinkDesc<_default.$Title, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is CurrentUser]": $.LinkDesc<_default.$CurrentUser, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is List]": $.LinkDesc<_default.$List, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is ext::auth::AzureOAuthProvider]": $.LinkDesc<_extauth.$AzureOAuthProvider, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::Auditable]": $.LinkDesc<_extauth.$Auditable, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::Identity]": $.LinkDesc<_extauth.$Identity, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::LocalIdentity]": $.LinkDesc<_extauth.$LocalIdentity, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -712,6 +706,7 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is ext::auth::ProviderConfig]": $.LinkDesc<_extauth.$ProviderConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::OAuthProviderConfig]": $.LinkDesc<_extauth.$OAuthProviderConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::AppleOAuthProvider]": $.LinkDesc<_extauth.$AppleOAuthProvider, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is ext::auth::AzureOAuthProvider]": $.LinkDesc<_extauth.$AzureOAuthProvider, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::DiscordOAuthProvider]": $.LinkDesc<_extauth.$DiscordOAuthProvider, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::SlackOAuthProvider]": $.LinkDesc<_extauth.$SlackOAuthProvider, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::GitHubOAuthProvider]": $.LinkDesc<_extauth.$GitHubOAuthProvider, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -722,6 +717,11 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is ext::auth::UIConfig]": $.LinkDesc<_extauth.$UIConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::AuthConfig]": $.LinkDesc<_extauth.$AuthConfig, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ext::auth::SMTPConfig]": $.LinkDesc<_extauth.$SMTPConfig, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is ext::auth::ClientTokenIdentity]": $.LinkDesc<_extauth.$ClientTokenIdentity, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is Title]": $.LinkDesc<_default.$Title, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is CurrentUser]": $.LinkDesc<_default.$CurrentUser, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is List]": $.LinkDesc<_default.$List, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<intersection_of": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<subject": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -734,8 +734,8 @@ type $ObjectType = $.ObjectType<"schema::ObjectType", $ObjectTypeλShape, null, 
   ...$InheritingObject['__exclusives__'],
   ...$Type['__exclusives__'],
   ...$AnnotationSubject['__exclusives__'],
-  {access_policies: {__element__: $AccessPolicy, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {triggers: {__element__: $Trigger, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {access_policies: {__element__: $AccessPolicy, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $ObjectType = $.makeType<$ObjectType>(_.spec, "2662a1b4-4f3f-5875-b6eb-ce52101a90a3", _.syntax.literal);
 

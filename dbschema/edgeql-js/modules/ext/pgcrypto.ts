@@ -3,47 +3,6 @@
 import * as $ from "../../reflection";
 import * as _ from "../../imports";
 import type * as _std from "../std";
-type digestλFuncExpr<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-> = $.$expr_Function<
-  _std.$bytes, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-type digestλFuncExpr2<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bytes>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-> = $.$expr_Function<
-  _std.$bytes, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
->;
-function digest<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
->(
-  data: P1,
-  type: P2,
-): digestλFuncExpr<P1, P2>;
-function digest<
-  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bytes>>,
-  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
->(
-  data: P1,
-  type: P2,
-): digestλFuncExpr2<P1, P2>;
-function digest(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('ext::pgcrypto::digest', args, _.spec, [
-    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
-    {args: [{typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "ext::pgcrypto::digest",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
 type hmacλFuncExpr<
   P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
   P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
@@ -161,18 +120,59 @@ function crypt(...args: any[]) {
   }) as any;
 };
 
+type digestλFuncExpr<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+> = $.$expr_Function<
+  _std.$bytes, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+type digestλFuncExpr2<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+> = $.$expr_Function<
+  _std.$bytes, $.cardutil.multiplyCardinalities<$.cardutil.paramCardinality<P1>, $.cardutil.paramCardinality<P2>>
+>;
+function digest<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+>(
+  data: P1,
+  type: P2,
+): digestλFuncExpr<P1, P2>;
+function digest<
+  P1 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$bytes>>,
+  P2 extends _.castMaps.orScalarLiteral<$.TypeSet<_std.$str>>,
+>(
+  data: P1,
+  type: P2,
+): digestλFuncExpr2<P1, P2>;
+function digest(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('ext::pgcrypto::digest', args, _.spec, [
+    {args: [{typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
+    {args: [{typeId: "00000000-0000-0000-0000-000000000102", optional: false, setoftype: false, variadic: false}, {typeId: "00000000-0000-0000-0000-000000000101", optional: false, setoftype: false, variadic: false}], returnTypeId: "00000000-0000-0000-0000-000000000102"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "ext::pgcrypto::digest",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
 
 
 type __defaultExports = {
-  "digest": typeof digest;
   "hmac": typeof hmac;
   "gen_salt": typeof gen_salt;
-  "crypt": typeof crypt
+  "crypt": typeof crypt;
+  "digest": typeof digest
 };
 const __defaultExports: __defaultExports = {
-  "digest": digest,
   "hmac": hmac,
   "gen_salt": gen_salt,
-  "crypt": crypt
+  "crypt": crypt,
+  "digest": digest
 };
 export default __defaultExports;

@@ -1,4 +1,4 @@
-CREATE MIGRATION m1zvlayuz5um325fsexarnzwonoqttev5inc7gx2kw5poh2zx4riwa
+CREATE MIGRATION m1lcjqyavwtinip5btzzbruyhxruhqeyqr5lhf75xlxqixdpy6boya
     ONTO initial
 {
   CREATE EXTENSION pgcrypto VERSION '1.3';
@@ -42,7 +42,7 @@ CREATE MIGRATION m1zvlayuz5um325fsexarnzwonoqttev5inc7gx2kw5poh2zx4riwa
               UPDATE 
               USING (std::datetime_of_statement());
       };
-      CREATE PROPERTY username: std::str;
+      CREATE REQUIRED PROPERTY username: std::str;
   };
   CREATE GLOBAL default::CurrentUser := (std::assert_single((SELECT
       default::User

@@ -109,9 +109,9 @@ const AzureOAuthProvider: $.$expr_PathNode<$.TypeSet<$AzureOAuthProvider, $.Card
 export type $IdentityλShape = $.typeutil.flatten<$AuditableλShape & {
   "issuer": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "subject": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
+  "<identity[is ext::auth::PKCEChallenge]": $.LinkDesc<$PKCEChallenge, $.Cardinality.Many, {}, false, false,  false, false>;
   "<identity[is User]": $.LinkDesc<_default.$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<identity[is CurrentUser]": $.LinkDesc<_default.$CurrentUser, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<identity[is ext::auth::PKCEChallenge]": $.LinkDesc<$PKCEChallenge, $.Cardinality.Many, {}, false, false,  false, false>;
   "<identity": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Identity = $.ObjectType<"ext::auth::Identity", $IdentityλShape, null, [
@@ -215,8 +215,8 @@ const GoogleOAuthProvider: $.$expr_PathNode<$.TypeSet<$GoogleOAuthProvider, $.Ca
 
 export type $LocalIdentityλShape = $.typeutil.flatten<Omit<$IdentityλShape, "subject" | "<identity"> & {
   "subject": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
-  "<identity[is ext::auth::Factor]": $.LinkDesc<$Factor, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<identity[is ext::auth::EmailFactor]": $.LinkDesc<$EmailFactor, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
+  "<identity[is ext::auth::Factor]": $.LinkDesc<$Factor, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<identity[is ext::auth::EmailPasswordFactor]": $.LinkDesc<$EmailPasswordFactor, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<identity[is ext::auth::MagicLinkFactor]": $.LinkDesc<$MagicLinkFactor, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<identity[is ext::auth::WebAuthnFactor]": $.LinkDesc<$WebAuthnFactor, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
@@ -320,8 +320,8 @@ export type $WebAuthnAuthenticationChallengeλShape = $.typeutil.flatten<$Audita
 }>;
 type $WebAuthnAuthenticationChallenge = $.ObjectType<"ext::auth::WebAuthnAuthenticationChallenge", $WebAuthnAuthenticationChallengeλShape, null, [
   ...$Auditable['__exclusives__'],
-  {challenge: {__element__: _std.$bytes, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {factors: {__element__: $WebAuthnFactor, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {challenge: {__element__: _std.$bytes, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $WebAuthnAuthenticationChallenge = $.makeType<$WebAuthnAuthenticationChallenge>(_.spec, "ffb4afce-f9e9-5494-83e4-d9ab262ad48e", _.syntax.literal);
 

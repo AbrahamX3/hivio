@@ -9,7 +9,7 @@ import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SeenIt",
+  title: "Hivio",
   description: "A simple and fast way to track your shows and movies",
 };
 
