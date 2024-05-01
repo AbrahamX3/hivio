@@ -20,6 +20,15 @@ export async function verifyUser() {
   return isSignedIn;
 }
 
+export type UserSession = {
+  id: string;
+  username: string | null;
+  avatar: string | null;
+  email: string;
+  status: "UPCOMING" | "PENDING" | "WATCHING" | "UNFINISHED" | "FINISHED";
+  name: string;
+};
+
 export async function getUser() {
   const session = auth.getSession();
 
@@ -28,12 +37,22 @@ export async function getUser() {
       id: true,
       username: true,
       avatar: true,
+      email: true,
+      status: true,
+      name: true,
     }))
     .run(session.client);
 
+  if (!user) {
+    redirect("/auth/signin");
+  }
+
   return {
-    id: user?.id,
-    username: user?.username,
-    avatar: user?.avatar,
+    id: user.id,
+    username: user.username,
+    avatar: user.avatar,
+    email: user.email,
+    status: user.status,
+    name: user.name,
   };
 }

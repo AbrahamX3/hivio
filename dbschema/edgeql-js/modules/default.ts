@@ -25,13 +25,17 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
   "avatar": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "updatedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
-  "email": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
-  "username": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
-  "<createdBy[is List]": $.LinkDesc<$List, $.Cardinality.Many, {}, false, false,  false, false>;
+  "email": $.PropertyDesc<_std.$str, $.Cardinality.One, true, false, false, false>;
+  "username": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, true, false, false, false>;
+  "name": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
+  "status": $.PropertyDesc<$TitleStatus, $.Cardinality.One, false, false, false, true>;
+  "<createdBy[is Hive]": $.LinkDesc<$Hive, $.Cardinality.Many, {}, false, false,  false, false>;
   "<createdBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $User = $.ObjectType<"default::User", $UserλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
+  {email: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {username: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $User = $.makeType<$User>(_.spec, "9e261b33-079f-11ef-a62a-edda3afb3094", _.syntax.literal);
 
@@ -46,20 +50,21 @@ const $CurrentUser = $.makeType<$CurrentUser>(_.spec, "9e371d66-079f-11ef-893e-6
 
 const CurrentUser: $.$expr_PathNode<$.TypeSet<$CurrentUser, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($CurrentUser, $.Cardinality.Many), null);
 
-export type $ListλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
+export type $HiveλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "createdBy": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, false>;
   "title": $.LinkDesc<$Title, $.Cardinality.One, {}, false, false,  false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "rating": $.PropertyDesc<_std.$float32, $.Cardinality.AtMostOne, false, false, false, false>;
   "status": $.PropertyDesc<$TitleStatus, $.Cardinality.One, false, false, false, false>;
   "updatedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
+  "finishedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
 }>;
-type $List = $.ObjectType<"default::List", $ListλShape, null, [
+type $Hive = $.ObjectType<"default::Hive", $HiveλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $List = $.makeType<$List>(_.spec, "9e37b01c-079f-11ef-9336-b3cca8f08902", _.syntax.literal);
+const $Hive = $.makeType<$Hive>(_.spec, "9e37b01c-079f-11ef-9336-b3cca8f08902", _.syntax.literal);
 
-const List: $.$expr_PathNode<$.TypeSet<$List, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($List, $.Cardinality.Many), null);
+const Hive: $.$expr_PathNode<$.TypeSet<$Hive, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Hive, $.Cardinality.Many), null);
 
 export type $TitleλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "genres": $.PropertyDesc<$.ArrayType<_std.$int32>, $.Cardinality.One, false, false, false, false>;
@@ -73,7 +78,7 @@ export type $TitleλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "tmdbId": $.PropertyDesc<_std.$int32, $.Cardinality.One, false, false, false, false>;
   "type": $.PropertyDesc<$TitleType, $.Cardinality.AtMostOne, false, false, false, false>;
   "updated": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
-  "<title[is List]": $.LinkDesc<$List, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<title[is Hive]": $.LinkDesc<$Hive, $.Cardinality.Many, {}, false, false,  false, false>;
   "<title": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Title = $.ObjectType<"default::Title", $TitleλShape, null, [
@@ -94,14 +99,14 @@ const $default__globals: {  CurrentUser: _.syntax.$expr_Global<
 
 
 
-export { TitleStatus, TitleType, $User, User, $CurrentUser, CurrentUser, $List, List, $Title, Title };
+export { TitleStatus, TitleType, $User, User, $CurrentUser, CurrentUser, $Hive, Hive, $Title, Title };
 
 type __defaultExports = {
   "TitleStatus": typeof TitleStatus;
   "TitleType": typeof TitleType;
   "User": typeof User;
   "CurrentUser": typeof CurrentUser;
-  "List": typeof List;
+  "Hive": typeof Hive;
   "Title": typeof Title;
   "global": typeof $default__globals
 };
@@ -110,7 +115,7 @@ const __defaultExports: __defaultExports = {
   "TitleType": TitleType,
   "User": User,
   "CurrentUser": CurrentUser,
-  "List": List,
+  "Hive": Hive,
   "Title": Title,
   "global": $default__globals
 };

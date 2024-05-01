@@ -10,18 +10,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserSession } from "@/lib/auth";
 import Link from "next/link";
 
 interface AvatarDropDownProps {
-  username: string | null;
-  avatar?: string | null;
+  user: UserSession;
   signOutUrl: string;
 }
 export default function DashboardAvatar({
-  username,
-  avatar,
+  user,
   signOutUrl,
 }: AvatarDropDownProps) {
+  const { name, avatar } = user;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,8 +32,12 @@ export default function DashboardAvatar({
           className="overflow-hidden rounded-full"
         >
           <Avatar>
-            <AvatarFallback>{username?.slice(0, 1)}</AvatarFallback>
-            {avatar && <AvatarImage src={avatar} />}
+            {avatar && (
+              <AvatarImage src={avatar} referrerPolicy="no-referrer" />
+            )}
+            <AvatarFallback className="uppercase">
+              {name?.slice(0, 1)}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

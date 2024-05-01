@@ -1,6 +1,7 @@
 "use client";
 
 import { searchTitle } from "@/app/(dashboard)/dashboard/_actions/list";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,10 +48,11 @@ import {
 import { Step, Stepper, useStepper } from "@/components/ui/stepper";
 import { useServerAction } from "@/hooks/use-server-action";
 import { statusOptions } from "@/lib/options";
+import { cn } from "@/lib/utils";
 import { SearchResult } from "@/types/tmdb";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XIcon } from "lucide-react";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -98,6 +100,19 @@ export default function AddTitle() {
     setSearchResults(searchResult?.results ?? []);
   }
 
+  function handleClear() {
+    searchForm.reset();
+    setSearchResults([]);
+    setSelectedTitleId(0);
+  }
+
+  function handleSelect(id: number) {
+    if (selectedTitleId !== id) {
+      setSelectedTitleId(id);
+    } else {
+      setSelectedTitleId(0);
+    }
+  }
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -113,6 +128,9 @@ export default function AddTitle() {
           </DrawerHeader>
           <div className="flex w-full p-4 pb-0 flex-col gap-4">
             <Stepper
+              size="sm"
+              responsive={false}
+              className="sticky top-0 z-10 w-full p-3 rounded-md backdrop-blur supports-[backdrop-filter]:bg-muted/60"
               scrollTracking
               initialStep={0}
               steps={[
@@ -125,7 +143,7 @@ export default function AddTitle() {
               ]}
             >
               <Step label="Search Title">
-                <Form {...form}>
+                <Form {...searchForm}>
                   <form
                     onSubmit={searchForm.handleSubmit(handleSearch)}
                     className="space-y-8"
@@ -164,7 +182,7 @@ export default function AddTitle() {
                         type="button"
                         variant="outline"
                         className="col-span-2"
-                        onClick={() => searchForm.reset()}
+                        onClick={handleClear}
                         aria-label="Clear search query"
                       >
                         <span>Clear</span>
@@ -173,58 +191,72 @@ export default function AddTitle() {
                     </div>
                   </form>
                 </Form>
-                <div className="w-full flex gap-4 flex-col items-center align-middle">
-                  {searchForm.formState.isSubmitted ? (
+                <div className="w-full relative pb-4">
+                  {searchForm.formState.isSubmitSuccessful ? (
                     searchResults.length > 0 ? (
-                      <Carousel
-                        opts={{
-                          loop: true,
-                          align: "center",
-                          startIndex: 0,
-                        }}
-                      >
-                        <CarouselContent className="md:max-w-[40rem] lg:max-w-[85rem] p-4">
-                          {searchResults.map((result) => (
-                            <Fragment key={result.id}>
-                              {result.media_type === "movie" ? (
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                                  <Card className="max-w-md md:max-w-2xl w-full">
-                                    <CardHeader className="grid gap-1 p-4">
-                                      <CardTitle>{result.title}</CardTitle>
-                                      <CardDescription>
-                                        {result.overview}
-                                      </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="p-4">
-                                      <p className="text-3xl font-semibold">
-                                        {result.vote_average}
-                                      </p>
-                                    </CardContent>
-                                  </Card>
-                                </CarouselItem>
-                              ) : (
-                                <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-                                  <Card className="max-w-md md:max-w-2xl w-full">
-                                    <CardHeader className="grid gap-1 p-4">
-                                      <CardTitle>{result.name}</CardTitle>
-                                      <CardDescription>
-                                        {result.overview}
-                                      </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="p-4">
-                                      <p className="text-3xl font-semibold">
-                                        {result.vote_average}
-                                      </p>
-                                    </CardContent>
-                                  </Card>
-                                </CarouselItem>
-                              )}
-                            </Fragment>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </Carousel>
+                      <div className="mx-auto max-w-[78%] md:max-w-[88%] md:w-full min-w-0">
+                        <Carousel
+                          opts={{
+                            loop: true,
+                            align: "center",
+                            startIndex: 0,
+                          }}
+                        >
+                          <CarouselContent>
+                            {searchResults.map((result) => (
+                              <CarouselItem
+                                key={result.id}
+                                onClick={() => handleSelect(result.id)}
+                                className="md:basis-1/2 lg:basis-1/3 cursor-pointer"
+                              >
+                                <Card
+                                  className={cn(
+                                    "max-w-md md:max-w-2xl w-full",
+                                    selectedTitleId === result.id &&
+                                      "border-green-500 border-2"
+                                  )}
+                                >
+                                  {result.media_type === "movie" ? (
+                                    <>
+                                      <CardHeader className="grid gap-1 p-4">
+                                        <CardTitle className="flex items-center gap-2 align-middle">
+                                          {result.title} <Badge>Movie</Badge>
+                                        </CardTitle>
+                                        <CardDescription>
+                                          {result.overview}
+                                        </CardDescription>
+                                      </CardHeader>
+                                      <CardContent className="p-4">
+                                        <p className="text-3xl font-semibold">
+                                          {result.vote_average}
+                                        </p>
+                                      </CardContent>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CardHeader className="grid gap-1 p-4">
+                                        <CardTitle className="flex items-center gap-2 align-middle">
+                                          {result.name} <Badge>Series</Badge>
+                                        </CardTitle>
+                                        <CardDescription>
+                                          {result.overview}
+                                        </CardDescription>
+                                      </CardHeader>
+                                      <CardContent className="p-4">
+                                        <p className="text-3xl font-semibold">
+                                          {result.vote_average}
+                                        </p>
+                                      </CardContent>
+                                    </>
+                                  )}
+                                </Card>
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                          <CarouselPrevious />
+                          <CarouselNext />
+                        </Carousel>
+                      </div>
                     ) : (
                       <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50">
                         No results found using your search.

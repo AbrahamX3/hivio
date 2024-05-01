@@ -20,7 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <html
+        lang="en"
+        className={`${GeistSans.variable} ${GeistMono.variable}`}
+        suppressHydrationWarning
+      >
         <body>
           <ThemeProvider
             attribute="class"

@@ -36,11 +36,13 @@ const { GET, POST } = auth.createAuthRouteHandlers({
           `
           insert User {
             email := <str>$email,
+            name := <str>$name,
             avatar := <optional str>$avatar,
             identity := (global ext::auth::ClientTokenIdentity)
           }`,
           {
             email: userInfo.email,
+            name: userInfo.name,
             avatar: userInfo.picture,
           }
         );

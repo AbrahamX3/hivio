@@ -1,5 +1,4 @@
 using extension auth;
-using extension pgcrypto;
 
 module default {
     scalar type TitleType extending enum<MOVIE, SERIES>;
@@ -14,8 +13,16 @@ module default {
 
     type User {
         required identity: ext::auth::Identity;
-        required email: str;
-        username: str;
+        required email: str {
+            constraint exclusive;
+        };
+        required name: str;
+        required status: TitleStatus {
+            default := "WATCHING";
+        };
+        username: str {
+            constraint exclusive;
+        };
         avatar: str;
         createdAt: datetime {
             rewrite insert using (datetime_of_statement());
@@ -45,11 +52,12 @@ module default {
         required genres: array<int32>;
     }
 
-    type List {
+    type Hive {
         required createdBy: User;
         required title: Title;
         required status: TitleStatus;
         rating: float32;
+        finishedAt: datetime;
         required createdAt: datetime {
             default := datetime_current();
         }

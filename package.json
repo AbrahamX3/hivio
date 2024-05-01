@@ -1,5 +1,6 @@
 {
   "name": "hivio",
+  "license": "MIT",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -58,10 +59,12 @@
     "next-view-transitions": "^0.1.1",
     "octokit": "^3.2.0",
     "react": "^18",
+    "react-confetti": "^6.1.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",
     "react-hook-form": "^7.51.3",
     "react-resizable-panels": "^2.0.19",
+    "react-rewards": "^2.0.4",
     "sonner": "^1.4.41",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
