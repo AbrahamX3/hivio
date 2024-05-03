@@ -82,6 +82,7 @@ export async function addTitle({
     const { overview, genre_ids, id } = selectedTitleData;
 
     const imdbId = await getIMDBId(id, type);
+
     const titleId = e.insert(e.Title, {
       tmdbId: e.int32(id),
       title: e.str(title),
@@ -90,7 +91,7 @@ export async function addTitle({
       poster: e.str(selectedTitleData.poster_path),
       type: type,
       genres: genre_ids,
-      imdbId: imdbId,
+      imdbId: imdbId ?? null,
     });
 
     const status = hiveFormValues.status;

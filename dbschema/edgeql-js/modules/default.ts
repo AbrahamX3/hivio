@@ -53,16 +53,17 @@ const CurrentUser: $.$expr_PathNode<$.TypeSet<$CurrentUser, $.Cardinality.Many>,
 
 export type $HiveλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "createdBy": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, false>;
-  "title": $.LinkDesc<$Title, $.Cardinality.One, {}, false, false,  false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "rating": $.PropertyDesc<_std.$float32, $.Cardinality.AtMostOne, false, false, false, false>;
   "status": $.PropertyDesc<$TitleStatus, $.Cardinality.One, false, false, false, false>;
   "updatedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "finishedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "isFavorite": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
+  "title": $.LinkDesc<$Title, $.Cardinality.One, {}, true, false,  false, false>;
 }>;
 type $Hive = $.ObjectType<"default::Hive", $HiveλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
+  {title: {__element__: $Title, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $Hive = $.makeType<$Hive>(_.spec, "9e37b01c-079f-11ef-9336-b3cca8f08902", _.syntax.literal);
 
@@ -80,7 +81,7 @@ export type $TitleλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "type": $.PropertyDesc<$TitleType, $.Cardinality.AtMostOne, false, false, false, false>;
   "updated": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "imdbId": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
-  "<title[is Hive]": $.LinkDesc<$Hive, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<title[is Hive]": $.LinkDesc<$Hive, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<title": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Title = $.ObjectType<"default::Title", $TitleλShape, null, [

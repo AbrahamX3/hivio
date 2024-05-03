@@ -37,4 +37,5 @@ yarn-error.log*
 next-env.d.ts
 
 # edgedb
-/dbschema//edgeql-js/
+dbschema/edgeql-js
+dbschema/interfaces.ts
