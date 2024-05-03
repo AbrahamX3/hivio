@@ -12,7 +12,9 @@ module default {
     );
 
     type User {
-        required identity: ext::auth::Identity;
+        required identity: ext::auth::Identity {
+            constraint exclusive;
+        };
         required email: str {
             constraint exclusive;
         };
@@ -34,7 +36,7 @@ module default {
     }
 
     type Title {
-        required imdbId: str;
+        imdbId: str;
         required tmdbId: int32;
         required title: str;
         description: str;
@@ -54,8 +56,13 @@ module default {
 
     type Hive {
         required createdBy: User;
-        required title: Title;
+        required title: Title {
+            constraint exclusive;
+        };
         required status: TitleStatus;
+        required isFavorite: bool {
+            default := false;
+        }
         rating: float32;
         finishedAt: datetime;
         required createdAt: datetime {

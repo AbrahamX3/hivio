@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { verifyUser } from "@/lib/auth";
+import { getUser, verifyUser } from "@/lib/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,10 +45,13 @@ import {
   MoreVerticalIcon,
   TruckIcon,
 } from "lucide-react";
-import AddTitle from "./_components/list/add-title";
+import { Suspense } from "react";
+import AddTitle from "./_components/add-title/add-title";
 
 export default async function Dashboard() {
   await verifyUser();
+
+  const user = await getUser();
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
@@ -56,13 +59,16 @@ export default async function Dashboard() {
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
           <Card className="sm:col-span-2">
             <CardHeader className="pb-3">
-              <CardTitle>Your Watched List</CardTitle>
+              <CardTitle>Your Hive</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
-                Organize and manage your favorite movies and series.
+                Your go-to hub for tracking your movies and series. Store,
+                manage, and track your favorite titles.
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <AddTitle />
+              <Suspense fallback={<div>Loading...</div>}>
+                <AddTitle user={user} />
+              </Suspense>
             </CardFooter>
           </Card>
           <Card x-chunk="dashboard-05-chunk-1">

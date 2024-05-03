@@ -25,7 +25,7 @@ export type UserSession = {
   username: string | null;
   avatar: string | null;
   email: string;
-  status: "UPCOMING" | "PENDING" | "WATCHING" | "UNFINISHED" | "FINISHED";
+  status: "FINISHED" | "UPCOMING" | "PENDING" | "WATCHING" | "UNFINISHED";
   name: string;
 };
 

@@ -1,3 +1,4 @@
+import LogoFull from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { isUserSignedIn } from "@/lib/auth";
 import { Link } from "next-view-transitions";
@@ -13,7 +14,7 @@ export default async function LandingLayout({
     <div className="flex flex-col min-h-[100dvh]">
       <header className="px-4 lg:px-6 h-14 flex items-center fixed w-full backdrop-blur supports-[backdrop-filter]:bg-primary/60">
         <Link className="flex items-center justify-center" href="#">
-          <p className="text-2xl font-bold">Hivio</p>
+          <LogoFull />
         </Link>
         <nav className="ml-auto flex gap-4 items-center align-middle sm:gap-6">
           <Link

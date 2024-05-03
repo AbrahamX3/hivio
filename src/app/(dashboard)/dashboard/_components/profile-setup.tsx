@@ -85,7 +85,6 @@ export function ProfileSetup({ user }: { user: UserSession }) {
       error: (error) => {
         ProfileSetupForm.reset();
 
-        console.log(error);
         return error;
       },
     });

@@ -21,7 +21,6 @@ export type $TitleType = {
 const TitleType: $TitleType = $.makeType<$TitleType>(_.spec, "9e21c106-079f-11ef-92c6-89e6fdabf231", _.syntax.literal);
 
 export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
-  "identity": $.LinkDesc<_extauth.$Identity, $.Cardinality.One, {}, false, false,  false, false>;
   "avatar": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "updatedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
@@ -29,11 +28,13 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
   "username": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, true, false, false, false>;
   "name": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "status": $.PropertyDesc<$TitleStatus, $.Cardinality.One, false, false, false, true>;
+  "identity": $.LinkDesc<_extauth.$Identity, $.Cardinality.One, {}, true, false,  false, false>;
   "<createdBy[is Hive]": $.LinkDesc<$Hive, $.Cardinality.Many, {}, false, false,  false, false>;
   "<createdBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $User = $.ObjectType<"default::User", $UserλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
+  {identity: {__element__: _extauth.$Identity, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {email: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {username: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
@@ -58,6 +59,7 @@ export type $HiveλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
   "status": $.PropertyDesc<$TitleStatus, $.Cardinality.One, false, false, false, false>;
   "updatedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "finishedAt": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
+  "isFavorite": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, true>;
 }>;
 type $Hive = $.ObjectType<"default::Hive", $HiveλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
@@ -71,13 +73,13 @@ export type $TitleλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "date": $.PropertyDesc<_cal.$local_date, $.Cardinality.One, false, false, false, false>;
   "description": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
-  "imdbId": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "poster": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "posterBlur": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "title": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "tmdbId": $.PropertyDesc<_std.$int32, $.Cardinality.One, false, false, false, false>;
   "type": $.PropertyDesc<$TitleType, $.Cardinality.AtMostOne, false, false, false, false>;
   "updated": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
+  "imdbId": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "<title[is Hive]": $.LinkDesc<$Hive, $.Cardinality.Many, {}, false, false,  false, false>;
   "<title": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;

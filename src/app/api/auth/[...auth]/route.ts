@@ -13,8 +13,7 @@ export interface GoogleResponse {
 }
 
 const { GET, POST } = auth.createAuthRouteHandlers({
-  async onOAuthCallback({ isSignUp, tokenData, provider, error }) {
-    console.log("onOAuthCallback", isSignUp, tokenData, provider, error);
+  async onOAuthCallback({ isSignUp, tokenData, provider }) {
     if (isSignUp) {
       if (tokenData.provider_token && provider === "builtin::oauth_google") {
         const client = auth.getSession().client;
