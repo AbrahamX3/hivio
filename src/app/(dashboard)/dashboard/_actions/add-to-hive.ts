@@ -65,45 +65,8 @@ export async function addTitle({
       }))
       .run(client);
 
-    const titleId = e.select(e.Title, (title) => ({
-      filter_single: e.op(title.id, "=", isTitleInUserHive?.id),
-    }));
-
     if (isTitleInUserHive) {
       throw new Error("Title is already added to your hive!");
-    } else {
-      const status = hiveFormValues.status;
-
-      if (status === "FINISHED") {
-        const insert = await e
-          .insert(e.Hive, {
-            createdBy: e.global.CurrentUser,
-            title: e.set(titleId),
-            status: hiveFormValues.status,
-            finishedAt: e.datetime(hiveFormValues.date),
-            rating: e.float32(hiveFormValues.rating),
-            isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
-          })
-          .run(client)
-          .catch((error) => {
-            throw new Error(error);
-          });
-
-        return insert.id;
-      } else {
-        const insert = await e
-          .insert(e.Hive, {
-            createdBy: e.global.CurrentUser,
-            title: e.set(titleId),
-            status: hiveFormValues.status,
-          })
-          .run(client)
-          .catch((error) => {
-            throw new Error(error);
-          });
-
-        return insert.id;
-      }
     }
   } else {
     const title =
