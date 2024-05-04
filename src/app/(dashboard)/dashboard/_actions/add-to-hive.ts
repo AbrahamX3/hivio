@@ -57,7 +57,7 @@ export async function addTitle({
     const isTitleInHive = await e
       .select(e.Hive, (hive) => ({
         filter_single: e.op(
-          e.op(hive.title.imdbId, "=", tmdbId),
+          e.op(hive.title.imdbId, "=", e.int32(tmdbId)),
           "and",
           e.op(hive.createdBy.username, "=", e.global.CurrentUser.username)
         ),
