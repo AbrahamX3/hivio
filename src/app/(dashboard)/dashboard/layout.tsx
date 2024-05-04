@@ -1,3 +1,9 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { getUser } from "@/lib/auth";
+import { auth } from "@/lib/edgedb";
 import {
   Home,
   LineChart,
@@ -8,13 +14,7 @@ import {
   ShoppingCart,
   Users2,
 } from "lucide-react";
-import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { getUser } from "@/lib/auth";
-import { auth } from "@/lib/edgedb";
 import DashboardAvatar from "./_components/avatar";
 import DashboardBreadcrumb from "./_components/breadcrumb";
 import { ProfileSetup } from "./_components/profile-setup";
@@ -34,12 +34,12 @@ export default async function DashboardLayout({
       </aside>
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         {!user.username ? (
-          <main className="flex-1 flex flex-col items-center justify-center">
+          <main className="flex flex-1 flex-col items-center justify-center">
             <ProfileSetup user={user} />
           </main>
         ) : (
           <>
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background p-4 md:px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background p-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:px-4">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button size="icon" variant="outline" className="sm:hidden">

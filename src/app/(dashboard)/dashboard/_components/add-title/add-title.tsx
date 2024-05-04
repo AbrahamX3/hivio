@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   addTitle,
   searchTitle,
@@ -21,17 +22,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { Step, Stepper } from "@/components/ui/stepper";
 import { useServerAction } from "@/hooks/use-server-action";
 import { UserSession } from "@/lib/auth";
 import { SearchResult } from "@/types/tmdb";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XIcon } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+
 import ConfirmTitleCard from "./confirm-title-card";
 import { StepperFooter } from "./stepper-footer";
 import { StepperFormActions } from "./stepper-form-actions";
@@ -68,7 +68,7 @@ export default function AddTitle({ user }: { user: UserSession }) {
   const [searchTitleAction, isTitleSearchPending] =
     useServerAction(searchTitle);
 
-  const [addTitleAction, isAddTitlePending] = useServerAction(addTitle);
+  const [isAddTitlePending, setIsAddTitlePending] = useState(false);
 
   async function handleSearch(values: z.infer<typeof searchFormSchema>) {
     const searchResult = await searchTitleAction({
@@ -76,7 +76,7 @@ export default function AddTitle({ user }: { user: UserSession }) {
     });
 
     const filteredResults = searchResult?.results.filter(
-      (result) => result.overview
+      (result) => result.overview,
     );
 
     setSearchResults(filteredResults ?? []);
@@ -96,27 +96,43 @@ export default function AddTitle({ user }: { user: UserSession }) {
   }
 
   function handleSubmit() {
-    if (!hiveFormValues || !titleFormValues || !selectedTitleData) return;
+    let isSuccess = false;
 
-    toast.promise<string | undefined>(
-      addTitleAction({
-        hiveFormValues,
-        titleFormValues,
-        selectedTitleData,
-      }),
-      {
-        loading: "Adding Title to your Hive...",
-        success: (id: string | undefined) => {
-          if (!id) return;
-          // reward();
-          console.log(id);
-          return `Title added to your Hive correctly!`;
-        },
-        error: (error) => {
-          return error;
-        },
-      }
-    );
+    if (!hiveFormValues || !titleFormValues || !selectedTitleData)
+      return isSuccess;
+
+    setIsAddTitlePending(true);
+    toast.loading("Adding Title to your Hive", {
+      id: "add-title-toast",
+    });
+
+    addTitle({
+      hiveFormValues,
+      titleFormValues,
+      selectedTitleData,
+    })
+      .then((id) => {
+        if (!id) return;
+        // reward();
+
+        toast.success("Title added to your Hive", {
+          id: "add-title-toast",
+        });
+
+        isSuccess = true;
+      })
+      .catch((error) => {
+        toast.error(error.message, {
+          id: "add-title-toast",
+        });
+
+        isSuccess = false;
+      })
+      .finally(() => {
+        setIsAddTitlePending(false);
+      });
+
+    return isSuccess;
   }
 
   return (
@@ -132,7 +148,7 @@ export default function AddTitle({ user }: { user: UserSession }) {
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-[95%]">
-        <div className="mx-auto w-full overflow-y-auto h-full scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+        <div className="mx-auto h-full w-full overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
           <DrawerHeader>
             <DrawerTitle>Add Title to Your Hive</DrawerTitle>
             <DrawerDescription>
@@ -141,12 +157,12 @@ export default function AddTitle({ user }: { user: UserSession }) {
               watched, or that you want to watch.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="flex w-full p-4 pb-0 flex-col gap-4">
+          <div className="flex w-full flex-col gap-4 p-4 pb-0">
             <Stepper
               size="sm"
               variant="circle-alt"
               responsive={false}
-              className="sticky top-2 z-10 w-full p-2 rounded-md backdrop-blur supports-[backdrop-filter]:bg-muted/60"
+              className="sticky top-2 z-10 w-full rounded-md p-2 backdrop-blur supports-[backdrop-filter]:bg-muted/60"
               scrollTracking
               initialStep={0}
               steps={[
@@ -169,7 +185,7 @@ export default function AddTitle({ user }: { user: UserSession }) {
                     onSubmit={searchForm.handleSubmit(handleSearch)}
                     className="space-y-8"
                   >
-                    <div className="grid w-full grid-cols-4 md:grid-cols-12 gap-4 pb-4">
+                    <div className="grid w-full grid-cols-4 gap-4 pb-4 md:grid-cols-12">
                       <FormField
                         control={searchForm.control}
                         name="query"
@@ -207,7 +223,7 @@ export default function AddTitle({ user }: { user: UserSession }) {
                         aria-label="Clear search query"
                       >
                         <span>Clear</span>
-                        <XIcon className="size-4 ml-2" />
+                        <XIcon className="ml-2 size-4" />
                       </Button>
                     </div>
                   </form>

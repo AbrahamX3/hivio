@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { verifyUser } from "@/lib/auth";
 import { File, ListFilter, MoreHorizontal, PlusCircle } from "lucide-react";
-import Image from "next/image";
 
 export default async function Dashboard() {
   await verifyUser();

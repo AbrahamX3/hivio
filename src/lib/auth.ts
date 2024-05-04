@@ -1,6 +1,6 @@
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/edgedb";
 import e from "@edgedb/edgeql-js";
-import { redirect } from "next/navigation";
 
 export async function isUserSignedIn() {
   const session = auth.getSession();

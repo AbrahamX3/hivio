@@ -1,8 +1,7 @@
 "use client";
 
-import { Home, ListIcon, Package2, SettingsIcon } from "lucide-react";
 import Link from "next/link";
-
+import { usePathname } from "next/navigation";
 import {
   Tooltip,
   TooltipContent,
@@ -10,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { Home, ListIcon, Package2, SettingsIcon } from "lucide-react";
 
 export default function DashboardSiderbar() {
   return (
@@ -62,7 +61,7 @@ function SidebarLink({
               "flex h-9 w-9 items-center justify-center rounded-lg md:h-8 md:w-8",
               isActive
                 ? "bg-accent text-accent-foreground transition-colors hover:text-foreground"
-                : "transition-colors hover:text-foreground"
+                : "transition-colors hover:text-foreground",
             )}
           >
             {children}

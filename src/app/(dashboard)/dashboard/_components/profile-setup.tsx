@@ -1,4 +1,6 @@
 "use client";
+
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,11 +31,11 @@ import {
 import { UserSession } from "@/lib/auth";
 import { statusOptions } from "@/lib/options";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useReward } from "react-rewards";
 import { toast } from "sonner";
 import { z } from "zod";
+
 import { ProfileOnboarding } from "../_actions/setup";
 
 const ProfileSetupFormSchema = z.object({

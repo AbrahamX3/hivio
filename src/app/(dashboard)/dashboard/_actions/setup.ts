@@ -2,10 +2,11 @@
 
 import { auth } from "@/lib/edgedb";
 import e from "@edgedb/edgeql-js";
+
 import { ProfileSetupForm } from "../_components/profile-setup";
 
 export async function ProfileOnboarding(
-  values: ProfileSetupForm
+  values: ProfileSetupForm,
 ): Promise<string> {
   const { username, name, status } = values;
   const client = auth.getSession().client;

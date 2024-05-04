@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -25,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { useStepper } from "@/components/ui/stepper";
 import { Switch } from "@/components/ui/switch";
 import { statusOptions } from "@/lib/options";
@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { StepperFormActions } from "../stepper-form-actions";
 
 const hiveFormSchema = z
@@ -61,7 +62,7 @@ const hiveFormSchema = z
     if (data.status === "FINISHED") {
       const utcDate = fromZonedTime(
         data.date,
-        Intl.DateTimeFormat().resolvedOptions().timeZone
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
       );
 
       return {
@@ -108,7 +109,7 @@ export function HiveFormStep({
     <Form {...hiveForm}>
       <form
         onSubmit={hiveForm.handleSubmit(handleSubmit)}
-        className="space-y-8 mx-auto max-w-md w-full"
+        className="mx-auto w-full max-w-md space-y-8"
       >
         <FormField
           control={hiveForm.control}
@@ -160,7 +161,7 @@ export function HiveFormStep({
                           variant={"outline"}
                           className={cn(
                             "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value ? (
@@ -186,14 +187,14 @@ export function HiveFormStep({
                   </Popover>
                   <FormDescription>
                     <p>The date you finished watching this title.</p>
-                    <div className="flex pt-2 items-center gap-2 justify-between w-full">
+                    <div className="flex w-full items-center justify-between gap-2 pt-2">
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => field.onChange(new Date())}
                       >
-                        Today <CalendarCheck2Icon className="size-4 ml-2" />
+                        Today <CalendarCheck2Icon className="ml-2 size-4" />
                       </Button>
                       <Button
                         type="button"
@@ -201,11 +202,11 @@ export function HiveFormStep({
                         size="sm"
                         onClick={() =>
                           field.onChange(
-                            new Date(Date.now() - 1000 * 60 * 60 * 24)
+                            new Date(Date.now() - 1000 * 60 * 60 * 24),
                           )
                         }
                       >
-                        Yesterday <CalendarMinusIcon className="size-4 ml-2" />
+                        Yesterday <CalendarMinusIcon className="ml-2 size-4" />
                       </Button>
 
                       <Button
@@ -214,11 +215,11 @@ export function HiveFormStep({
                         size="sm"
                         onClick={() =>
                           field.onChange(
-                            new Date(Date.now() - 1000 * 60 * 60 * 24 * 2)
+                            new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
                           )
                         }
                       >
-                        2 days ago <CalendarMinusIcon className="size-4 ml-2" />
+                        2 days ago <CalendarMinusIcon className="ml-2 size-4" />
                       </Button>
                       <Button
                         type="button"
@@ -226,7 +227,7 @@ export function HiveFormStep({
                         size="sm"
                         onClick={() => field.onChange(undefined)}
                       >
-                        Clear <CalendarOffIcon className="size-4 ml-2" />
+                        Clear <CalendarOffIcon className="ml-2 size-4" />
                       </Button>
                     </div>
                   </FormDescription>

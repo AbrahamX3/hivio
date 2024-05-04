@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 // https://github.com/vercel/next.js/discussions/51371#discussioncomment-8671340
 export function useServerAction<P extends any[], R>(
   action: (...args: P) => Promise<R>,
-  onFinished?: (_: R | undefined) => void
+  onFinished?: (_: R | undefined) => void,
 ): [(...args: P) => Promise<R | undefined>, boolean] {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<R>();

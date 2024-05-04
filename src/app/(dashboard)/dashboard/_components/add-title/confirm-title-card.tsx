@@ -1,8 +1,9 @@
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SearchResult } from "@/types/tmdb";
 import { InfoIcon } from "lucide-react";
-import Image from "next/image";
+
 import { HiveFormValues } from "./steps/hive-form-step";
 
 interface ConfirmTitleCardProps {
@@ -17,13 +18,13 @@ export default function ConfirmTitleCard({
   if (!selectedTitle || !formValues)
     return (
       <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
-        <h2 className="font-bold text-2xl">No Title Selected</h2>
-        <div className="flex border rounded-md px-4 py-2 items-center justify-center gap-2 mt-4">
+        <h2 className="text-2xl font-bold">No Title Selected</h2>
+        <div className="mt-4 flex items-center justify-center gap-2 rounded-md border px-4 py-2">
           <InfoIcon className="size-4 opacity-50" />
           <p>
             Select a movie or series by clicking on a card from the search
             results in the{" "}
-            <span className="font-semibold font-mono">
+            <span className="font-mono font-semibold">
               &apos;Search Title&apos;
             </span>{" "}
             Step
@@ -35,7 +36,7 @@ export default function ConfirmTitleCard({
   if (selectedTitle.media_type === "movie") {
     return (
       <>
-        <div className="flex w-full max-h-56 h-full gap-4 rounded-md border border-dashed p-8 animate-in fade-in-50 overflow-hidden">
+        <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
           {selectedTitle.poster_path && (
             <Dialog>
               <DialogTrigger asChild>
@@ -56,14 +57,14 @@ export default function ConfirmTitleCard({
                     unoptimized
                     width={780}
                     height={1170}
-                    className="rounded-md h-full"
+                    className="h-full rounded-md"
                   />
                 </div>
               </DialogContent>
             </Dialog>
           )}
           <div className="flex flex-1 flex-col gap-4">
-            <div className="flex gap-2 items-center align-middle">
+            <div className="flex items-center gap-2 align-middle">
               <h2 className="font-bold leading-loose tracking-wide">
                 {selectedTitle.title}
               </h2>
@@ -80,8 +81,8 @@ export default function ConfirmTitleCard({
                 / 10
               </Badge>
             </div>
-            <div className="overflow-y-auto border rounded-md h-full max-h-28 min-h-28 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
-              <p className="text-sm leading-relaxed p-4 tracking-wide text-pretty overflow-auto h-full">
+            <div className="h-full max-h-28 min-h-28 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+              <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
                 {selectedTitle.overview}
               </p>
             </div>
@@ -94,7 +95,7 @@ export default function ConfirmTitleCard({
 
   return (
     <>
-      <div className="flex w-full max-h-56 h-full gap-4 rounded-md border border-dashed p-8 animate-in fade-in-50 overflow-hidden">
+      <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
         {selectedTitle.poster_path && (
           <Dialog>
             <DialogTrigger asChild>
@@ -115,14 +116,14 @@ export default function ConfirmTitleCard({
                   unoptimized
                   width={780}
                   height={1170}
-                  className="rounded-md h-full"
+                  className="h-full rounded-md"
                 />
               </div>
             </DialogContent>
           </Dialog>
         )}
         <div className="flex flex-1 flex-col gap-4">
-          <div className="flex gap-2 items-center align-middle">
+          <div className="flex items-center gap-2 align-middle">
             <h2 className="font-bold leading-loose tracking-wide">
               {selectedTitle.name}
             </h2>
@@ -139,7 +140,7 @@ export default function ConfirmTitleCard({
               / 10
             </Badge>
           </div>
-          <p className="text-sm border rounded-md leading-relaxed p-4 tracking-wide text-pretty overflow-auto h-full scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+          <p className="h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
             {selectedTitle.overview}
           </p>
         </div>
@@ -151,7 +152,7 @@ export default function ConfirmTitleCard({
 
 function FormValuesDisplay({ formValues }: { formValues: HiveFormValues }) {
   return (
-    <div className="flex w-full max-h-56 h-full gap-4 rounded-md border border-dashed p-8 animate-in fade-in-50 overflow-hidden">
+    <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
       Status: <Badge>{formValues.status}</Badge>
       {formValues.status === "FINISHED" && (
         <>

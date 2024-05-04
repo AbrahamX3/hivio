@@ -1,6 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
 
+import { Button } from "@/components/ui/button";
 import { useStepper } from "@/components/ui/stepper";
 import {
   CheckCircleIcon,
@@ -13,7 +13,7 @@ export function StepperFormActions({
   submitFn,
   isSubmitFnPending,
 }: {
-  submitFn?: () => void;
+  submitFn?: () => boolean;
   isSubmitFnPending?: boolean;
 }) {
   const {
@@ -27,7 +27,7 @@ export function StepperFormActions({
   } = useStepper();
 
   return (
-    <div className="w-full flex justify-end gap-2">
+    <div className="flex w-full justify-end gap-2">
       {hasCompletedAllSteps ? (
         <Button size="sm" onClick={resetSteps}>
           Reset
@@ -39,25 +39,28 @@ export function StepperFormActions({
             onClick={prevStep}
             size="sm"
             type="submit"
-            className="w-fit px-4 justify-between gap-2 flex items-center align-middle"
+            className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
             variant="secondary"
           >
-            <ChevronLeftIcon className="size-4 ml-2" />
+            <ChevronLeftIcon className="ml-2 size-4" />
             <span>Previous</span>
           </Button>
 
           {isLastStep ? (
             <Button
               onClick={() => {
-                nextStep();
                 if (submitFn) {
-                  submitFn();
+                  const isSuccess = submitFn();
+                  console.log(isSuccess);
+                  if (isSuccess) {
+                    nextStep();
+                  }
                 }
               }}
               disabled={isSubmitFnPending}
               size="sm"
               type="button"
-              className="w-fit px-4 justify-between gap-2 flex items-center align-middle"
+              className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
             >
               {!isSubmitFnPending ? (
                 <>
@@ -72,7 +75,7 @@ export function StepperFormActions({
             <Button
               size="sm"
               type="submit"
-              className="w-fit px-4 justify-between gap-2 flex items-center align-middle"
+              className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
             >
               <span>Skip</span>
               <SkipForwardIcon className="size-4" />
@@ -81,7 +84,7 @@ export function StepperFormActions({
             <Button
               size="sm"
               type="submit"
-              className="w-fit px-4 justify-between gap-2 flex items-center align-middle"
+              className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
             >
               <span>Next</span>
               <ChevronRightIcon className="size-4" />

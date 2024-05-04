@@ -1,24 +1,24 @@
+import { SVGProps } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { isUserSignedIn } from "@/lib/auth";
 import { Link } from "next-view-transitions";
-import { SVGProps } from "react";
 
 export default async function Component() {
   const isSignedIn = await isUserSignedIn();
 
   return (
-    <main className="flex-1 pt-14 bg-primary">
+    <main className="flex-1 bg-primary pt-14">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl text-secondary md:text-5xl lg:text-6xl/none">
+              <h1 className="text-3xl font-bold tracking-tighter text-secondary sm:text-4xl md:text-5xl lg:text-6xl/none">
                 Your watchlist, amplified with Hivio
               </h1>
-              <p className="mx-auto max-w-[700px] md:text-xl text-secondary">
+              <p className="mx-auto max-w-[700px] text-secondary md:text-xl">
                 Add and organize your favorite shows and movies, and discover
                 new content through like-minded users.
               </p>
@@ -37,15 +37,15 @@ export default async function Component() {
           </div>
         </div>
       </section>
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
+      <section className="w-full bg-secondary py-12 md:py-24 lg:py-32">
         <div className="container space-y-12 px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <Badge>Features</Badge>
-              <h2 className="text-3xl text-balance font-bold tracking-tighter sm:text-5xl">
+              <h2 className="text-balance text-3xl font-bold tracking-tighter sm:text-5xl">
                 Everything you need to build your app
               </h2>
-              <p className="text-balance text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+              <p className="text-balance text-gray-500 dark:text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Acme provides a comprehensive set of tools and services to help
                 you build, deploy, and scale your web applications.
               </p>
@@ -99,11 +99,11 @@ export default async function Component() {
           </div>
         </div>
       </section>
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-primary">
+      <section className="w-full bg-primary py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6">
           <div className="mx-auto w-full max-w-sm space-y-2">
             <div className="space-y-3">
-              <h2 className="text-3xl text-secondary font-bold tracking-tighter md:text-4xl/tight">
+              <h2 className="text-3xl font-bold tracking-tighter text-secondary md:text-4xl/tight">
                 Get started with Acme
               </h2>
               <p className="text-balance text-secondary md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">

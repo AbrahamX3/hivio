@@ -1,14 +1,14 @@
 export default function PrivacyPolicy() {
   return (
-    <main className="flex-1 pt-14 bg-secondary">
-      <section className="w-full py-12 flex flex-col justify-center align-middle mx-auto">
+    <main className="flex-1 bg-secondary pt-14">
+      <section className="mx-auto flex w-full flex-col justify-center py-12 align-middle">
         <div className="container px-4 md:px-6">
-          <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
+          <h1 className="mb-4 text-4xl font-bold">Privacy Policy</h1>
           <p className="mb-8">
             This Privacy Policy outlines how we collect, use, and disclose
             personal information.
           </p>
-          <ul className="list-disc ml-8">
+          <ul className="ml-8 list-disc">
             <li className="mb-4">
               Display Name: a username chosen by the user, which may be publicly
               displayed on the Site.
@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
             We use personal information to provide and improve our services,
             including but not limited to:
           </p>
-          <ul className="list-disc ml-8">
+          <ul className="ml-8 list-disc">
             <li className="mb-4">Creating and managing user accounts.</li>
             <li className="mb-4">
               Providing personalized content and recommendations.

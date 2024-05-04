@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,7 +10,6 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { SearchResult } from "@/types/tmdb";
-import Image from "next/image";
 
 interface SearchTitleCardProps {
   result: SearchResult;
@@ -23,8 +23,8 @@ export default function SearchTitleCard({
   return (
     <Card
       className={cn(
-        "max-w-md md:max-w-2xl w-full",
-        selectedTitleId === result.id && "border-primary border-2"
+        "w-full max-w-md md:max-w-2xl",
+        selectedTitleId === result.id && "border-2 border-primary",
       )}
     >
       {result.media_type === "movie" ? (
@@ -45,9 +45,9 @@ export default function SearchTitleCard({
               </Badge>
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 flex align-middle gap-4 items-center min-h-56 max-h-56">
-            <div className="overflow-y-auto border rounded-md h-full max-h-52 min-h-52 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
-              <p className="text-sm leading-relaxed p-4 tracking-wide text-pretty overflow-auto h-full">
+          <CardContent className="flex max-h-56 min-h-56 items-center gap-4 p-4 align-middle">
+            <div className="h-full max-h-52 min-h-52 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+              <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
                 {result.overview}
               </p>
             </div>
@@ -71,7 +71,7 @@ export default function SearchTitleCard({
                       unoptimized
                       width={780}
                       height={1170}
-                      className="rounded-md h-full"
+                      className="h-full rounded-md"
                     />
                   </div>
                 </DialogContent>
@@ -97,9 +97,9 @@ export default function SearchTitleCard({
               </Badge>
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 flex align-middle gap-4 items-center min-h-56 max-h-56">
-            <div className="overflow-y-auto border rounded-md h-full max-h-52 min-h-52 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
-              <p className="text-sm leading-relaxed p-4 tracking-wide text-pretty overflow-auto h-full">
+          <CardContent className="flex max-h-56 min-h-56 items-center gap-4 p-4 align-middle">
+            <div className="h-full max-h-52 min-h-52 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+              <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
                 {result.overview}
               </p>
             </div>
@@ -123,7 +123,7 @@ export default function SearchTitleCard({
                       unoptimized
                       width={780}
                       height={1170}
-                      className="rounded-md h-full"
+                      className="h-full rounded-md"
                     />
                   </div>
                 </DialogContent>

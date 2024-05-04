@@ -11,26 +11,26 @@ export default async function LandingLayout({
   const isSignedIn = await isUserSignedIn();
 
   return (
-    <div className="flex flex-col min-h-[100dvh]">
-      <header className="px-4 lg:px-6 h-14 flex items-center fixed w-full backdrop-blur supports-[backdrop-filter]:bg-primary/60">
+    <div className="flex min-h-[100dvh] flex-col">
+      <header className="fixed flex h-14 w-full items-center px-4 backdrop-blur supports-[backdrop-filter]:bg-primary/60 lg:px-6">
         <Link className="flex items-center justify-center" href="#">
           <LogoFull />
         </Link>
-        <nav className="ml-auto flex gap-4 items-center align-middle sm:gap-6">
+        <nav className="ml-auto flex items-center gap-4 align-middle sm:gap-6">
           <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
+            className="text-sm font-medium underline-offset-4 hover:underline"
             href="#"
           >
             Features
           </Link>
           <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
+            className="text-sm font-medium underline-offset-4 hover:underline"
             href="#"
           >
             About
           </Link>
           <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
+            className="text-sm font-medium underline-offset-4 hover:underline"
             href="#"
           >
             Contact
@@ -45,15 +45,15 @@ export default async function LandingLayout({
         </nav>
       </header>
       {children}
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+      <footer className="flex w-full shrink-0 flex-col items-center gap-2 border-t px-4 py-6 sm:flex-row md:px-6">
         <p className="text-xs text-gray-500 dark:text-gray-400">
           © 2024 Acme Inc. All rights reserved.
         </p>
-        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-xs hover:underline underline-offset-4" href="#">
+        <nav className="flex gap-4 sm:ml-auto sm:gap-6">
+          <Link className="text-xs underline-offset-4 hover:underline" href="#">
             Terms of Service
           </Link>
-          <Link className="text-xs hover:underline underline-offset-4" href="#">
+          <Link className="text-xs underline-offset-4 hover:underline" href="#">
             Privacy
           </Link>
         </nav>

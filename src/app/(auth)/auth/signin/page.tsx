@@ -8,15 +8,15 @@ export default async function SignInPage({
   const providerInfo = await auth.getProvidersInfo();
 
   return (
-    <main className="my-auto p-8 min-w-[32rem]">
-      <h1 className="text-3xl font-semibold mb-6">Sign in</h1>
+    <main className="my-auto min-w-[32rem] p-8">
+      <h1 className="mb-6 text-3xl font-semibold">Sign in</h1>
 
-      <div className="flex gap-[5rem] w-max">
-        <div className="flex flex-col gap-4 w-[18rem]">
+      <div className="flex w-max gap-[5rem]">
+        <div className="flex w-[18rem] flex-col gap-4">
           <h2 className="text-xl font-semibold">OAuth</h2>
 
           {searchParams.oauth_error ? (
-            <div className="bg-rose-100 text-rose-950 px-4 py-3 rounded-md">
+            <div className="rounded-md bg-rose-100 px-4 py-3 text-rose-950">
               {searchParams.oauth_error}
             </div>
           ) : null}
@@ -26,14 +26,14 @@ export default async function SignInPage({
               <a
                 key={provider.name}
                 href={auth.getOAuthUrl(provider.name)}
-                className="rounded-lg bg-primary text-black p-3 font-medium shadow-md shrink-0 hover:bg-white hover:scale-[1.03] transition-transform
-                flex items-center"
+                className="flex shrink-0 items-center rounded-lg bg-primary p-3 font-medium text-black shadow-md transition-transform
+                hover:scale-[1.03] hover:bg-white"
               >
                 <span className="ml-3">{provider.display_name}</span>
               </a>
             ))
           ) : (
-            <div className="text-slate-500 italic w-[14rem]">
+            <div className="w-[14rem] italic text-slate-500">
               No OAuth providers configured
             </div>
           )}

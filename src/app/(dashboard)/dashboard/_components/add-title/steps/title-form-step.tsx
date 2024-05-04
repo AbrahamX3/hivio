@@ -5,13 +5,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
 import { useStepper } from "@/components/ui/stepper";
 import { SearchResult } from "@/types/tmdb";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import SearchTitleCard from "../search-title-card";
 import { StepperFormActions } from "../stepper-form-actions";
 
@@ -50,7 +50,7 @@ export function TitleFormStep({
   function handleSubmit(values: TitleFormValues) {
     setFormValues(values);
     const selectedTitle = searchResults.find(
-      (result) => result.id === values.tmdbId
+      (result) => result.id === values.tmdbId,
     );
     setSelectedTitleData(selectedTitle);
     nextStep();
@@ -58,19 +58,19 @@ export function TitleFormStep({
   }
 
   return (
-    <div className="w-full relative pb-4">
+    <div className="relative w-full pb-4">
       {isSubmitSuccessful ? (
         searchResults.length > 0 ? (
           <form
             onSubmit={titleForm.handleSubmit(handleSubmit)}
-            className="mx-auto max-w-[78%] md:lg:max-w-[90%] lg:max-w-[93%] md:w-full min-w-0"
+            className="mx-auto min-w-0 max-w-[78%] md:w-full md:lg:max-w-[90%] lg:max-w-[93%]"
           >
             <Carousel
               opts={{
                 startIndex: 0,
               }}
             >
-              <CarouselContent className="p-4 gap-2">
+              <CarouselContent className="gap-2 p-4">
                 {searchResults.map((result) => (
                   <CarouselItem
                     key={result.id}
@@ -81,7 +81,7 @@ export function TitleFormStep({
                         titleForm.setValue("tmdbId", 0);
                       }
                     }}
-                    className="basis-full mx-auto lg:basis-1/2 xl:basis-1/3 transition-transform duration-75 cursor-pointer hover:scale-105"
+                    className="mx-auto basis-full cursor-pointer transition-transform duration-75 hover:scale-105 lg:basis-1/2 xl:basis-1/3"
                   >
                     <SearchTitleCard
                       result={result}
@@ -94,7 +94,7 @@ export function TitleFormStep({
               <CarouselNext type="button" />
             </Carousel>
             {titleForm.formState.errors.tmdbId && (
-              <p className="mx-auto flex gap-2 mb-2 items-center align-middle justify-center text-center border text-foreground rounded-md bg-destructive p-2">
+              <p className="mx-auto mb-2 flex items-center justify-center gap-2 rounded-md border bg-destructive p-2 text-center align-middle text-foreground">
                 <CircleAlertIcon className="size-4" />{" "}
                 {titleForm.formState.errors.tmdbId.message}
               </p>

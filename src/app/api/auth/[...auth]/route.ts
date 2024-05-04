@@ -1,5 +1,5 @@
-import { auth } from "@/lib/edgedb";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/edgedb";
 
 export interface GoogleResponse {
   sub: string;
@@ -19,7 +19,7 @@ const { GET, POST } = auth.createAuthRouteHandlers({
         const client = auth.getSession().client;
 
         const oauthURL = new URL(
-          "https://www.googleapis.com/oauth2/v3/userinfo"
+          "https://www.googleapis.com/oauth2/v3/userinfo",
         );
         oauthURL.searchParams.set("access_token", tokenData.provider_token);
 
@@ -43,7 +43,7 @@ const { GET, POST } = auth.createAuthRouteHandlers({
             email: userInfo.email,
             name: userInfo.name,
             avatar: userInfo.picture,
-          }
+          },
         );
       }
     }
