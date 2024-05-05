@@ -308,7 +308,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
               <div>
                 <h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
                 <Carousel
-                  className="mx-auto w-full max-w-[400px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
+                  className="xs:max-w-[300px] mx-auto w-full max-w-[380px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
                   opts={{
                     align: "start",
                   }}
@@ -318,19 +318,19 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                     {movieCredits?.cast.map((cast) => (
                       <CarouselItem
                         key={cast.id}
-                        className="basis-1/2 md:basis-1/3 lg:basis-11/12 xl:basis-1/2"
+                        className="basis-1/2 md:basis-1/4 lg:basis-11/12 xl:basis-1/2"
                       >
                         <div className="relative h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
                           <Image
                             unoptimized
                             alt={cast.name}
-                            className="aspect-[800/500] h-full w-full object-cover"
+                            className="aspect-[231/154] h-full w-full object-cover"
                             src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
-                            height={500}
-                            width={800}
+                            height={231}
+                            width={154}
                           />
                           <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
-                            <div className="space-y-2">
+                            <div className="flex flex-col justify-start gap-2">
                               <div className="flex flex-col items-start gap-[4px]">
                                 <h3 className="text-balance text-xl font-bold text-white">
                                   {cast.name}
@@ -345,7 +345,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                                     size: "sm",
                                     variant: "outline",
                                   }),
-                                  "group flex items-center justify-between gap-4 align-middle",
+                                  "group flex justify-between gap-4 align-middle",
                                 )}
                                 href={`https://www.themoviedb.org/person/${cast.id}`}
                                 target="_blank"
@@ -372,7 +372,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
             <div>
               <h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
               <Carousel
-                className="mx-auto w-full max-w-[800px]"
+                className="xs:max-w-[300px] mx-auto w-full max-w-[380px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
                 opts={{
                   align: "start",
                 }}
@@ -382,19 +382,19 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                   {seriesCredits?.cast.map((cast) => (
                     <CarouselItem
                       key={cast.id}
-                      className="basis-2/3 lg:basis-11/12 xl:basis-1/2"
+                      className="basis-1/2 md:basis-1/4 lg:basis-11/12 xl:basis-1/2"
                     >
                       <div className="relative h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
                         <Image
                           unoptimized
                           alt={cast.name}
-                          className="aspect-[800/500] h-full w-full object-cover"
+                          className="aspect-[231/154] h-full w-full object-cover"
                           src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
-                          height={500}
-                          width={800}
+                          height={231}
+                          width={154}
                         />
                         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
-                          <div className="space-y-2">
+                          <div className="flex flex-col justify-start gap-2">
                             <div className="flex flex-col items-start gap-[4px]">
                               <h3 className="text-balance text-xl font-bold text-white">
                                 {cast.name}
@@ -409,7 +409,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                                   size: "sm",
                                   variant: "outline",
                                 }),
-                                "group flex items-center justify-between gap-4 align-middle",
+                                "group flex justify-between gap-4 align-middle",
                               )}
                               href={`https://www.themoviedb.org/person/${cast.id}`}
                               target="_blank"

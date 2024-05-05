@@ -153,6 +153,7 @@ export function SeriesColumns() {
     },
     {
       id: "actions",
+      header: () => <div className="sr-only hidden">Actions</div>,
       cell: ({ row }) => {
         return <SeriesTableActions row={row} />;
       },

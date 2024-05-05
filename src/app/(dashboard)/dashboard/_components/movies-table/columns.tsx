@@ -153,6 +153,7 @@ export function MovieColumns() {
     },
     {
       id: "actions",
+      header: () => <div className="sr-only hidden">Actions</div>,
       cell: ({ row }) => {
         return <MovieTableActions row={row} />;
       },

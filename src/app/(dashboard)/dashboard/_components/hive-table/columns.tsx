@@ -3,7 +3,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
 
-import { HiveActions } from "./actions";
+import { HiveTableActions } from "./actions";
 import { HiveRowData } from "./table-view";
 
 export function PublicWatchlistColumns() {
@@ -153,8 +153,9 @@ export function PublicWatchlistColumns() {
     },
     {
       id: "actions",
+      header: () => <div className="sr-only hidden">Actions</div>,
       cell: ({ row }) => {
-        return <HiveActions row={row} />;
+        return <HiveTableActions row={row} />;
       },
     },
   ];

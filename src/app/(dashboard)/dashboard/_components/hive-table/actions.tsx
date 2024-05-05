@@ -19,7 +19,9 @@ import { HiveRowData } from "./table-view";
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
-export function HiveActions<TData>({ row }: DataTableRowActionsProps<TData>) {
+export function HiveTableActions<TData>({
+  row,
+}: DataTableRowActionsProps<TData>) {
   const data = row.original as HiveRowData;
 
   const { setSelectedTitle: setSelectedTitleId } = useTitleDetails();
