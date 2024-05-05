@@ -16,7 +16,7 @@ export default function DataTableLabelId({ id }: Props) {
       <span className="text-xs">{id}</span>
       <Button
         variant="ghost"
-        size="xs"
+        size="icon"
         onClick={async () => {
           await navigator.clipboard.writeText(id).then(() => {
             toast.success("Copied to Clipboard!");
