@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prebuild": "bunx @edgedb/generate edgeql-js",
+    "prebuild": "bunx @edgedb/generate edgeql-js && bunx @edgedb/generate interfaces",
     "format": "prettier --cache --check --write ./src",
     "edge:start": "edgedb instance start -I hivio",
     "edge:stop": "edgedb instance stop -I hivio",
