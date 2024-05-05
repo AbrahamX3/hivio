@@ -1,6 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useReward } from "react-rewards";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,13 +36,8 @@ import {
 } from "@/components/ui/select";
 import { UserSession } from "@/lib/auth";
 import { statusOptions } from "@/lib/options";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useReward } from "react-rewards";
-import { toast } from "sonner";
-import { z } from "zod";
 
-import { ProfileOnboarding } from "../_actions/setup";
+import { ProfileOnboarding } from "../dashboard/_actions/profile-setup";
 
 const ProfileSetupFormSchema = z.object({
   username: z
@@ -61,7 +62,7 @@ const ProfileSetupFormSchema = z.object({
 export type ProfileSetupForm = z.infer<typeof ProfileSetupFormSchema>;
 
 export function ProfileSetup({ user }: { user: UserSession }) {
-  const { reward } = useReward("confetti", "confetti");
+  const { reward } = useReward("completed-profile-confetti", "confetti");
 
   const ProfileSetupForm = useForm<ProfileSetupForm>({
     resolver: zodResolver(ProfileSetupFormSchema),
@@ -194,7 +195,7 @@ export function ProfileSetup({ user }: { user: UserSession }) {
             <Button type="submit" className="w-full">
               Complete Profile
             </Button>
-            <div id="confetti" className="w-full" />
+            <div id="completed-profile-confetti" className="w-full" />
           </form>
         </Form>
       </CardContent>

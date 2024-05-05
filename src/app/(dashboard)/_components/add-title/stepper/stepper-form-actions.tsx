@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useStepper } from "@/components/ui/stepper";
 import {
   CheckCircleIcon,
   ChevronLeftIcon,
@@ -9,11 +7,14 @@ import {
   SkipForwardIcon,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { useStepper } from "@/components/ui/stepper";
+
 export function StepperFormActions({
   submitFn,
   isSubmitFnPending,
 }: {
-  submitFn?: () => boolean;
+  submitFn?: () => Promise<boolean>;
   isSubmitFnPending?: boolean;
 }) {
   const {
@@ -48,10 +49,9 @@ export function StepperFormActions({
 
           {isLastStep ? (
             <Button
-              onClick={() => {
+              onClick={async () => {
                 if (submitFn) {
-                  const isSuccess = submitFn();
-                  console.log(isSuccess);
+                  const isSuccess = await submitFn();
                   if (isSuccess) {
                     nextStep();
                   }

@@ -1,6 +1,7 @@
-import { env } from "@/env";
 import createAuth from "@edgedb/auth-nextjs/app";
 import { createClient } from "edgedb";
+
+import { env } from "@/env";
 
 export const db = createClient({
   // Note: when developing locally you will need to set tls security to

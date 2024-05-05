@@ -1,12 +1,13 @@
 "use server";
 
+import e from "@edgedb/edgeql-js";
+
 import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
 import { MultiSearch, SearchResult } from "@/types/tmdb";
-import e from "@edgedb/edgeql-js";
 
-import { HiveFormValues } from "../_components/add-title/steps/hive-form-step";
-import { TitleFormValues } from "../_components/add-title/steps/title-form-step";
+import { HiveFormValues } from "../../_components/add-title/stepper/steps/hive-form-step";
+import { TitleFormValues } from "../../_components/add-title/stepper/steps/title-form-step";
 
 export async function searchTitle({ query }: { query: string }) {
   try {
@@ -40,7 +41,7 @@ interface AddTitleProps {
   selectedTitleData: SearchResult;
 }
 
-export async function addTitle({
+export async function addTitleToHive({
   hiveFormValues,
   selectedTitleData,
   titleFormValues,
@@ -67,6 +68,43 @@ export async function addTitle({
 
     if (isTitleInUserHive) {
       throw new Error("Title is already added to your hive!");
+    } else {
+      const titleToAdd = e.select(e.Title, (title) => ({
+        filter_single: e.op(title.tmdbId, "=", e.int32(tmdbId)),
+      }));
+
+      const status = hiveFormValues.status;
+
+      if (status === "FINISHED") {
+        const insert = await e
+          .insert(e.Hive, {
+            createdBy: e.global.CurrentUser,
+            title: e.set(titleToAdd),
+            status: hiveFormValues.status,
+            finishedAt: e.datetime(hiveFormValues.date),
+            rating: e.float32(hiveFormValues.rating),
+            isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
+          })
+          .run(client)
+          .catch((error) => {
+            throw new Error(error);
+          });
+
+        return insert.id;
+      } else {
+        const insert = await e
+          .insert(e.Hive, {
+            createdBy: e.global.CurrentUser,
+            title: e.set(titleToAdd),
+            status: hiveFormValues.status,
+          })
+          .run(client)
+          .catch((error) => {
+            throw new Error(error);
+          });
+
+        return insert.id;
+      }
     }
   } else {
     const title =
@@ -126,8 +164,6 @@ export async function addTitle({
       return insert.id;
     }
   }
-
-  console.log(hiveFormValues, titleFormValues, selectedTitleData);
 }
 
 async function getIMDBId(tmdbId: number, type: "MOVIE" | "SERIES") {
@@ -152,4 +188,20 @@ async function getIMDBId(tmdbId: number, type: "MOVIE" | "SERIES") {
   };
 
   return data.imdb_id;
+}
+
+export async function deleteTitleFromHive(id: string) {
+  const client = auth.getSession().client;
+
+  const deleteTitle = await e
+    .delete(e.Hive, (hive) => ({
+      filter_single: e.op(
+        e.op(hive.id, "=", e.uuid(id)),
+        "and",
+        e.op(hive.createdBy.id, "=", e.global.CurrentUser.id),
+      ),
+    }))
+    .run(client);
+
+  return deleteTitle;
 }

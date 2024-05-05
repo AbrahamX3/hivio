@@ -1,10 +1,11 @@
 import { SVGProps } from "react";
+import { Link } from "next-view-transitions";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { isUserSignedIn } from "@/lib/auth";
-import { Link } from "next-view-transitions";
 
 export default async function Component() {
   const isSignedIn = await isUserSignedIn();

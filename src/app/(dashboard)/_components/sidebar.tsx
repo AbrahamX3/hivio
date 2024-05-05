@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, ListIcon, Package2, SettingsIcon } from "lucide-react";
+
 import {
   Tooltip,
   TooltipContent,
@@ -9,7 +11,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Home, ListIcon, Package2, SettingsIcon } from "lucide-react";
 
 export default function DashboardSiderbar() {
   return (

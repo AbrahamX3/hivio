@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { File, ListFilter, MoreHorizontal, PlusCircle } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +30,6 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { verifyUser } from "@/lib/auth";
-import { File, ListFilter, MoreHorizontal, PlusCircle } from "lucide-react";
 
 export default async function Dashboard() {
   await verifyUser();
@@ -80,7 +81,7 @@ export default async function Dashboard() {
           </div>
         </div>
         <TabsContent value="all">
-          <Card x-chunk="dashboard-06-chunk-0">
+          <Card>
             <CardHeader>
               <CardTitle>Products</CardTitle>
               <CardDescription>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -41,7 +42,7 @@ export default function SearchTitleCard({
             <CardDescription>
               <Badge role="note">Movie</Badge>
               <Badge role="note" variant="secondary">
-                {result.vote_average.toFixed(2)} / 10
+                {result.vote_average.toFixed(1)} / 10
               </Badge>
             </CardDescription>
           </CardHeader>
@@ -93,7 +94,7 @@ export default function SearchTitleCard({
             <CardDescription>
               <Badge role="note">Series</Badge>
               <Badge role="note" variant="secondary">
-                {result.vote_average ? result.vote_average.toFixed(2) : 0} / 10
+                {result.vote_average ? result.vote_average.toFixed(1) : 0} / 10
               </Badge>
             </CardDescription>
           </CardHeader>

@@ -1,9 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { getUser } from "@/lib/auth";
-import { auth } from "@/lib/edgedb";
 import {
   Home,
   LineChart,
@@ -15,10 +10,17 @@ import {
   Users2,
 } from "lucide-react";
 
-import DashboardAvatar from "./_components/avatar";
-import DashboardBreadcrumb from "./_components/breadcrumb";
-import { ProfileSetup } from "./_components/profile-setup";
-import DashboardSiderbar from "./_components/sidebar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { TitleDetailsProvider } from "@/context/title-details-context";
+import { getUser } from "@/lib/auth";
+import { auth } from "@/lib/edgedb";
+
+import DashboardAvatar from "../_components/avatar";
+import DashboardBreadcrumb from "../_components/breadcrumb";
+import { ProfileSetup } from "../_components/profile-setup";
+import DashboardSiderbar from "../_components/sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -39,7 +41,7 @@ export default async function DashboardLayout({
           </main>
         ) : (
           <>
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background p-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:px-4">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background p-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button size="icon" variant="outline" className="sm:hidden">
@@ -105,7 +107,7 @@ export default async function DashboardLayout({
               </div>
               <DashboardAvatar user={user} signOutUrl={auth.getSignoutUrl()} />
             </header>
-            {children}
+            <TitleDetailsProvider>{children}</TitleDetailsProvider>
           </>
         )}
       </div>

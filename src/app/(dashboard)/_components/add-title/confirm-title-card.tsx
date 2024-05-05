@@ -1,10 +1,11 @@
 import Image from "next/image";
+import { InfoIcon } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SearchResult } from "@/types/tmdb";
-import { InfoIcon } from "lucide-react";
 
-import { HiveFormValues } from "./steps/hive-form-step";
+import { HiveFormValues } from "./stepper/steps/hive-form-step";
 
 interface ConfirmTitleCardProps {
   selectedTitle?: SearchResult;
@@ -76,7 +77,7 @@ export default function ConfirmTitleCard({
               <Badge role="note">Series</Badge>
               <Badge role="note" variant="secondary">
                 {selectedTitle.vote_average
-                  ? selectedTitle.vote_average.toFixed(2)
+                  ? selectedTitle.vote_average.toFixed(1)
                   : 0}{" "}
                 / 10
               </Badge>
@@ -135,7 +136,7 @@ export default function ConfirmTitleCard({
             <Badge role="note">Series</Badge>
             <Badge role="note" variant="secondary">
               {selectedTitle.vote_average
-                ? selectedTitle.vote_average.toFixed(2)
+                ? selectedTitle.vote_average.toFixed(1)
                 : 0}{" "}
               / 10
             </Badge>

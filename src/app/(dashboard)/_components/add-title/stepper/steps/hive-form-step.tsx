@@ -1,4 +1,14 @@
-"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
+import {
+  CalendarCheck2Icon,
+  CalendarIcon,
+  CalendarMinusIcon,
+  CalendarOffIcon,
+} from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,17 +40,6 @@ import { useStepper } from "@/components/ui/stepper";
 import { Switch } from "@/components/ui/switch";
 import { statusOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
-import {
-  CalendarCheck2Icon,
-  CalendarIcon,
-  CalendarMinusIcon,
-  CalendarOffIcon,
-} from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { StepperFormActions } from "../stepper-form-actions";
 
@@ -109,7 +108,7 @@ export function HiveFormStep({
     <Form {...hiveForm}>
       <form
         onSubmit={hiveForm.handleSubmit(handleSubmit)}
-        className="mx-auto w-full max-w-md space-y-8"
+        className="mx-auto w-full max-w-md space-y-8 pb-4"
       >
         <FormField
           control={hiveForm.control}

@@ -1,10 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusIcon, XIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useReward } from "react-rewards";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import {
-  addTitle,
-  searchTitle,
-} from "@/app/(dashboard)/dashboard/_actions/add-to-hive";
+  addTitleToHive,
+  searchTitle as getTitleSearch,
+} from "@/app/(dashboard)/dashboard/_actions/hive";
+import { LogoIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -26,27 +35,24 @@ import { Step, Stepper } from "@/components/ui/stepper";
 import { useServerAction } from "@/hooks/use-server-action";
 import { UserSession } from "@/lib/auth";
 import { SearchResult } from "@/types/tmdb";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { XIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 import ConfirmTitleCard from "./confirm-title-card";
-import { StepperFooter } from "./stepper-footer";
-import { StepperFormActions } from "./stepper-form-actions";
-import { HiveFormStep, HiveFormValues } from "./steps/hive-form-step";
-import { TitleFormStep, TitleFormValues } from "./steps/title-form-step";
+import { StepperFooter } from "./stepper/stepper-footer";
+import { StepperFormActions } from "./stepper/stepper-form-actions";
+import { HiveFormStep, HiveFormValues } from "./stepper/steps/hive-form-step";
+import {
+  TitleFormStep,
+  TitleFormValues,
+} from "./stepper/steps/title-form-step";
 
 const searchFormSchema = z.object({
   query: z.string().min(1, {
     message: "Search query is required",
   }),
 });
-
 export type SearchFormValues = z.infer<typeof searchFormSchema>;
 
-export default function AddTitle({ user }: { user: UserSession }) {
+export default function AddTitleToHive({ user }: { user: UserSession }) {
   const searchForm = useForm<z.infer<typeof searchFormSchema>>({
     resolver: zodResolver(searchFormSchema),
     defaultValues: {
@@ -65,13 +71,13 @@ export default function AddTitle({ user }: { user: UserSession }) {
   >(undefined);
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searchTitleAction, isTitleSearchPending] =
-    useServerAction(searchTitle);
+  const [getTitleSearchAction, isGetTitleSearchPending] =
+    useServerAction(getTitleSearch);
 
   const [isAddTitlePending, setIsAddTitlePending] = useState(false);
 
   async function handleSearch(values: z.infer<typeof searchFormSchema>) {
-    const searchResult = await searchTitleAction({
+    const searchResult = await getTitleSearchAction({
       query: values.query,
     });
 
@@ -87,6 +93,8 @@ export default function AddTitle({ user }: { user: UserSession }) {
     setSearchResults([]);
   }
 
+  const router = useRouter();
+
   function handleSearchFocus() {
     const timeout = setTimeout(() => {
       searchForm.setFocus("query");
@@ -95,7 +103,7 @@ export default function AddTitle({ user }: { user: UserSession }) {
     return () => clearTimeout(timeout);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     let isSuccess = false;
 
     if (!hiveFormValues || !titleFormValues || !selectedTitleData)
@@ -103,27 +111,36 @@ export default function AddTitle({ user }: { user: UserSession }) {
 
     setIsAddTitlePending(true);
     toast.loading("Adding Title to your Hive", {
-      id: "add-title-toast",
+      id: "add-title",
     });
 
-    addTitle({
+    await addTitleToHive({
       hiveFormValues,
       titleFormValues,
       selectedTitleData,
     })
       .then((id) => {
         if (!id) return;
-        // reward();
 
         toast.success("Title added to your Hive", {
-          id: "add-title-toast",
+          id: "add-title",
         });
 
+        if (hiveFormValues.status === "FINISHED") {
+          setTimeout(() => {
+            reward();
+          }, 1000);
+        }
+
+        setHiveFormValues(undefined);
+        setTitleFormValues(undefined);
+        setSelectedTitleData(undefined);
         isSuccess = true;
+        router.refresh();
       })
       .catch((error) => {
         toast.error(error.message, {
-          id: "add-title-toast",
+          id: "add-title",
         });
 
         isSuccess = false;
@@ -135,6 +152,8 @@ export default function AddTitle({ user }: { user: UserSession }) {
     return isSuccess;
   }
 
+  const { reward } = useReward("finished-title", "confetti");
+
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -142,9 +161,11 @@ export default function AddTitle({ user }: { user: UserSession }) {
           type="button"
           onClick={handleSearchFocus}
           size="lg"
-          className="font-bold"
+          className="group relative flex items-center justify-between gap-4 align-middle font-bold"
         >
-          Add Title to Hive
+          <span>Add to Hive</span>
+          <LogoIcon className="size-4" />
+          <PlusIcon className="absolute right-[25px] top-[22px] size-2 stroke-[4px] group-hover:animate-pulse" />
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-[95%]">
@@ -205,11 +226,11 @@ export default function AddTitle({ user }: { user: UserSession }) {
                         )}
                       />
                       <Button
-                        disabled={isTitleSearchPending}
+                        disabled={isGetTitleSearchPending}
                         type="submit"
                         className="col-span-2"
                       >
-                        {isTitleSearchPending ? (
+                        {isGetTitleSearchPending ? (
                           <span>Searching...</span>
                         ) : (
                           <span>Search</span>

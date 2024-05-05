@@ -1,3 +1,8 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleAlertIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import {
   Carousel,
   CarouselContent,
@@ -7,12 +12,8 @@ import {
 } from "@/components/ui/carousel";
 import { useStepper } from "@/components/ui/stepper";
 import { SearchResult } from "@/types/tmdb";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlertIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import SearchTitleCard from "../search-title-card";
+import SearchTitleCard from "../../search-title-card";
 import { StepperFormActions } from "../stepper-form-actions";
 
 const titleFormSchema = z.object({
@@ -70,7 +71,7 @@ export function TitleFormStep({
                 startIndex: 0,
               }}
             >
-              <CarouselContent className="gap-2 p-4">
+              <CarouselContent className="h-ful -ml-1 p-12">
                 {searchResults.map((result) => (
                   <CarouselItem
                     key={result.id}
@@ -81,7 +82,7 @@ export function TitleFormStep({
                         titleForm.setValue("tmdbId", 0);
                       }
                     }}
-                    className="mx-auto basis-full cursor-pointer transition-transform duration-75 hover:scale-105 lg:basis-1/2 xl:basis-1/3"
+                    className="mx-auto basis-full cursor-pointer px-4 pl-1 transition-transform duration-75 hover:scale-105 lg:basis-1/2 xl:basis-1/3"
                   >
                     <SearchTitleCard
                       result={result}
@@ -90,8 +91,8 @@ export function TitleFormStep({
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious type="button" />
-              <CarouselNext type="button" />
+              <CarouselPrevious className="-right-8" type="button" />
+              <CarouselNext className="-right-8" type="button" />
             </Carousel>
             {titleForm.formState.errors.tmdbId && (
               <p className="mx-auto mb-2 flex items-center justify-center gap-2 rounded-md border bg-destructive p-2 text-center align-middle text-foreground">

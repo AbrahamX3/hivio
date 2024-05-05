@@ -8,6 +8,19 @@ import {
   XCircle,
 } from "lucide-react";
 
+export const typeOptions = [
+  {
+    value: "MOVIE",
+    label: "Movie",
+    icon: Film,
+  },
+  {
+    value: "SERIES",
+    label: "Series",
+    icon: Clapperboard,
+  },
+];
+
 export const statusOptions = [
   {
     value: "UPCOMING",

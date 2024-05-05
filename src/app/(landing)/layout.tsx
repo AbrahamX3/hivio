@@ -1,7 +1,8 @@
+import { Link } from "next-view-transitions";
+
 import LogoFull from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { isUserSignedIn } from "@/lib/auth";
-import { Link } from "next-view-transitions";
 
 export default async function LandingLayout({
   children,

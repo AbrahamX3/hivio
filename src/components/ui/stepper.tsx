@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { cva } from "class-variance-authority";
+import { CheckIcon, Loader2, LucideIcon, X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { cva } from "class-variance-authority";
-import { CheckIcon, Loader2, LucideIcon, X } from "lucide-react";
 
 // <---------- CONTEXT ---------->
 
