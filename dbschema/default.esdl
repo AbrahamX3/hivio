@@ -38,7 +38,7 @@ module default {
     type Title {
         imdbId: str;
         required tmdbId: int32;
-        required title: str;
+        required name: str;
         description: str;
         required date: cal::local_date;
         poster: str;

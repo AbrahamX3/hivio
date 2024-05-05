@@ -93,14 +93,14 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
         <CardHeader className="flex flex-col items-start bg-muted/50">
           <div className="grid gap-0.5">
             <CardTitle className="group flex items-center gap-2 text-lg">
-              {data?.title.title}
-              {data?.title.title && (
+              {data?.title.name}
+              {data?.title.name && (
                 <Button
                   size="icon"
                   variant="outline"
                   onClick={async () => {
                     toast.promise(
-                      navigator.clipboard.writeText(data?.title.title),
+                      navigator.clipboard.writeText(data?.title.name),
                       {
                         loading: "Copying title name...",
                         success: "Title name copied to clipboard!",
@@ -220,7 +220,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                     <Image
                       unoptimized
                       src={`https://image.tmdb.org/t/p/w154${data?.title.poster}`}
-                      alt={data?.title.title}
+                      alt={data?.title.name}
                       width={154}
                       height={231}
                       className="h-40 w-auto cursor-pointer rounded-md transition-all hover:scale-105 lg:h-20 xl:h-40"
@@ -230,7 +230,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                     <div className="max-h-[85vh] w-full p-6">
                       <Image
                         src={`https://image.tmdb.org/t/p/w780${data?.title.poster}`}
-                        alt={data?.title.title}
+                        alt={data?.title.name}
                         unoptimized
                         width={780}
                         height={1170}
@@ -323,7 +323,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                         <div className="relative h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
                           <Image
                             unoptimized
-                            alt="Carousel Image 1"
+                            alt={cast.name}
                             className="aspect-[800/500] h-full w-full object-cover"
                             src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
                             height={500}
@@ -387,7 +387,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                       <div className="relative h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
                         <Image
                           unoptimized
-                          alt="Carousel Image 1"
+                          alt={cast.name}
                           className="aspect-[800/500] h-full w-full object-cover"
                           src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
                           height={500}

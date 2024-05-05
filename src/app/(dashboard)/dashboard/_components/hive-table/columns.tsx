@@ -10,7 +10,7 @@ export function PublicWatchlistColumns() {
   const columns: ColumnDef<HiveRowData>[] = [
     {
       id: "Title Name",
-      accessorFn: (row) => row.title.title,
+      accessorFn: (row) => row.title.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Title Name" />
       ),

@@ -107,7 +107,7 @@ export async function addTitleToHive({
       }
     }
   } else {
-    const title =
+    const name =
       selectedTitleData.media_type === "movie"
         ? selectedTitleData.title
         : selectedTitleData.name;
@@ -122,7 +122,7 @@ export async function addTitleToHive({
 
     const titleId = e.insert(e.Title, {
       tmdbId: e.int32(id),
-      title: e.str(title),
+      name: e.str(name),
       description: e.str(overview),
       date: e.cal.local_date(date),
       poster: e.str(selectedTitleData.poster_path),

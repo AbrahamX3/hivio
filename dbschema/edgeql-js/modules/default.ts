@@ -76,11 +76,11 @@ export type $TitleλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "description": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "poster": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "posterBlur": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
-  "title": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "tmdbId": $.PropertyDesc<_std.$int32, $.Cardinality.One, false, false, false, false>;
   "type": $.PropertyDesc<$TitleType, $.Cardinality.AtMostOne, false, false, false, false>;
   "updated": $.PropertyDesc<_std.$datetime, $.Cardinality.AtMostOne, false, false, false, false>;
   "imdbId": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
+  "name": $.PropertyDesc<_std.$str, $.Cardinality.One, false, false, false, false>;
   "<title[is Hive]": $.LinkDesc<$Hive, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
   "<title": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
