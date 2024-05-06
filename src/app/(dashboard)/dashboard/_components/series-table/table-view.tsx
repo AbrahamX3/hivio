@@ -7,9 +7,9 @@ import { genreOptions, statusOptions } from "@/lib/options";
 
 import { SeriesColumns } from "./columns";
 
-export type HiveColumn = Omit<Hive, "createdBy">;
+export type HiveRowData = Omit<Hive, "createdBy">;
 
-export default function SeriesTableView({ data }: { data: HiveColumn[] }) {
+export default function SeriesTableView({ data }: { data: HiveRowData[] }) {
   const filters = [
     {
       columnId: "Status",

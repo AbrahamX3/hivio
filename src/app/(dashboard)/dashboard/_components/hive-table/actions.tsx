@@ -1,8 +1,21 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { type Row } from "@tanstack/react-table";
-import { Info, MoreHorizontal } from "lucide-react";
+import { Info, MoreHorizontal, TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +26,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTitleDetails } from "@/context/title-details-context";
+import { useServerAction } from "@/hooks/use-server-action";
 
+import { deleteTitleFromHive } from "../../_actions/hive";
 import { HiveRowData } from "./table-view";
 
 interface DataTableRowActionsProps<TData> {
@@ -24,7 +39,10 @@ export function HiveTableActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const data = row.original as HiveRowData;
 
-  const { setSelectedTitle: setSelectedTitleId } = useTitleDetails();
+  const { setSelectedTitle } = useTitleDetails();
+
+  const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+
   return (
     <>
       <div className="relative">
@@ -42,23 +60,96 @@ export function HiveTableActions<TData>({
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="justify-between gap-2"
+              className="flex justify-between gap-4"
               onClick={() => {
                 if (!data.title.type) return;
 
-                setSelectedTitleId({
+                setSelectedTitle({
                   id: data.title.id,
                   tmdbId: data.title.tmdbId,
                   type: data.title.type,
                 });
               }}
             >
-              View Title Details
+              View Extra Details
               <Info className="mr-2 h-4 w-4" />
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex justify-between gap-4"
+              onClick={() => setOpenDeleteAlert(true)}
+            >
+              Delete Title
+              <TrashIcon className="mr-2 h-4 w-4" />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {openDeleteAlert && (
+          <DeleteTitle
+            id={data.id}
+            setOpenDeleteAlert={setOpenDeleteAlert}
+            openDeleteAlert={openDeleteAlert}
+            type={data.title.type}
+          />
+        )}
       </div>
     </>
+  );
+}
+
+function DeleteTitle({
+  id,
+  setOpenDeleteAlert,
+  openDeleteAlert,
+  type,
+}: {
+  id: string;
+  openDeleteAlert: boolean;
+  setOpenDeleteAlert: (open: boolean) => void;
+  type?: "MOVIE" | "SERIES" | null;
+}) {
+  const router = useRouter();
+
+  const { setSelectedTitle } = useTitleDetails();
+  const [deleteTitleFromHiveAction, isDeleteTitleFromHivePending] =
+    useServerAction(deleteTitleFromHive);
+
+  return (
+    <AlertDialog
+      open={openDeleteAlert}
+      onOpenChange={() => setOpenDeleteAlert(false)}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¡Warning!</AlertDialogTitle>
+          <AlertDialogDescription>
+            ¿Are you sure you want to delete this{" "}
+            {type ? type.toLowerCase() : "title"} from your hive?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={isDeleteTitleFromHivePending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={() => {
+              toast.promise(
+                deleteTitleFromHiveAction(id).then((data) => {
+                  if (!data) return;
+                  setSelectedTitle(null);
+                  router.refresh();
+                }),
+                {
+                  loading: `Deleting ${type ? type.toLowerCase() : "title"} from your hive...`,
+                  success: `${type ? (type === "MOVIE" ? "Movie" : "Series") : "Title"} deleted from your hive.`,
+                  error: `Failed to delete ${type ? type.toLowerCase() : "title"} from your hive.`,
+                },
+              );
+            }}
+          >
+            Confirm
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

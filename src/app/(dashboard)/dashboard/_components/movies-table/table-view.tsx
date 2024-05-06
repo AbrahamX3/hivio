@@ -7,9 +7,9 @@ import { genreOptions, statusOptions } from "@/lib/options";
 
 import { MovieColumns } from "./columns";
 
-export type HiveColumn = Omit<Hive, "createdBy">;
+export type HiveRowData = Omit<Hive, "createdBy">;
 
-export default function MoviesTableView({ data }: { data: HiveColumn[] }) {
+export default function MoviesTableView({ data }: { data: HiveRowData[] }) {
   const filters = [
     {
       columnId: "Status",

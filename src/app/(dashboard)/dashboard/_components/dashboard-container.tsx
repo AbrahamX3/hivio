@@ -83,9 +83,8 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
                       <TooltipTrigger asChild>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            size="sm"
                             variant="outline"
-                            className="flex h-7 items-center justify-between gap-2 align-middle text-sm"
+                            className="flex items-center justify-between gap-2 align-middle"
                           >
                             <span className="sr-only sm:not-sr-only">
                               Export Hive

@@ -3,11 +3,11 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
 
-import { MovieTableActions } from "./actions";
-import { HiveColumn } from "./table-view";
+import { HiveMoviesTableActions } from "./actions";
+import { HiveRowData } from "./table-view";
 
 export function MovieColumns() {
-  const columns: ColumnDef<HiveColumn>[] = [
+  const columns: ColumnDef<HiveRowData>[] = [
     {
       id: "Title Name",
       accessorFn: (row) => row.title.name,
@@ -155,7 +155,7 @@ export function MovieColumns() {
       id: "actions",
       header: () => <div className="sr-only hidden">Actions</div>,
       cell: ({ row }) => {
-        return <MovieTableActions row={row} />;
+        return <HiveMoviesTableActions row={row} />;
       },
     },
   ];

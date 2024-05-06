@@ -5,10 +5,17 @@ import { toast } from "sonner";
 
 import {
   getMovieCredits,
+  getMovieDetails,
   getSeriesCredits,
+  getSeriesDetails,
 } from "@/app/(dashboard)/dashboard/_actions/tmdb";
 import { useServerAction } from "@/hooks/use-server-action";
-import { MovieCredits, SeriesCredits } from "@/types/tmdb";
+import {
+  MovieCredits,
+  MovieDetails,
+  SeriesCredits,
+  SeriesDetails,
+} from "@/types/tmdb";
 
 type SelectedTitle = {
   id: string;
@@ -18,19 +25,27 @@ type SelectedTitle = {
 
 interface TitleDetailsContextType {
   selectedTitle: SelectedTitle | null;
+  setSelectedTitle: (value: SelectedTitle | null) => SelectedTitle | null;
   movieCredits: MovieCredits | null;
   seriesCredits: SeriesCredits | null;
-  isPendingMovieCredits: boolean;
-  isPendingSeriesCredits: boolean;
-  setSelectedTitle: (value: SelectedTitle | null) => SelectedTitle | null;
+  isGetMovieCreditsPending: boolean;
+  isGetSeriesCreditsPending: boolean;
+  movieDetails: MovieDetails | null;
+  seriesDetails: SeriesDetails | null;
+  isGetMovieDetailsPending: boolean;
+  isGetSeriesDetailsPending: boolean;
 }
 
 const TitleDetailsContext = createContext<TitleDetailsContextType>({
   selectedTitle: null,
   movieCredits: null,
   seriesCredits: null,
-  isPendingMovieCredits: false,
-  isPendingSeriesCredits: false,
+  movieDetails: null,
+  seriesDetails: null,
+  isGetMovieCreditsPending: false,
+  isGetSeriesCreditsPending: false,
+  isGetMovieDetailsPending: false,
+  isGetSeriesDetailsPending: false,
   setSelectedTitle: (value: SelectedTitle | null) => value,
 });
 
@@ -48,8 +63,19 @@ export function TitleDetailsProvider({
   const [getSeriesCreditsAction, isGetSeriesCreditsPending] =
     useServerAction(getSeriesCredits);
 
+  const [getSeriesDetailsAction, isGetSeriesDetailsPending] =
+    useServerAction(getSeriesDetails);
+
+  const [getMovieDetailsAction, isGetMovieDetailsPending] =
+    useServerAction(getMovieDetails);
+
   const [movieCredits, setMovieCredits] = useState<MovieCredits | null>(null);
   const [seriesCredits, setSeriesCredits] = useState<SeriesCredits | null>(
+    null,
+  );
+
+  const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
+  const [seriesDetails, setSeriesDetails] = useState<SeriesDetails | null>(
     null,
   );
 
@@ -58,6 +84,22 @@ export function TitleDetailsProvider({
 
     if (value?.type === "MOVIE") {
       setSeriesCredits(null);
+      setSeriesDetails(null);
+
+      getMovieDetailsAction({
+        tmdbId: value.tmdbId,
+      })
+        .then((data) => {
+          if (!data) return;
+
+          setMovieDetails(data);
+        })
+        .catch((error) => {
+          toast.error("Error getting movie details", {
+            description: error.message,
+          });
+        });
+
       getMovieCreditsAction({
         tmdbId: value.tmdbId,
       })
@@ -73,6 +115,22 @@ export function TitleDetailsProvider({
         });
     } else if (value?.type === "SERIES") {
       setMovieCredits(null);
+      setMovieDetails(null);
+
+      getSeriesDetailsAction({
+        tmdbId: value.tmdbId,
+      })
+        .then((data) => {
+          if (!data) return;
+
+          setSeriesDetails(data);
+        })
+        .catch((error) => {
+          toast.error("Error getting series details", {
+            description: error.message,
+          });
+        });
+
       getSeriesCreditsAction({
         tmdbId: value.tmdbId,
       })
@@ -98,8 +156,12 @@ export function TitleDetailsProvider({
       value={{
         movieCredits,
         seriesCredits,
-        isPendingMovieCredits: isGetMovieCreditsPending,
-        isPendingSeriesCredits: isGetSeriesCreditsPending,
+        movieDetails,
+        seriesDetails,
+        isGetMovieDetailsPending,
+        isGetSeriesDetailsPending,
+        isGetMovieCreditsPending,
+        isGetSeriesCreditsPending,
         selectedTitle: selectedTitle,
         setSelectedTitle: handleSelectedTitle,
       }}

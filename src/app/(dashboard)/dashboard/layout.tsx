@@ -5,13 +5,11 @@ import {
   Package,
   Package2,
   PanelLeft,
-  Search,
   ShoppingCart,
   Users2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { TitleDetailsProvider } from "@/context/title-details-context";
 import { getUser } from "@/lib/auth";
@@ -21,6 +19,7 @@ import DashboardAvatar from "../_components/avatar";
 import DashboardBreadcrumb from "../_components/breadcrumb";
 import { ProfileSetup } from "../_components/profile-setup";
 import DashboardSiderbar from "../_components/sidebar";
+import UsersSearchInput from "../_components/users-search-input";
 
 export default async function DashboardLayout({
   children,
@@ -97,14 +96,8 @@ export default async function DashboardLayout({
                 </SheetContent>
               </Sheet>
               <DashboardBreadcrumb />
-              <div className="relative ml-auto flex-1 md:grow-0">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search..."
-                  className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
-                />
-              </div>
+
+              <UsersSearchInput />
               <DashboardAvatar user={user} signOutUrl={auth.getSignoutUrl()} />
             </header>
             <TitleDetailsProvider>{children}</TitleDetailsProvider>

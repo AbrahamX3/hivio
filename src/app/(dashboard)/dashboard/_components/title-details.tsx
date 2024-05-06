@@ -57,14 +57,24 @@ import { cn } from "@/lib/utils";
 import DeleteHiveTitle from "./delete-title";
 import { HiveRowData } from "./hive-table/table-view";
 
+const USD = Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumSignificantDigits: 3,
+});
+
 export default function TitleDetails({ data }: { data?: HiveRowData }) {
   const {
     setSelectedTitle,
     movieCredits,
     seriesCredits,
     selectedTitle,
-    isPendingMovieCredits,
-    isPendingSeriesCredits,
+    movieDetails,
+    seriesDetails,
+    isGetMovieDetailsPending,
+    isGetSeriesDetailsPending,
+    isGetMovieCreditsPending,
+    isGetSeriesCreditsPending,
   } = useTitleDetails();
 
   function handleClose() {
@@ -75,20 +85,20 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
     .filter((genre) => data?.title.genres.includes(genre.value))
     .map((genre) => genre.label);
 
-  const focusRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (focusRef.current) {
-      focusRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
+    scrollRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   }, [selectedTitle]);
+
+  console.log(movieDetails);
 
   return (
     <>
-      <div id="scroll-view" ref={focusRef}></div>
+      <div id="scroll-view" ref={scrollRef}></div>
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-col items-start bg-muted/50">
           <div className="grid gap-0.5">
@@ -241,68 +251,10 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                 </Dialog>
               )}
             </div>
-            <Separator className="my-2" />
-            <ul className="grid gap-3">
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>$299.00</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Shipping</span>
-                <span>$5.00</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span>$25.00</span>
-              </li>
-              <li className="flex items-center justify-between font-semibold">
-                <span className="text-muted-foreground">Total</span>
-                <span>$329.00</span>
-              </li>
-            </ul>
-          </div>
-          <Separator className="my-4" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-3">
-              <div className="font-semibold">Shipping Information</div>
-              <address className="grid gap-0.5 not-italic text-muted-foreground">
-                <span>Liam Johnson</span>
-                <span>1234 Main St.</span>
-                <span>Anytown, CA 12345</span>
-              </address>
-            </div>
-            <div className="grid auto-rows-max gap-3">
-              <div className="font-semibold">Billing Information</div>
-              <div className="text-muted-foreground">
-                Same as shipping address
-              </div>
-            </div>
-          </div>
-          <Separator className="my-4" />
-          <div className="grid gap-3">
-            <div className="font-semibold">Customer Information</div>
-            <dl className="grid gap-3">
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Customer</dt>
-                <dd>Liam Johnson</dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Email</dt>
-                <dd>
-                  <a href="mailto:">liam@acme.com</a>
-                </dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Phone</dt>
-                <dd>
-                  <a href="tel:">+1 234 567 890</a>
-                </dd>
-              </div>
-            </dl>
           </div>
           <Separator className="my-4" />
           {selectedTitle?.type === "MOVIE" ? (
-            !movieCredits && isPendingMovieCredits ? (
+            !movieCredits && isGetMovieCreditsPending ? (
               <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
             ) : (
               <div>
@@ -366,7 +318,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
                 </Carousel>
               </div>
             )
-          ) : !seriesCredits && isPendingSeriesCredits ? (
+          ) : !seriesCredits && isGetSeriesCreditsPending ? (
             <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
           ) : (
             <div>
@@ -430,6 +382,121 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
               </Carousel>
             </div>
           )}
+          <Separator className="my-4" />
+          {selectedTitle?.type === "MOVIE" &&
+            (movieDetails && !isGetMovieDetailsPending ? (
+              <div className="grid gap-3">
+                <h2 className="pb-2 text-xl font-semibold">
+                  Production Companies
+                </h2>
+                <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
+                  {movieDetails?.production_companies.map(
+                    (company) =>
+                      company.logo_path && (
+                        <a
+                          key={company.id}
+                          className={cn(
+                            "group flex items-center justify-center p-1",
+                          )}
+                          href={`https://www.themoviedb.org/company/${company.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Image
+                            unoptimized
+                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                            alt={company.name}
+                            width={154}
+                            height={50}
+                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                          />
+                        </a>
+                      ),
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
+            ))}
+
+          {selectedTitle?.type === "SERIES" &&
+            (seriesDetails && !isGetSeriesDetailsPending ? (
+              <div className="grid gap-3">
+                <h2 className="pb-2 text-xl font-semibold">
+                  Production Companies
+                </h2>
+                <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
+                  {seriesDetails?.production_companies.map(
+                    (company) =>
+                      company.logo_path && (
+                        <a
+                          key={company.id}
+                          className={cn(
+                            "group flex items-center justify-center p-1",
+                          )}
+                          href={`https://www.themoviedb.org/company/${company.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Image
+                            unoptimized
+                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                            alt={company.name}
+                            width={154}
+                            height={50}
+                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                          />
+                        </a>
+                      ),
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
+            ))}
+
+          {selectedTitle?.type === "MOVIE" &&
+            (movieDetails && !isGetMovieDetailsPending ? (
+              <div>
+                <Separator className="my-4" />
+                <h2 className="pb-4 text-xl font-semibold">
+                  Financial Details
+                </h2>
+                <ul className="grid gap-3">
+                  <li className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Budget</span>
+                    <span>
+                      {movieDetails?.budget && USD.format(movieDetails?.budget)}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Revenue</span>
+                    <span>
+                      {movieDetails?.budget &&
+                        USD.format(movieDetails?.revenue)}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Profit</span>
+                    <span
+                      className={cn(
+                        movieDetails?.revenue - movieDetails?.budget >=
+                          movieDetails?.budget
+                          ? "text-green-500"
+                          : "text-red-500",
+                      )}
+                    >
+                      {movieDetails?.budget &&
+                        USD.format(
+                          movieDetails?.revenue - movieDetails?.budget,
+                        )}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
+            ))}
         </CardContent>
         <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
           {data?.title.updated && (
