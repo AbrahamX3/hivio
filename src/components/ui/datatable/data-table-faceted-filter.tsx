@@ -44,7 +44,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 border-dashed">
-          <PlusCircle className="mr-2 h-4 w-4" />
+          <PlusCircle className="mr-2 size-4" />
           {title}
           {selectedValues.length > 0 && (
             <>
@@ -109,21 +109,21 @@ export function DataTableFacetedFilter<TData, TValue>({
                   >
                     <div
                       className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
                         isSelected
                           ? "bg-primary text-primary-foreground"
                           : "opacity-50 [&_svg]:invisible",
                       )}
                     >
-                      <Check className={cn("h-4 w-4")} />
+                      <Check className={cn("size-4")} />
                     </div>
                     {option.icon && (
-                      <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <option.icon className="mr-2 size-4 text-muted-foreground" />
                     )}
                     <span className="w-24 truncate" title={option.label}>
                       {option.label}
                     </span>
-                    <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                    <span className="ml-auto flex size-4 items-center justify-center font-mono text-xs">
                       {column?.getFacetedUniqueValues()?.keys()
                         ? Array.from(column?.getFacetedUniqueValues()).reduce(
                             (

@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/edgedb";
@@ -48,9 +49,10 @@ const { GET, POST } = auth.createAuthRouteHandlers({
         );
       }
     }
-    redirect("/dashboard");
+    redirect("/hive");
   },
   onSignout() {
+    revalidatePath("/", "page");
     redirect("/");
   },
 });

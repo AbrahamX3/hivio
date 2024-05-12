@@ -1,62 +1,63 @@
-import { Link } from "next-view-transitions";
-
-import LogoFull from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { isUserSignedIn } from "@/lib/auth";
+import Header from "@/components/header";
+import LogoFull, {
+  EdgeDBIcon,
+  GithubIcon,
+  TMDBIcon,
+  VercelIcon,
+} from "@/components/icons";
 
 export default async function LandingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isSignedIn = await isUserSignedIn();
-
   return (
     <div className="flex min-h-[100dvh] flex-col">
-      <header className="fixed flex h-14 w-full items-center px-4 backdrop-blur supports-[backdrop-filter]:bg-primary/60 lg:px-6">
-        <Link className="flex items-center justify-center" href="#">
-          <LogoFull />
-        </Link>
-        <nav className="ml-auto flex items-center gap-4 align-middle sm:gap-6">
-          <Link
-            className="text-sm font-medium underline-offset-4 hover:underline"
-            href="#"
-          >
-            Features
-          </Link>
-          <Link
-            className="text-sm font-medium underline-offset-4 hover:underline"
-            href="#"
-          >
-            About
-          </Link>
-          <Link
-            className="text-sm font-medium underline-offset-4 hover:underline"
-            href="#"
-          >
-            Contact
-          </Link>
-          <Button variant="secondary" asChild>
-            {isSignedIn ? (
-              <Link href="/dashboard">Dashboard</Link>
-            ) : (
-              <Link href="/auth/signin">Sign In</Link>
-            )}
-          </Button>
-        </nav>
-      </header>
+      <Header />
       {children}
-      <footer className="flex w-full shrink-0 flex-col items-center gap-2 border-t px-4 py-6 sm:flex-row md:px-6">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          © 2024 Acme Inc. All rights reserved.
-        </p>
-        <nav className="flex gap-4 sm:ml-auto sm:gap-6">
-          <Link className="text-xs underline-offset-4 hover:underline" href="#">
-            Terms of Service
-          </Link>
-          <Link className="text-xs underline-offset-4 hover:underline" href="#">
-            Privacy
-          </Link>
+      <footer className="container flex w-full items-center justify-between py-6">
+        <div className="flex items-center gap-4 align-middle">
+          <LogoFull className="h-6 w-auto" />
+          <div className="flex items-center gap-2 align-middle">
+            <span className="font-medium">Source code available on</span>
+            <a
+              rel="noopener"
+              className="transition-all duration-150 hover:scale-105 hover:opacity-90"
+              target="_blank"
+              href="https://github.com/AbrahamX3/hivio"
+            >
+              <GithubIcon />
+            </a>
+          </div>
+        </div>
+        <nav className="flex flex-row items-center gap-4 align-middle">
+          <span className="font-medium">Deployed on</span>
+          <a
+            className="transition-all duration-150 hover:scale-105 hover:opacity-90"
+            rel="noopener"
+            target="_blank"
+            href="https://vercel.com/"
+          >
+            <VercelIcon className="h-4 w-auto" />
+          </a>
+          <span className="font-medium">Powered by</span>
+          <a
+            className="transition-all duration-150 hover:scale-105 hover:opacity-90"
+            rel="noopener"
+            target="_blank"
+            href="https://www.edgedb.com/"
+          >
+            <EdgeDBIcon className="h-6 w-auto" />
+          </a>
+          <span className="font-medium">&</span>
+          <a
+            className="transition-all duration-150 hover:scale-105 hover:opacity-90"
+            rel="noopener"
+            target="_blank"
+            href="https://www.themoviedb.org/"
+          >
+            <TMDBIcon className="h-6 w-auto" />
+          </a>
         </nav>
       </footer>
     </div>

@@ -92,7 +92,7 @@ export function DataTableToolbar<TData>({
             title="Reset Filters"
           >
             <span className="hidden sm:inline-block">Reset</span>
-            <X className="h-4 w-4 sm:ml-2" />
+            <X className="size-4 sm:ml-2" />
           </Button>
         )}
       </div>

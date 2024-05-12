@@ -3,5 +3,5 @@ export default function TableContainer({
 }: {
   children: React.ReactNode;
 }) {
-  return <div>{children}</div>;
+  return <div className="w-full">{children}</div>;
 }

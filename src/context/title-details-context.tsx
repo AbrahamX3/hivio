@@ -8,7 +8,7 @@ import {
   getMovieDetails,
   getSeriesCredits,
   getSeriesDetails,
-} from "@/app/(dashboard)/dashboard/_actions/tmdb";
+} from "@/app/(hive)/hive/_actions/tmdb";
 import { useServerAction } from "@/hooks/use-server-action";
 import {
   MovieCredits,

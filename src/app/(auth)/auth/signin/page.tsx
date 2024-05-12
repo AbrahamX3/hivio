@@ -1,3 +1,8 @@
+import { redirect } from "next/navigation";
+import { Link } from "next-view-transitions";
+
+import LogoFull, { GoogleIcon } from "@/components/icons";
+import { isUserSignedIn } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
 
 export default async function SignInPage({
@@ -6,15 +11,31 @@ export default async function SignInPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const providerInfo = await auth.getProvidersInfo();
+  const isSignedIn = await isUserSignedIn();
+
+  if (isSignedIn) {
+    return redirect("/hive");
+  }
 
   return (
-    <main className="my-auto min-w-[32rem] p-8">
-      <h1 className="mb-6 text-3xl font-semibold">Sign in</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center">
+      <div className="mx-auto max-w-sm space-y-4 rounded-md bg-card p-4 text-card-foreground shadow-sm">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-md border-2 border-primary">
+          <Link href="/">
+            <LogoFull className="size-28 text-primary" />
+          </Link>
+          <p className="text-balance text-center">
+            Start amplyfying your boring watchlist
+          </p>
+        </div>
 
-      <div className="flex w-max gap-[5rem]">
-        <div className="flex w-[18rem] flex-col gap-4">
-          <h2 className="text-xl font-semibold">OAuth</h2>
-
+        <div className="rounded-md border-2 border-dashed border-primary p-6">
+          <div className="space-y-2 pb-6">
+            <p className="text-xl font-bold">Sign In</p>
+            <p className="text-sm text-foreground">
+              Sign in with one of the following providers
+            </p>
+          </div>
           {searchParams.oauth_error ? (
             <div className="rounded-md bg-rose-100 px-4 py-3 text-rose-950">
               {searchParams.oauth_error}
@@ -22,16 +43,22 @@ export default async function SignInPage({
           ) : null}
 
           {providerInfo.oauth.length ? (
-            providerInfo.oauth.map((provider) => (
-              <a
-                key={provider.name}
-                href={auth.getOAuthUrl(provider.name)}
-                className="flex shrink-0 items-center rounded-lg bg-primary p-3 font-medium text-black shadow-md transition-transform
-                hover:scale-[1.03] hover:bg-white"
-              >
-                <span className="ml-3">{provider.display_name}</span>
-              </a>
-            ))
+            providerInfo.oauth.map(
+              (provider) =>
+                provider.name === "builtin::oauth_google" && (
+                  <a
+                    key={provider.name}
+                    href={auth.getOAuthUrl(provider.name)}
+                    className="flex shrink-0 items-center justify-between rounded-lg bg-white p-3 font-medium text-black shadow-md
+                transition-transform hover:scale-[1.03]"
+                  >
+                    <span className="font-semibold">
+                      {provider.display_name}
+                    </span>
+                    <GoogleIcon />
+                  </a>
+                ),
+            )
           ) : (
             <div className="w-[14rem] italic text-slate-500">
               No OAuth providers configured
