@@ -1,15 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchIcon } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { Link } from "next-view-transitions";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce";
+
+import { searchUsers, UserSearch } from "../actions";
 
 export default function UsersSearchInput() {
   const [query, setQuery] = useState("");
+  const debouncedSearch = useDebounce(query, 500);
+  const [results, setResults] = useState<UserSearch[]>([]);
+  const { execute, reset, status } = useAction(searchUsers, {
+    onSuccess: (users) => {
+      setResults(users);
+    },
+  });
 
-  const [results, setResults] = useState<string[]>([]);
+  useEffect(() => {
+    if (debouncedSearch.length > 0) {
+      execute({ search: debouncedSearch });
+    } else {
+      reset();
+    }
+  }, [debouncedSearch, execute, reset]);
+
   return (
     <div className="relative ml-auto flex-1 md:grow-0">
       <div className="relative">
@@ -25,107 +44,35 @@ export default function UsersSearchInput() {
       {query.length > 0 && (
         <div className="absolute mt-2 w-full rounded-md border bg-background shadow-sm md:w-[200px] lg:w-[320px]">
           <div className="max-h-[300px] overflow-y-auto">
-            <div className="max-h-[300px] space-y-2 overflow-y-auto p-4 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">John Doe</div>
-                  <div className="text-sm text-gray-500">@johndoe</div>
+            <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+              {status === "executing" || status === "idle" ? (
+                <div className="flex animate-pulse items-center space-x-3 rounded-md p-2">
+                  Searching users...
                 </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>JA</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Jane Appleseed</div>
-                  <div className="text-sm text-gray-500">@janeappleseed</div>
+              ) : status === "hasSucceeded" && results.length === 0 ? (
+                <div className="flex items-center space-x-3 rounded-md p-2">
+                  No users found with that username
                 </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>SM</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Sarah Mayer</div>
-                  <div className="text-sm text-gray-500">@sarahmayer</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>MJ</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Michael Johnson</div>
-                  <div className="text-sm text-gray-500">@michaeljohnson</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>EW</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Emily Wilson</div>
-                  <div className="text-sm text-gray-500">@emilywilson</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>JB</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">John Bauer</div>
-                  <div className="text-sm text-gray-500">@johnbauer</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>SA</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Sarah Anderson</div>
-                  <div className="text-sm text-gray-500">@sarahanderson</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>MR</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Michael Ramirez</div>
-                  <div className="text-sm text-gray-500">@michaelramirez</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>LG</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">Lisa Garcia</div>
-                  <div className="text-sm text-gray-500">@lisagarcia</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>DW</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">David Wang</div>
-                  <div className="text-sm text-gray-500">@davidwang</div>
-                </div>
-              </div>
+              ) : (
+                results.map(({ avatar, name, username }) => (
+                  <Link
+                    href={`/profile/${username}`}
+                    key={username}
+                    className="flex items-center space-x-3 rounded-md p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <Avatar className="h-10 w-10">
+                      {avatar && (
+                        <AvatarImage alt={`@${username}`} src={avatar} />
+                      )}
+                      <AvatarFallback>{username?.slice(0, 1)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="truncate font-medium">{name}</div>
+                      <div className="text-sm">@{username}</div>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>
