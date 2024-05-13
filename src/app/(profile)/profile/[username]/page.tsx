@@ -32,6 +32,7 @@ import {
 
 import { hiveMetadataInfo, hiveProfile } from "../../actions";
 import { EmptyCard } from "./_components/empty-card";
+import Follow from "./_components/follow/follow";
 import StatsCards from "./_components/stats-cards";
 import TableTabs from "./_components/table-tabs";
 
@@ -74,13 +75,16 @@ export default async function PublicUserProfile({ params }: Props) {
 
   return (
     <>
-      <ProfileHeader
-        avatar={user?.avatar}
-        name={user?.name}
-        username={user?.username}
-        joinedDate={user?.createdAt}
-      />
-      <StatsCards data={hive} />
+      <div className="flex w-full items-center justify-between align-middle">
+        <ProfileHeader
+          avatar={user?.avatar}
+          name={user?.name}
+          username={user?.username}
+          joinedDate={user?.createdAt}
+        />
+        {user.username && <Follow username={user?.username} />}
+      </div>
+      <StatsCards data={hive} data-superjson />
       <h3 className="text-2xl font-semibold">Currently Watching</h3>
       <Suspense fallback={<div>Loading...</div>}>
         {currentlyWatching?.length > 0 ? (
@@ -222,9 +226,7 @@ export default async function PublicUserProfile({ params }: Props) {
             <TabsTrigger value="series">Series</TabsTrigger>
           </TabsList>
         </div>
-        <Suspense fallback={<div>Loading...</div>}>
-          <TableTabs data={hive} />
-        </Suspense>
+        <TableTabs data={hive} data-superjson />
       </Tabs>
     </>
   );

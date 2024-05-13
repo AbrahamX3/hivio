@@ -28,6 +28,7 @@ export default function HiveTableView({ data }: { data: HiveRowData[] }) {
       columns={PublicWatchlistColumns()}
       data={data}
       filters={filters}
+      data-superjson
     />
   );
 }

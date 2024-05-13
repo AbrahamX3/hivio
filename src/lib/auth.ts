@@ -69,14 +69,16 @@ export async function getUserSession() {
     return null;
   }
 
-  return {
-    id: user.id,
-    username: user.username,
-    avatar: user.avatar,
-    email: user.email,
-    status: user.status,
-    name: user.name,
-  };
+  return JSON.parse(
+    JSON.stringify({
+      id: user.id,
+      username: user.username,
+      avatar: user.avatar,
+      email: user.email,
+      status: user.status,
+      name: user.name,
+    }),
+  );
 }
 
 export async function signOutUser() {

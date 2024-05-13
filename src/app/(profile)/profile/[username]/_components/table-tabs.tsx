@@ -31,7 +31,7 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <HiveTableView data={data} />
+              <HiveTableView data={data} data-superjson />
             </TableContainer>
           </CardContent>
         </Card>
@@ -46,7 +46,7 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <MoviesTableView data={filteredMovies} />
+              <MoviesTableView data={filteredMovies} data-superjson />
             </TableContainer>
           </CardContent>
         </Card>
@@ -61,7 +61,7 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <SeriesTableView data={filteredSeries} />
+              <SeriesTableView data={filteredSeries} data-superjson />
             </TableContainer>
           </CardContent>
         </Card>

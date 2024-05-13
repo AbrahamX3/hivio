@@ -37,15 +37,13 @@ module default {
     }
 
     type Follower {
-        required follower: User {
-            constraint exclusive;
-        };
-        required followed: User {
-            constraint exclusive;
-        };
+        required follower: User;
+        required followed: User;
         required createdAt: datetime {
             default := datetime_current();
         }
+
+         constraint exclusive on ( (.follower, .followed) );
     }
 
     type Title {

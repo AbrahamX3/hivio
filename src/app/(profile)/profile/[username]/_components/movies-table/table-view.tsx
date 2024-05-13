@@ -23,5 +23,12 @@ export default function MoviesTableView({ data }: { data: HiveRowData[] }) {
     },
   ];
 
-  return <DataTable columns={MovieColumns()} data={data} filters={filters} />;
+  return (
+    <DataTable
+      columns={MovieColumns()}
+      data={data}
+      filters={filters}
+      data-superjson
+    />
+  );
 }

@@ -23,5 +23,12 @@ export default function SeriesTableView({ data }: { data: HiveRowData[] }) {
     },
   ];
 
-  return <DataTable columns={SeriesColumns()} data={data} filters={filters} />;
+  return (
+    <DataTable
+      columns={SeriesColumns()}
+      data={data}
+      filters={filters}
+      data-superjson
+    />
+  );
 }

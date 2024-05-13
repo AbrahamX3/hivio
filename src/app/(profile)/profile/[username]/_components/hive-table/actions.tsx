@@ -71,6 +71,7 @@ export function HiveTableActions<TData>({
             data={data}
             open={openDetails}
             setOpen={setOpenDetails}
+            data-superjson
           />
         )}
       </div>

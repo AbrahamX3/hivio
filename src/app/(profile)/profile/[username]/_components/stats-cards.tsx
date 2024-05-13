@@ -1,4 +1,11 @@
-import { CheckCircleIcon, PlayCircleIcon } from "lucide-react";
+"use client";
+
+import {
+  CheckCircleIcon,
+  ClapperboardIcon,
+  FilmIcon,
+  PlayCircleIcon,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -64,7 +71,7 @@ export default function StatsCards({ data }: Props) {
       <Card className="border border-primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Finished Movies</CardTitle>
-          <CheckCircleIcon className="size-4 text-muted-foreground" />
+          <FilmIcon className="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{finishedMovies.length}</div>
@@ -77,7 +84,7 @@ export default function StatsCards({ data }: Props) {
       <Card className="border border-primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Finished Series</CardTitle>
-          <CheckCircleIcon className="size-4 text-muted-foreground" />
+          <ClapperboardIcon className="size-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{finishedSeries.length}</div>

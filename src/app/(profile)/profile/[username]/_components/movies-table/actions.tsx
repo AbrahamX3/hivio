@@ -70,6 +70,7 @@ export function HiveMoviesTableActions<TData>({
             data={data}
             open={openDetails}
             setOpen={setOpenDetails}
+            data-superjson
           />
         )}
       </div>
