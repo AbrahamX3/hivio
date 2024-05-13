@@ -116,7 +116,7 @@ export const deleteAccount = authAction(
     const client = auth.getSession().client;
     await e
       .delete(e.Hive, (hive) => ({
-        filter: e.op(hive.addedByd, "=", e.global.CurrentUser.id),
+        filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
       }))
       .run(client)
       .catch((error) => {

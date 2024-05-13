@@ -31,8 +31,8 @@ export type $UserλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c2
   "followers": $.LinkDesc<$Follower, $.Cardinality.Many, {}, false, false,  false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
   "<addedBy[is Hive]": $.LinkDesc<$Hive, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<followed[is Follower]": $.LinkDesc<$Follower, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
-  "<follower[is Follower]": $.LinkDesc<$Follower, $.Cardinality.AtMostOne, {}, true, false,  false, false>;
+  "<followed[is Follower]": $.LinkDesc<$Follower, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<follower[is Follower]": $.LinkDesc<$Follower, $.Cardinality.Many, {}, false, false,  false, false>;
   "<addedBy": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<followed": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<follower": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -57,17 +57,16 @@ const $CurrentUser = $.makeType<$CurrentUser>(_.spec, "78f18c97-0f20-11ef-9b13-c
 const CurrentUser: $.$expr_PathNode<$.TypeSet<$CurrentUser, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($CurrentUser, $.Cardinality.Many), null);
 
 export type $FollowerλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
-  "followed": $.LinkDesc<$User, $.Cardinality.One, {}, true, false,  false, false>;
-  "follower": $.LinkDesc<$User, $.Cardinality.One, {}, true, false,  false, false>;
   "createdAt": $.PropertyDesc<_std.$datetime, $.Cardinality.One, false, false, false, true>;
+  "followed": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, false>;
+  "follower": $.LinkDesc<$User, $.Cardinality.One, {}, false, false,  false, false>;
   "<followers[is User]": $.LinkDesc<$User, $.Cardinality.Many, {}, false, false,  false, false>;
   "<followers[is CurrentUser]": $.LinkDesc<$CurrentUser, $.Cardinality.Many, {}, false, false,  false, false>;
   "<followers": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Follower = $.ObjectType<"default::Follower", $FollowerλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
-  {followed: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
-  {follower: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {follower: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },followed: {__element__: $User, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
 const $Follower = $.makeType<$Follower>(_.spec, "0264bcb4-10d3-11ef-ac05-3f21853ffd6d", _.syntax.literal);
 
