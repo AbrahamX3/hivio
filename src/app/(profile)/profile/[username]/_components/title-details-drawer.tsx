@@ -95,7 +95,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
     <Drawer open={open} onOpenChange={setOpen} direction="right">
       <DrawerContent
         direction="right"
-        className="left-auto right-0 top-0 mt-0 h-screen w-full rounded-none md:w-[500px]"
+        className="left-auto right-0 top-0 mr-2 mt-0 h-screen w-full rounded-none pb-4 md:w-[600px]"
       >
         <div className="mx-auto grid w-full gap-0.5 px-5 pt-6">
           <DrawerTitle className="group flex items-center gap-5 align-middle">
@@ -287,7 +287,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                 <div>
                   <h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
                   <Carousel
-                    className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[600px]"
+                    className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]"
                     opts={{
                       align: "start",
                     }}
@@ -351,7 +351,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
               <div>
                 <h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
                 <Carousel
-                  className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[600px]"
+                  className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]"
                   opts={{
                     align: "start",
                   }}
@@ -411,34 +411,49 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
             )}
             <Separator className="my-4" />
             {selectedTitle?.type === "MOVIE" &&
-              (movieDetails && !isGetMovieDetailsPending ? (
+              (movieDetails &&
+              !isGetMovieDetailsPending &&
+              movieDetails?.production_companies.length > 0 ? (
                 <div className="grid gap-3">
                   <h2 className="pb-2 text-xl font-semibold">
                     Production Companies
                   </h2>
                   <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-                    {movieDetails?.production_companies.map(
-                      (company) =>
-                        company.logo_path && (
-                          <a
-                            key={company.id}
-                            className={cn(
-                              "group flex items-center justify-center p-1",
-                            )}
-                            href={`https://www.themoviedb.org/company/${company.id}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <Image
-                              unoptimized
-                              src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                              alt={company.name}
-                              width={154}
-                              height={50}
-                              className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-                            />
-                          </a>
-                        ),
+                    {movieDetails?.production_companies.map((company) =>
+                      company.logo_path ? (
+                        <a
+                          key={company.id}
+                          className={cn(
+                            "group flex items-center justify-center p-1",
+                          )}
+                          href={`https://www.themoviedb.org/company/${company.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Image
+                            unoptimized
+                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                            alt={company.name}
+                            width={154}
+                            height={50}
+                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          key={company.id}
+                          className={cn(
+                            "group flex items-center justify-center p-1",
+                          )}
+                          href={`https://www.themoviedb.org/company/${company.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
+                            {company.name}
+                          </span>
+                        </a>
+                      ),
                     )}
                   </div>
                 </div>
@@ -446,34 +461,49 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                 <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
               ))}
             {selectedTitle?.type === "SERIES" &&
-              (seriesDetails && !isGetSeriesDetailsPending ? (
+              (seriesDetails &&
+              !isGetSeriesDetailsPending &&
+              seriesDetails?.production_companies.length > 0 ? (
                 <div className="grid gap-3">
                   <h2 className="pb-2 text-xl font-semibold">
                     Production Companies
                   </h2>
                   <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-                    {seriesDetails?.production_companies.map(
-                      (company) =>
-                        company.logo_path && (
-                          <a
-                            key={company.id}
-                            className={cn(
-                              "group flex items-center justify-center p-1",
-                            )}
-                            href={`https://www.themoviedb.org/company/${company.id}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <Image
-                              unoptimized
-                              src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                              alt={company.name}
-                              width={154}
-                              height={50}
-                              className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-                            />
-                          </a>
-                        ),
+                    {seriesDetails?.production_companies.map((company) =>
+                      company.logo_path ? (
+                        <a
+                          key={company.id}
+                          className={cn(
+                            "group flex items-center justify-center p-1",
+                          )}
+                          href={`https://www.themoviedb.org/company/${company.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Image
+                            unoptimized
+                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                            alt={company.name}
+                            width={154}
+                            height={50}
+                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          key={company.id}
+                          className={cn(
+                            "group flex items-center justify-center p-1",
+                          )}
+                          href={`https://www.themoviedb.org/company/${company.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
+                            {company.name}
+                          </span>
+                        </a>
+                      ),
                     )}
                   </div>
                 </div>

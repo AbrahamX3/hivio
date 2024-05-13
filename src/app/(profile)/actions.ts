@@ -14,7 +14,7 @@ export const hiveProfile = action(UserProfile, async ({ username }) => {
       title: {
         ...e.Title["*"],
       },
-      filter: e.op(hive.createdBy.username, "=", e.str(username)),
+      filter: e.op(hive.addedBy.username, "=", e.str(username)),
     }))
     .run(db);
 

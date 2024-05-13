@@ -18,6 +18,7 @@ module default {
         required email: str {
             constraint exclusive;
         };
+        multi followers: Follower;
         required name: str;
         required status: TitleStatus {
             default := "WATCHING";
@@ -26,12 +27,24 @@ module default {
             constraint exclusive;
         };
         avatar: str;
-        createdAt: datetime {
-            rewrite insert using (datetime_of_statement());
+        required createdAt: datetime {
+            default := datetime_current();
         }
         updatedAt: datetime {
             rewrite insert using (datetime_of_statement());
             rewrite update using (datetime_of_statement());
+        }
+    }
+
+    type Follower {
+        required follower: User {
+            constraint exclusive;
+        };
+        required followed: User {
+            constraint exclusive;
+        };
+        required createdAt: datetime {
+            default := datetime_current();
         }
     }
 
@@ -55,7 +68,7 @@ module default {
     }
 
     type Hive {
-        required createdBy: User;
+        required addedBy: User;
         required title: Title {
             constraint exclusive;
         };

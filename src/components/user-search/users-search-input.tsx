@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 
-import { searchUsers, UserSearch } from "../actions";
+import { searchUsers, UserSearch } from "./actions";
 
 export default function UsersSearchInput() {
   const [query, setQuery] = useState("");
@@ -21,16 +21,19 @@ export default function UsersSearchInput() {
     },
   });
 
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     if (debouncedSearch.length > 0) {
       execute({ search: debouncedSearch });
+      setOpen(true);
     } else {
       reset();
     }
   }, [debouncedSearch, execute, reset]);
 
   return (
-    <div className="relative ml-auto flex-1 md:grow-0">
+    <div className="relative ml-auto flex-1 text-black dark:text-white md:grow-0">
       <div className="relative">
         <Input
           value={query}
@@ -41,8 +44,8 @@ export default function UsersSearchInput() {
         />
         <SearchIcon className="absolute right-3 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
       </div>
-      {query.length > 0 && (
-        <div className="absolute mt-2 w-full rounded-md border bg-background shadow-sm md:w-[200px] lg:w-[320px]">
+      {open && query.length > 0 && (
+        <div className="absolute mt-2 w-full rounded-md border-2 bg-background shadow-sm md:w-[200px] lg:w-[320px]">
           <div className="max-h-[300px] overflow-y-auto">
             <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
               {status === "executing" || status === "idle" ? (
@@ -51,11 +54,15 @@ export default function UsersSearchInput() {
                 </div>
               ) : status === "hasSucceeded" && results.length === 0 ? (
                 <div className="flex items-center space-x-3 rounded-md p-2">
-                  No users found with that username
+                  No users found with that username or name
                 </div>
               ) : (
                 results.map(({ avatar, name, username }) => (
                   <Link
+                    onClick={() => {
+                      setOpen(false);
+                      setQuery("");
+                    }}
                     href={`/profile/${username}`}
                     key={username}
                     className="flex items-center space-x-3 rounded-md p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"

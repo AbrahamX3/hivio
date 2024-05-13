@@ -21,7 +21,11 @@ export const searchUsers = authAction(SearchProfile, async ({ search }) => {
       username: true,
       avatar: true,
       name: true,
-      filter: e.op(user.username, "like", `%${search}%`),
+      filter: e.op(
+        e.op(user.username, "ilike", `%${search}%`),
+        "or",
+        e.op(user.name, "ilike", `%${search}%`),
+      ),
     }))
     .run(client);
 

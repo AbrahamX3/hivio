@@ -58,7 +58,7 @@ export const deleteTitle = authAction(
         filter_single: e.op(
           e.op(hive.id, "=", e.uuid(id)),
           "and",
-          e.op(hive.createdBy.id, "=", e.global.CurrentUser.id),
+          e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
         ),
       }))
       .run(client);

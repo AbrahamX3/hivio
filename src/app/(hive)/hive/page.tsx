@@ -18,7 +18,7 @@ async function getData() {
       title: {
         ...e.Title["*"],
       },
-      filter: e.op(hive.createdBy.id, "=", e.global.CurrentUser.id),
+      filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
     }))
     .run(client);
 

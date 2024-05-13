@@ -1,4 +1,5 @@
 import DashboardAvatar from "@/components/avatar";
+import UsersSearchInput from "@/components/user-search/users-search-input";
 import { TitleDetailsProvider } from "@/context/title-details-context";
 import { getUser } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
@@ -7,7 +8,6 @@ import DashboardBreadcrumb from "../_components/breadcrumb";
 import MobileNavbar from "../_components/mobile-navbar";
 import { ProfileSetup } from "../_components/profile-setup";
 import DashboardSiderbar from "../_components/sidebar";
-import UsersSearchInput from "../_components/users-search-input";
 
 export default async function DashboardLayout({
   children,

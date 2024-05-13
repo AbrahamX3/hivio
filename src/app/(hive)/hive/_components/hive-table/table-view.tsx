@@ -7,7 +7,7 @@ import { genreOptions, statusOptions } from "@/lib/options";
 
 import { PublicWatchlistColumns } from "./columns";
 
-export type HiveRowData = Omit<Hive, "createdBy">;
+export type HiveRowData = Omit<Hive, "addedBy">;
 
 export default function HiveTableView({ data }: { data: HiveRowData[] }) {
   const filters = [

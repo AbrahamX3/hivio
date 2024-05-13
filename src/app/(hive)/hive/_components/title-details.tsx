@@ -5,8 +5,6 @@ import Image from "next/image";
 import { format, formatDate } from "date-fns";
 import {
   ArrowRightIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   CopyIcon,
   DotIcon,
   ExternalLinkIcon,
@@ -37,11 +35,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -412,34 +405,49 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
           )}
           <Separator className="my-4" />
           {selectedTitle?.type === "MOVIE" &&
-            (movieDetails && !isGetMovieDetailsPending ? (
+            (movieDetails &&
+            !isGetMovieDetailsPending &&
+            movieDetails?.production_companies.length > 0 ? (
               <div className="grid gap-3">
                 <h2 className="pb-2 text-xl font-semibold">
                   Production Companies
                 </h2>
                 <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-                  {movieDetails?.production_companies.map(
-                    (company) =>
-                      company.logo_path && (
-                        <a
-                          key={company.id}
-                          className={cn(
-                            "group flex items-center justify-center p-1",
-                          )}
-                          href={`https://www.themoviedb.org/company/${company.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Image
-                            unoptimized
-                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                            alt={company.name}
-                            width={154}
-                            height={50}
-                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-                          />
-                        </a>
-                      ),
+                  {movieDetails?.production_companies.map((company) =>
+                    company.logo_path ? (
+                      <a
+                        key={company.id}
+                        className={cn(
+                          "group flex items-center justify-center p-1",
+                        )}
+                        href={`https://www.themoviedb.org/company/${company.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Image
+                          unoptimized
+                          src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                          alt={company.name}
+                          width={154}
+                          height={50}
+                          className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                        />
+                      </a>
+                    ) : (
+                      <a
+                        key={company.id}
+                        className={cn(
+                          "group flex items-center justify-center p-1",
+                        )}
+                        href={`https://www.themoviedb.org/company/${company.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
+                          {company.name}
+                        </span>
+                      </a>
+                    ),
                   )}
                 </div>
               </div>
@@ -447,34 +455,49 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
               <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
             ))}
           {selectedTitle?.type === "SERIES" &&
-            (seriesDetails && !isGetSeriesDetailsPending ? (
+            (seriesDetails &&
+            !isGetSeriesDetailsPending &&
+            seriesDetails?.production_companies.length > 0 ? (
               <div className="grid gap-3">
                 <h2 className="pb-2 text-xl font-semibold">
                   Production Companies
                 </h2>
                 <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-                  {seriesDetails?.production_companies.map(
-                    (company) =>
-                      company.logo_path && (
-                        <a
-                          key={company.id}
-                          className={cn(
-                            "group flex items-center justify-center p-1",
-                          )}
-                          href={`https://www.themoviedb.org/company/${company.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Image
-                            unoptimized
-                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                            alt={company.name}
-                            width={154}
-                            height={50}
-                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-                          />
-                        </a>
-                      ),
+                  {seriesDetails?.production_companies.map((company) =>
+                    company.logo_path ? (
+                      <a
+                        key={company.id}
+                        className={cn(
+                          "group flex items-center justify-center p-1",
+                        )}
+                        href={`https://www.themoviedb.org/company/${company.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Image
+                          unoptimized
+                          src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                          alt={company.name}
+                          width={154}
+                          height={50}
+                          className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                        />
+                      </a>
+                    ) : (
+                      <a
+                        key={company.id}
+                        className={cn(
+                          "group flex items-center justify-center p-1",
+                        )}
+                        href={`https://www.themoviedb.org/company/${company.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
+                          {company.name}
+                        </span>
+                      </a>
+                    ),
                   )}
                 </div>
               </div>
@@ -531,22 +554,6 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
               {format(data?.title.updated, "PPPP p")}
             </div>
           )}
-          <Pagination className="ml-auto mr-0 w-auto">
-            <PaginationContent>
-              <PaginationItem>
-                <Button size="icon" variant="outline" className="size-6">
-                  <ChevronLeftIcon className="h-3.5 w-3.5" />
-                  <span className="sr-only">Previous Order</span>
-                </Button>
-              </PaginationItem>
-              <PaginationItem>
-                <Button size="icon" variant="outline" className="size-6">
-                  <ChevronRightIcon className="h-3.5 w-3.5" />
-                  <span className="sr-only">Next Order</span>
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </CardFooter>
       </Card>
     </>

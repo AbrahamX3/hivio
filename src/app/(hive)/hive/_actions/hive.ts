@@ -80,7 +80,7 @@ export async function addTitleToHive({
         filter_single: e.op(
           e.op(hive.title.tmdbId, "=", tmdbId),
           "and",
-          e.op(hive.createdBy.id, "=", e.global.CurrentUser.id),
+          e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
         ),
       }))
       .run(client);
@@ -97,7 +97,7 @@ export async function addTitleToHive({
       if (status === "FINISHED") {
         const insert = await e
           .insert(e.Hive, {
-            createdBy: e.global.CurrentUser,
+            addedBy: e.global.CurrentUser,
             title: e.set(titleToAdd),
             status: hiveFormValues.status,
             finishedAt: e.datetime(hiveFormValues.date),
@@ -113,7 +113,7 @@ export async function addTitleToHive({
       } else {
         const insert = await e
           .insert(e.Hive, {
-            createdBy: e.global.CurrentUser,
+            addedBy: e.global.CurrentUser,
             title: e.set(titleToAdd),
             status: hiveFormValues.status,
           })
@@ -160,7 +160,7 @@ export async function addTitleToHive({
     if (status === "FINISHED") {
       const insert = await e
         .insert(e.Hive, {
-          createdBy: e.global.CurrentUser,
+          addedBy: e.global.CurrentUser,
           title: e.set(titleId),
           status: hiveFormValues.status,
           finishedAt: e.datetime(hiveFormValues.date),
@@ -176,7 +176,7 @@ export async function addTitleToHive({
     } else {
       const insert = await e
         .insert(e.Hive, {
-          createdBy: e.global.CurrentUser,
+          addedBy: e.global.CurrentUser,
           title: e.set(titleId),
           status: hiveFormValues.status,
         })

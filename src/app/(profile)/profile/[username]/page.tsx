@@ -207,7 +207,7 @@ export default async function PublicUserProfile({ params }: Props) {
             </div>
           </div>
         ) : (
-          <div className="flex w-full items-center justify-center rounded-md border border-dashed p-4">
+          <div className="flex w-full items-center justify-center rounded-md border border-dashed border-primary p-4">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span> @{user.username}</span> is currently not watching anything
             </div>

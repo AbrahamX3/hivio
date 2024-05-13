@@ -34,7 +34,7 @@ export async function GET(request: Request) {
           filter_single: e.op(
             e.op(hive.title.tmdbId, "=", tmdbId),
             "and",
-            e.op(hive.createdBy.username, "=", e.str(username)),
+            e.op(hive.addedBy.username, "=", e.str(username)),
           ),
         }))
         .run(db);
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
         const insert = await e
           .insert(e.Hive, {
-            createdBy: user,
+            addedBy: user,
             isFavorite: false,
             title: e.set(titleToAdd),
             status: title.status,
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
 
       const insert = await e
         .insert(e.Hive, {
-          createdBy: user,
+          addedBy: user,
           title: e.set(titleId),
           status: title.status,
           isFavorite: false,
