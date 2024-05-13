@@ -53,6 +53,7 @@ export default function UsernameForm({ username }: Props) {
         toast.success(`Username "${data?.username}" assigned correctly!`, {
           id: "username-form",
         });
+        UsernameForm.reset({ username: data?.username });
       }
     },
     onError: ({ serverError }) => {

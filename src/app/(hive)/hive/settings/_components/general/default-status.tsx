@@ -62,6 +62,7 @@ export default function DefaultStatusForm({ status }: Props) {
         toast.success(`Now using "${data?.status}" as your default status!`, {
           id: "status-form",
         });
+        StatusForm.reset({ status: data?.status });
       }
     },
     onError: ({ serverError }) => {

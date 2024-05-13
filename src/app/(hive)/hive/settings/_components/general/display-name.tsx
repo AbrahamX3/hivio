@@ -53,6 +53,7 @@ export default function DisplayNameForm({ name }: Props) {
         toast.success(`Display name "${data?.name}" assigned correctly!`, {
           id: "name-form",
         });
+        DisplayNameForm.reset({ name: data?.name });
       }
     },
     onError: ({ serverError }) => {
