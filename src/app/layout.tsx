@@ -12,7 +12,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Hivio - Your Hive",
+    default: "Hivio",
     template: "Hivio - %s",
   },
   description: "A simple and fast way to track your shows and movies",
@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable}`}
         suppressHydrationWarning
       >
-        <body>
+        <body className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

@@ -13,16 +13,20 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+export const metadata = {
+  title: "About",
+};
+
 export default function About() {
   return (
-    <main className="flex-1 bg-primary pt-14">
+    <main className="flex-1 bg-primary pt-14 text-secondary-foreground dark:text-secondary">
       <section className="w-full py-12 ">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4">
-            <h1 className="text-center text-3xl font-bold tracking-tighter text-secondary sm:text-4xl md:text-5xl lg:text-6xl/none">
+            <h1 className="text-center text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
               About Hivio
             </h1>
-            <div className="flex w-full flex-col gap-4 text-lg text-secondary">
+            <div className="flex w-full flex-col gap-4 text-lg">
               <h2 className="my-4 text-2xl font-bold">Overview</h2>
               <Paragraph>
                 Hivio, a word that comes from the combination of
@@ -146,9 +150,11 @@ export default function About() {
                 fast without Vercel, which I use mainly for all my projects.
               </Paragraph>
               <div className="mt-8 flex flex-col items-center  gap-2 align-middle sm:flex-row">
-                <p className="w-fit rounded-md border-2 border-dashed px-4 py-2 text-2xl tracking-tight">
+                <p className="w-fit rounded-md border-2 border-dashed border-secondary-foreground px-4 py-2 text-2xl tracking-tight dark:border-secondary">
                   Built by Abraham{" "}
-                  <span className="text-sm text-muted">(AbrahamX3)</span>
+                  <span className="text-sm text-muted-foreground dark:text-muted">
+                    (AbrahamX3)
+                  </span>
                 </p>
                 <div className="flex items-center gap-2 align-middle">
                   <SocialLink

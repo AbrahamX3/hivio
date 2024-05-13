@@ -44,7 +44,7 @@ export default function UsersSearchInput() {
       {query.length > 0 && (
         <div className="absolute mt-2 w-full rounded-md border bg-background shadow-sm md:w-[200px] lg:w-[320px]">
           <div className="max-h-[300px] overflow-y-auto">
-            <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+            <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
               {status === "executing" || status === "idle" ? (
                 <div className="flex animate-pulse items-center space-x-3 rounded-md p-2">
                   Searching users...

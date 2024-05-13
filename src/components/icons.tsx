@@ -171,7 +171,7 @@ export function PersonalWebsiteIcon({ className }: { className?: string }) {
 export function VercelIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("h-8 w-auto", className)}
+      className={cn("h-8 w-auto invert dark:invert-0", className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="#ffffff"
       viewBox="0 0 284 65"

@@ -1,12 +1,14 @@
-import { SVGProps } from "react";
-import { CircleUserIcon, TelescopeIcon } from "lucide-react";
+import { CircleUserIcon, RocketIcon, TelescopeIcon } from "lucide-react";
 import { Link } from "next-view-transitions";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { isUserSignedIn } from "@/lib/auth";
+
+export const metadata = {
+  title: "Home",
+};
 
 export default async function Component() {
   const isSignedIn = await isUserSignedIn();
@@ -15,11 +17,11 @@ export default async function Component() {
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter text-secondary sm:text-4xl md:text-5xl lg:text-6xl/none">
+            <div className="space-y-2 text-secondary-foreground dark:text-secondary">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
                 Your watchlist, amplified with Hivio
               </h1>
-              <p className="mx-auto max-w-[700px] text-secondary md:text-xl">
+              <p className="mx-auto max-w-[700px] md:text-xl">
                 Add and manage your favorite shows and movies, and discover new
                 content with the help of the Hivio community.
               </p>
@@ -99,114 +101,6 @@ export default async function Component() {
           </div>
         </div>
       </section>
-      <section className="w-full bg-primary py-12 md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6">
-          <div className="mx-auto w-full max-w-sm space-y-2">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-bold tracking-tighter text-secondary md:text-4xl/tight">
-                Get started with Acme
-              </h2>
-              <p className="text-balance text-secondary md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Sign up to get started with Acme and build your dream app.
-              </p>
-            </div>
-            <form className="flex space-x-2">
-              <Input
-                className="max-w-lg flex-1"
-                placeholder="Name"
-                type="text"
-              />
-              <Input
-                className="max-w-lg flex-1"
-                placeholder="Email"
-                type="email"
-              />
-              <Button type="submit">Get Started</Button>
-            </form>
-          </div>
-        </div>
-      </section>
     </main>
-  );
-}
-
-function BoldIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M14 12a4 4 0 0 0 0-8H6v8" />
-      <path d="M15 20a4 4 0 0 0 0-8H6v8Z" />
-    </svg>
-  );
-}
-
-function MountainIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-    </svg>
-  );
-}
-
-function RocketIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-    </svg>
-  );
-}
-
-function ShieldCheckIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }
