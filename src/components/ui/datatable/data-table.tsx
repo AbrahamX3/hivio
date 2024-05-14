@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   filters?: Filter[];
   isLoading?: boolean;
+  name: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +41,7 @@ export function DataTable<TData, TValue>({
   data,
   filters,
   isLoading = false,
+  name,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -80,6 +82,7 @@ export function DataTable<TData, TValue>({
           filters={filters}
           setGlobalFilter={setGlobalFilter}
           globalFilter={globalFilter}
+          name={name}
         />
       )}
       <div className="rounded-md border border-border">

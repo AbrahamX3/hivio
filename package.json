@@ -15,7 +15,8 @@
     "edge:stop": "edgedb instance stop -I hivio",
     "edge:migration": "edgedb migration create",
     "edge:migrate-dev": "edgedb migrate",
-    "edge:studio": "edgedb ui"
+    "edge:studio": "edgedb ui",
+    "ox": "bunx oxlint@latest"
   },
   "engines": {
     "node": "20.x"
@@ -24,6 +25,7 @@
     "@edgedb/auth-nextjs": "0.3.1",
     "@hookform/resolvers": "^3.3.4",
     "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
+    "@million/lint": "^0.0.73",
     "@plaiceholder/next": "^3.0.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
@@ -68,6 +70,7 @@
     "input-otp": "^1.2.4",
     "jiti": "^1.21.0",
     "lucide-react": "^0.378.0",
+    "million": "^3.0.6",
     "next": "^14.2.3",
     "next-safe-action": "^6.2.0",
     "next-superjson-plugin": "^0.6.3",

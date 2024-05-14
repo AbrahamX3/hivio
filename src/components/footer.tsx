@@ -18,7 +18,7 @@ export function Footer() {
               Source code available on
             </span>
             <a
-              rel="noopener"
+              rel="noopener noreferrer"
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
               target="_blank"
               href="https://github.com/AbrahamX3/hivio"
@@ -32,7 +32,7 @@ export function Footer() {
             <span className="font-medium">Deployed on</span>
             <a
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
               href="https://vercel.com/"
             >
@@ -44,7 +44,7 @@ export function Footer() {
             <span className="font-medium">Powered by</span>
             <a
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
               href="https://www.edgedb.com/"
             >
@@ -53,7 +53,7 @@ export function Footer() {
             <span className="font-medium">&</span>
             <a
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
               href="https://www.themoviedb.org/"
             >

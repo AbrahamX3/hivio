@@ -26,7 +26,7 @@ export function HiveTableActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const data = row.original as HiveRowData;
 
-  const { setSelectedTitle } = useTitleDetails();
+  const { setSelectedTitle, selectedTitle } = useTitleDetails();
 
   const [openDetails, setOpenDetails] = useState(false);
 
@@ -49,8 +49,6 @@ export function HiveTableActions<TData>({
             <DropdownMenuItem
               className="flex justify-between gap-4"
               onClick={() => {
-                setOpenDetails(true);
-
                 if (!data.title.type) return;
 
                 setSelectedTitle({
@@ -58,6 +56,8 @@ export function HiveTableActions<TData>({
                   tmdbId: data.title.tmdbId,
                   type: data.title.type,
                 });
+
+                setOpenDetails(true);
               }}
             >
               View Extra Details
@@ -65,7 +65,7 @@ export function HiveTableActions<TData>({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {openDetails && (
+        {openDetails && selectedTitle && (
           <TitleDetailsDrawer
             id={data.id}
             data={data}

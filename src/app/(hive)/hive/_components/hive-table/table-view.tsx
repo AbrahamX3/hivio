@@ -25,6 +25,7 @@ export default function HiveTableView({ data }: { data: HiveRowData[] }) {
 
   return (
     <DataTable
+      name="private-hive-all"
       columns={PublicWatchlistColumns()}
       data={data}
       filters={filters}

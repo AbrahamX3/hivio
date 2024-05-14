@@ -25,6 +25,7 @@ export default function SeriesTableView({ data }: { data: HiveRowData[] }) {
 
   return (
     <DataTable
+      name="public-hive-series"
       columns={SeriesColumns()}
       data={data}
       filters={filters}

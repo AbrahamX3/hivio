@@ -10,8 +10,15 @@ import {
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
+import {
+  getMovieCredits,
+  getMovieDetails,
+  getSeriesCredits,
+  getSeriesDetails,
+} from "@/app/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Carousel,
@@ -37,7 +44,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useTitleDetails } from "@/context/title-details-context";
+import {
+  SelectedTitle,
+  useTitleDetails,
+} from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
 
@@ -57,18 +67,59 @@ const USD = Intl.NumberFormat("en-US", {
 });
 
 export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
+  const { setSelectedTitle, selectedTitle } = useTitleDetails();
+
   const {
-    setSelectedTitle,
-    movieCredits,
-    seriesCredits,
-    selectedTitle,
-    movieDetails,
-    seriesDetails,
-    isGetMovieDetailsPending,
-    isGetSeriesDetailsPending,
-    isGetMovieCreditsPending,
-    isGetSeriesCreditsPending,
-  } = useTitleDetails();
+    execute: getMovieDetailsAction,
+    status: movieDetailsStatus,
+    result: movieDetailsResult,
+    reset: resetMovieDetails,
+  } = useAction(getMovieDetails, {
+    onError: (error) => {
+      toast.error("Error getting movie details", {
+        description: JSON.stringify(error),
+      });
+    },
+  });
+
+  const {
+    execute: getSeriesDetailsAction,
+    status: seriesDetailsStatus,
+    result: seriesDetailsResult,
+    reset: resetSeriesDetails,
+  } = useAction(getSeriesDetails, {
+    onError: (error) => {
+      toast.error("Error getting series details", {
+        description: JSON.stringify(error),
+      });
+    },
+  });
+
+  const {
+    execute: getSeriesCreditsAction,
+    status: seriesCreditsStatus,
+    result: seriesCreditsResult,
+    reset: resetSeriesCredits,
+  } = useAction(getSeriesCredits, {
+    onError: (error) => {
+      toast.error("Error getting series credits", {
+        description: JSON.stringify(error),
+      });
+    },
+  });
+
+  const {
+    execute: getMovieCreditsAction,
+    status: movieCreditsStatus,
+    result: movieCreditsResult,
+    reset: resetMovieCredits,
+  } = useAction(getMovieCredits, {
+    onError: (error) => {
+      toast.error("Error getting movie credits", {
+        description: JSON.stringify(error),
+      });
+    },
+  });
 
   function handleClose() {
     setSelectedTitle(null);
@@ -90,6 +141,64 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
       block: "center",
     });
   }, [selectedTitle]);
+
+  useEffect(() => {
+    function handleReset() {
+      resetMovieDetails();
+      resetSeriesDetails();
+      resetMovieCredits();
+      resetSeriesCredits();
+    }
+
+    function handleSelectedTitle(value: SelectedTitle | null) {
+      setSelectedTitle(value);
+      handleReset();
+
+      if (value?.type === "MOVIE") {
+        getMovieDetailsAction({
+          tmdbId: value.tmdbId,
+        });
+
+        getMovieCreditsAction({
+          tmdbId: value.tmdbId,
+        });
+      } else if (value?.type === "SERIES") {
+        getSeriesDetailsAction({
+          tmdbId: value.tmdbId,
+        });
+
+        getSeriesCreditsAction({
+          tmdbId: value.tmdbId,
+        });
+      }
+
+      return value;
+    }
+
+    if (selectedTitle) {
+      handleSelectedTitle(selectedTitle);
+    }
+  }, [
+    getMovieCreditsAction,
+    getMovieDetailsAction,
+    getSeriesCreditsAction,
+    getSeriesDetailsAction,
+    resetMovieCredits,
+    resetMovieDetails,
+    resetSeriesCredits,
+    resetSeriesDetails,
+    selectedTitle,
+    setSelectedTitle,
+  ]);
+
+  const isDone =
+    selectedTitle?.type === "MOVIE"
+      ? movieCreditsStatus === "hasSucceeded" &&
+        movieDetailsStatus === "hasSucceeded"
+      : seriesCreditsStatus === "hasSucceeded" &&
+        seriesDetailsStatus === "hasSucceeded";
+
+  if (!selectedTitle && isDone) return null;
 
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
@@ -272,8 +381,9 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                   </dt>
                   <dd>
                     {selectedTitle?.type === "MOVIE"
-                      ? movieDetails?.vote_average.toFixed(1) ?? 0
-                      : seriesDetails?.vote_average.toFixed(1) ?? 0}{" "}
+                      ? movieDetailsResult.data?.vote_average.toFixed(1) ?? 0
+                      : movieDetailsResult.data?.vote_average.toFixed(1) ??
+                        0}{" "}
                     / 10
                   </dd>
                 </dl>
@@ -281,7 +391,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
             </div>
             <Separator className="my-4" />
             {selectedTitle?.type === "MOVIE" ? (
-              !movieCredits && isGetMovieCreditsPending ? (
+              !movieDetailsResult.data && movieDetailsStatus === "executing" ? (
                 <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
               ) : (
                 <div>
@@ -294,7 +404,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                     orientation="horizontal"
                   >
                     <CarouselContent>
-                      {movieCredits?.cast.map((cast) => (
+                      {movieCreditsResult.data?.cast.map((cast) => (
                         <CarouselItem
                           key={cast.id}
                           className="basis-1/2 md:basis-1/4 lg:basis-11/12 xl:basis-1/2"
@@ -345,7 +455,8 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                   </Carousel>
                 </div>
               )
-            ) : !seriesCredits && isGetSeriesCreditsPending ? (
+            ) : !seriesCreditsResult.data &&
+              seriesCreditsStatus === "executing" ? (
               <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
             ) : (
               <div>
@@ -358,7 +469,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                   orientation="horizontal"
                 >
                   <CarouselContent>
-                    {seriesCredits?.cast.map((cast) => (
+                    {seriesCreditsResult.data?.cast.map((cast) => (
                       <CarouselItem
                         key={cast.id}
                         className="basis-1/2 md:basis-1/4 lg:basis-11/12 xl:basis-1/2"
@@ -411,49 +522,50 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
             )}
             <Separator className="my-4" />
             {selectedTitle?.type === "MOVIE" &&
-              (movieDetails &&
-              !isGetMovieDetailsPending &&
-              movieDetails?.production_companies.length > 0 ? (
+              (movieDetailsResult.data &&
+              movieDetailsStatus === "hasSucceeded" &&
+              movieDetailsResult.data?.production_companies.length > 0 ? (
                 <div className="grid gap-3">
                   <h2 className="pb-2 text-xl font-semibold">
                     Production Companies
                   </h2>
                   <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-                    {movieDetails?.production_companies.map((company) =>
-                      company.logo_path ? (
-                        <a
-                          key={company.id}
-                          className={cn(
-                            "group flex items-center justify-center p-1",
-                          )}
-                          href={`https://www.themoviedb.org/company/${company.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Image
-                            unoptimized
-                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                            alt={company.name}
-                            width={154}
-                            height={50}
-                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-                          />
-                        </a>
-                      ) : (
-                        <a
-                          key={company.id}
-                          className={cn(
-                            "group flex items-center justify-center p-1",
-                          )}
-                          href={`https://www.themoviedb.org/company/${company.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
-                            {company.name}
-                          </span>
-                        </a>
-                      ),
+                    {movieDetailsResult.data?.production_companies.map(
+                      (company) =>
+                        company.logo_path ? (
+                          <a
+                            key={company.id}
+                            className={cn(
+                              "group flex items-center justify-center p-1",
+                            )}
+                            href={`https://www.themoviedb.org/company/${company.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Image
+                              unoptimized
+                              src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                              alt={company.name}
+                              width={154}
+                              height={50}
+                              className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                            />
+                          </a>
+                        ) : (
+                          <a
+                            key={company.id}
+                            className={cn(
+                              "group flex items-center justify-center p-1",
+                            )}
+                            href={`https://www.themoviedb.org/company/${company.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
+                              {company.name}
+                            </span>
+                          </a>
+                        ),
                     )}
                   </div>
                 </div>
@@ -461,49 +573,50 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                 <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
               ))}
             {selectedTitle?.type === "SERIES" &&
-              (seriesDetails &&
-              !isGetSeriesDetailsPending &&
-              seriesDetails?.production_companies.length > 0 ? (
+              (seriesDetailsResult.data &&
+              seriesDetailsStatus === "hasSucceeded" &&
+              seriesDetailsResult.data?.production_companies.length > 0 ? (
                 <div className="grid gap-3">
                   <h2 className="pb-2 text-xl font-semibold">
                     Production Companies
                   </h2>
                   <div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-                    {seriesDetails?.production_companies.map((company) =>
-                      company.logo_path ? (
-                        <a
-                          key={company.id}
-                          className={cn(
-                            "group flex items-center justify-center p-1",
-                          )}
-                          href={`https://www.themoviedb.org/company/${company.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Image
-                            unoptimized
-                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                            alt={company.name}
-                            width={154}
-                            height={50}
-                            className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-                          />
-                        </a>
-                      ) : (
-                        <a
-                          key={company.id}
-                          className={cn(
-                            "group flex items-center justify-center p-1",
-                          )}
-                          href={`https://www.themoviedb.org/company/${company.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
-                            {company.name}
-                          </span>
-                        </a>
-                      ),
+                    {seriesDetailsResult.data?.production_companies.map(
+                      (company) =>
+                        company.logo_path ? (
+                          <a
+                            key={company.id}
+                            className={cn(
+                              "group flex items-center justify-center p-1",
+                            )}
+                            href={`https://www.themoviedb.org/company/${company.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Image
+                              unoptimized
+                              src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
+                              alt={company.name}
+                              width={154}
+                              height={50}
+                              className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
+                            />
+                          </a>
+                        ) : (
+                          <a
+                            key={company.id}
+                            className={cn(
+                              "group flex items-center justify-center p-1",
+                            )}
+                            href={`https://www.themoviedb.org/company/${company.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
+                              {company.name}
+                            </span>
+                          </a>
+                        ),
                     )}
                   </div>
                 </div>
@@ -511,7 +624,8 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                 <Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
               ))}
             {selectedTitle?.type === "MOVIE" &&
-              (movieDetails && !isGetMovieDetailsPending ? (
+              (movieDetailsResult.data &&
+              movieDetailsStatus === "hasSucceeded" ? (
                 <div>
                   <Separator className="my-4" />
                   <h2 className="pb-4 text-xl font-semibold">
@@ -521,30 +635,32 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Budget</span>
                       <span>
-                        {movieDetails?.budget &&
-                          USD.format(movieDetails?.budget)}
+                        {movieDetailsResult.data?.budget &&
+                          USD.format(movieDetailsResult.data?.budget)}
                       </span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Revenue</span>
                       <span>
-                        {movieDetails?.budget &&
-                          USD.format(movieDetails?.revenue)}
+                        {movieDetailsResult.data?.revenue &&
+                          USD.format(movieDetailsResult.data?.revenue)}
                       </span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Profit</span>
                       <span
                         className={cn(
-                          movieDetails?.revenue - movieDetails?.budget >=
-                            movieDetails?.budget
+                          movieDetailsResult.data?.revenue -
+                            movieDetailsResult.data?.budget >=
+                            movieDetailsResult.data?.budget
                             ? "text-green-500"
                             : "text-red-500",
                         )}
                       >
-                        {movieDetails?.budget &&
+                        {movieDetailsResult.data?.budget &&
                           USD.format(
-                            movieDetails?.revenue - movieDetails?.budget,
+                            movieDetailsResult.data?.revenue -
+                              movieDetailsResult.data?.budget,
                           )}
                       </span>
                     </li>

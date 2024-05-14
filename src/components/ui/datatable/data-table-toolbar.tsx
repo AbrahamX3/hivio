@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { type Table } from "@tanstack/react-table";
@@ -28,6 +26,7 @@ interface DataTableToolbarProps<TData> {
   setGlobalFilter: (value: string) => void;
   globalFilter: string;
   filters?: Filter[];
+  name: string;
 }
 
 export function DataTableToolbar<TData>({
@@ -35,6 +34,7 @@ export function DataTableToolbar<TData>({
   setGlobalFilter,
   globalFilter,
   filters,
+  name,
 }: DataTableToolbarProps<TData>) {
   const isFiltered =
     table.getPreFilteredRowModel().rows.length >
@@ -98,9 +98,9 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center justify-center pt-4 align-middle lg:pt-0">
         <div className="flex flex-wrap gap-2 align-middle sm:flex-row">
-          {filters?.map((filter) => (
+          {filters?.map((filter, index) => (
             <DataTableFacetedFilter
-              key={filter.columnId}
+              key={filter.title + "_" + filter.columnId + "_" + name}
               column={table.getColumn(filter.columnId)}
               title={filter.title}
               options={filter.options}

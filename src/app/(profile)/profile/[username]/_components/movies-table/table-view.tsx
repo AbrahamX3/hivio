@@ -25,6 +25,7 @@ export default function MoviesTableView({ data }: { data: HiveRowData[] }) {
 
   return (
     <DataTable
+      name="public-hive-movies"
       columns={MovieColumns()}
       data={data}
       filters={filters}
