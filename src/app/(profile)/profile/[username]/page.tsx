@@ -3,7 +3,11 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { formatDate } from "date-fns";
-import { ExternalLinkIcon, SquareArrowOutUpRightIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ExternalLinkIcon,
+  SquareArrowOutUpRightIcon,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +26,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
@@ -254,7 +263,28 @@ function ProfileHeader({
         <div className="flex items-center gap-2 align-middle text-sm text-gray-500 dark:text-gray-400">
           @{username}
           <span className="h-1 w-1 rounded-full bg-gray-500 dark:bg-gray-400" />
-          {joinedDate && <>Joined {formatDate(joinedDate, "MMMM d, yyyy")}</>}
+          {joinedDate && (
+            <>
+              <span className="hidden sm:block">
+                Joined {formatDate(joinedDate, "MMMM d, yyyy")}
+              </span>
+
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="block sm:hidden"
+                  >
+                    <CalendarIcon className="size-3" />
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-fit">
+                  Joined {formatDate(joinedDate, "MMMM d, yyyy")}
+                </HoverCardContent>
+              </HoverCard>
+            </>
+          )}
         </div>
       </div>
     </div>
