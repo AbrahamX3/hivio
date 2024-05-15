@@ -1,7 +1,6 @@
 "use server";
 
 import e from "@edgedb/edgeql-js";
-import { TitleType } from "@edgedb/edgeql-js/modules/default";
 import { getPlaiceholder } from "plaiceholder";
 
 import { env } from "@/env";
@@ -83,9 +82,7 @@ export async function addTitleToHive({
   const client = auth.getSession().client;
   const tmdbId = titleFormValues.tmdbId;
   const TypeEnum =
-    selectedTitleData.media_type === "movie"
-      ? TitleType.MOVIE
-      : TitleType.SERIES;
+    selectedTitleData.media_type === "movie" ? "MOVIE" : "SERIES";
   const isTitleAdded = await e
     .select(e.Title, (title) => ({
       filter_single: e.op(
