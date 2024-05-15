@@ -17,9 +17,9 @@ interface Props {
 
 export default function StatsCards({ data }: Props) {
   const finishedTitles = data?.filter((hive) => hive.status === "FINISHED");
-  const finishedTitlesThisMonth = data
-    ?.filter((hive) => hive.status === "FINISHED")
-    .filter((hive) => hive.finishedAt?.getMonth() === new Date().getMonth());
+  const finishedTitlesTotal = data?.filter(
+    (hive) => hive.status === "FINISHED",
+  );
 
   const finishedMovies = data?.filter(
     (hive) => hive.status === "FINISHED" && hive.title.type === "MOVIE",
@@ -63,7 +63,7 @@ export default function StatsCards({ data }: Props) {
         <CardContent>
           <div className="text-2xl font-bold">{finishedTitles.length}</div>
           <p className="text-xs text-muted-foreground">
-            {finishedTitlesThisMonth.length} titles finished this month
+            {finishedTitlesTotal.length} titles finished in total
           </p>
         </CardContent>
       </Card>

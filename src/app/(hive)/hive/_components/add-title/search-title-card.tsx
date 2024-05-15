@@ -47,7 +47,7 @@ export default function SearchTitleCard({
             </CardDescription>
           </CardHeader>
           <CardContent className="flex max-h-56 min-h-56 items-center gap-4 p-4 align-middle">
-            <div className="h-full max-h-52 min-h-52 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+            <div className="h-full max-h-52 min-h-52 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
               <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
                 {result.overview}
               </p>
@@ -99,7 +99,7 @@ export default function SearchTitleCard({
             </CardDescription>
           </CardHeader>
           <CardContent className="flex max-h-56 min-h-56 items-center gap-4 p-4 align-middle">
-            <div className="h-full max-h-52 min-h-52 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+            <div className="h-full max-h-52 min-h-52 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
               <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
                 {result.overview}
               </p>

@@ -13,7 +13,16 @@ export const hiveProfile = action(UserProfile, async ({ username }) => {
       ...e.Hive["*"],
       title: {
         ...e.Title["*"],
+        seasons: {
+          ...e.Season["*"],
+        },
       },
+      order_by: [
+        {
+          expression: hive.createdAt,
+          direction: e.DESC,
+        },
+      ],
       filter: e.op(hive.addedBy.username, "=", e.str(username)),
     }))
     .run(db);

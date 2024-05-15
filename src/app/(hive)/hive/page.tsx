@@ -17,6 +17,9 @@ async function getData() {
       ...e.Hive["*"],
       title: {
         ...e.Title["*"],
+        seasons: {
+          ...e.Season["*"],
+        },
       },
       filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
     }))

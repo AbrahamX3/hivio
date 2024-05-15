@@ -6,7 +6,7 @@ import { getPlaiceholder } from "plaiceholder";
 
 import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
-import { MultiSearch, SearchResult } from "@/types/tmdb";
+import { MultiSearch, SearchResult, SeriesDetails } from "@/types/tmdb";
 
 import { HiveFormValues } from "../_components/add-title/stepper/steps/hive-form-step";
 import { TitleFormValues } from "../_components/add-title/stepper/steps/title-form-step";
@@ -53,6 +53,24 @@ async function fetchPosterBlur(path: string) {
   return base64;
 }
 
+async function fetchSeriesData(tmdbId: number) {
+  const response = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${env.TMDB_API_KEY}`,
+    },
+  });
+
+  const data = (await response.json()) as SeriesDetails;
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch series data");
+  }
+
+  return data;
+}
+
 export async function addTitleToHive({
   hiveFormValues,
   selectedTitleData,
@@ -78,7 +96,11 @@ export async function addTitleToHive({
     const isTitleInUserHive = await e
       .select(e.Hive, (hive) => ({
         filter_single: e.op(
-          e.op(hive.title.tmdbId, "=", tmdbId),
+          e.op(
+            e.op(hive.title.tmdbId, "=", tmdbId),
+            "and",
+            e.op(hive.title.type, "=", TypeEnum),
+          ),
           "and",
           e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
         ),
@@ -143,17 +165,80 @@ export async function addTitleToHive({
       `https://image.tmdb.org/t/p/original${selectedTitleData.poster_path}`,
     );
 
-    const titleId = e.insert(e.Title, {
-      tmdbId: e.int32(id),
-      name: e.str(name),
-      description: e.str(overview),
-      date: e.cal.local_date(date),
-      poster: e.str(selectedTitleData.poster_path),
-      posterBlur: posterBlur,
-      type: TypeEnum,
-      genres: genre_ids,
-      imdbId: imdbId ?? null,
-    });
+    const insertTitle = await e
+      .insert(e.Title, {
+        tmdbId: e.int32(id),
+        name: e.str(name),
+        description: e.str(overview),
+        date: e.cal.local_date(date),
+        poster: e.str(selectedTitleData.poster_path),
+        posterBlur: posterBlur,
+        type: TypeEnum,
+        genres: genre_ids,
+        imdbId: imdbId ?? null,
+      })
+      .run(client);
+
+    const titleId = e.select(e.Title, (title) => ({
+      filter_single: e.op(title.id, "=", e.uuid(insertTitle.id)),
+    }));
+
+    if (type === "SERIES") {
+      const seriesData = await fetchSeriesData(selectedTitleData.id);
+
+      // seriesData.seasons.forEach(async (details) => {
+      //   if (details.season_number === 0) return;
+      //   const season = details.season_number;
+      //   const episodes = details.episode_count;
+      //   const date = details.air_date;
+
+      //   await e
+      //     .insert(e.Season, {
+      //       title: e.set(titleId),
+      //       date: e.cal.local_date(date),
+      //       season: e.int32(season),
+      //       episodes: e.int32(episodes),
+      //     })
+      //     .run(client);
+      // });
+
+      const seasons = seriesData.seasons.map((details) => {
+        return {
+          season: details.season_number,
+          episodes: details.episode_count,
+          date: details.air_date,
+        };
+      });
+
+      const query = e.params(
+        {
+          seasons: e.array(
+            e.tuple({
+              season: e.int32,
+              episodes: e.int32,
+              date: e.str,
+            }),
+          ),
+        },
+        ({ seasons }) => {
+          return e.for(
+            e.array_unpack(seasons),
+            ({ date, season, episodes }) => {
+              return e.insert(e.Season, {
+                title: e.set(titleId),
+                season: season,
+                episodes: episodes,
+                date: e.cast(e.cal.local_date, date),
+              });
+            },
+          );
+        },
+      );
+
+      await query.run(client, {
+        seasons,
+      });
+    }
 
     const status = hiveFormValues.status;
 

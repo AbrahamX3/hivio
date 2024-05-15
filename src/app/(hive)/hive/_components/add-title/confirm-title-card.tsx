@@ -82,7 +82,7 @@ export default function ConfirmTitleCard({
                 / 10
               </Badge>
             </div>
-            <div className="h-full max-h-28 min-h-28 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+            <div className="h-full max-h-28 min-h-28 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
               <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
                 {selectedTitle.overview}
               </p>

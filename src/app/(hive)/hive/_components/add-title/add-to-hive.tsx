@@ -166,7 +166,7 @@ export default function AddTitleToHive({ user }: { user: UserSession }) {
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-[95%]">
-        <div className="mx-auto h-full w-full overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 selection:bg-gray-600 selection:text-white">
+        <div className="mx-auto h-full w-full overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
           <DrawerHeader>
             <DrawerTitle>Add Title to Your Hive</DrawerTitle>
             <DrawerDescription>

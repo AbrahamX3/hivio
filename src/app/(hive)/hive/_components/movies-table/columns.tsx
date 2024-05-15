@@ -65,6 +65,31 @@ export function MovieColumns() {
       },
     },
     {
+      id: "Rating",
+      accessorFn: (row) => row.title.rating,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Rating" />
+      ),
+      cell: ({ row }) => {
+        const rating = Number(row.getValue("Rating")).toFixed(1);
+        return (
+          <div className="flex space-x-2">
+            <span
+              title={`${rating} / 10`}
+              className="max-w-[500px] truncate font-medium"
+            >
+              {rating} / 10
+            </span>
+          </div>
+        );
+      },
+      filterFn: (row, id, value: string[]) => {
+        return value.every((val: string) =>
+          row.getValue<string[]>(id).includes(val),
+        );
+      },
+    },
+    {
       id: "Genres",
       accessorFn: (row) => row.title.genres,
       enableSorting: false,

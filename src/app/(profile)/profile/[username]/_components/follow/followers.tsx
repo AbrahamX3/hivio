@@ -45,7 +45,7 @@ export function Followers({ total, username, currentUser }: Props) {
         <div className="max-h-[300px] overflow-y-auto">
           <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
             {status === "executing" || status === "idle" ? (
-              <div className="flex items-center rounded-md border border-dashed p-2 text-center">
+              <div className="flex flex-col items-center rounded-md p-2 text-center">
                 Finding @{username}&apos;s followers...
               </div>
             ) : status === "hasSucceeded" && followers.length === 0 ? (
@@ -55,7 +55,7 @@ export function Followers({ total, username, currentUser }: Props) {
                 </div>
               ) : (
                 <div className="flex flex-col items-center rounded-md border border-dashed p-2 text-center">
-                  @{username} has followers, be the first to follow them!
+                  @{username} has no followers, be the first to follow them!
                 </div>
               )
             ) : (

@@ -28,8 +28,8 @@ import {
 import { useTitleDetails } from "@/context/title-details-context";
 import { cn } from "@/lib/utils";
 import { UserSession } from "@/types/auth";
+import { HiveRowData } from "@/types/hive";
 
-import { HiveRowData } from "./hive-table/table-view";
 import DashboardStats from "./stats";
 import TableTabs from "./table-tabs";
 import TitleDetails from "./title-details";
@@ -69,12 +69,11 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
       >
         <DashboardStats user={user} />
         <div className="flex min-w-0 items-center">
-          <Tabs defaultValue="hive" className="w-full">
+          <Tabs defaultValue="movies" className="w-full">
             <div className="flex items-center">
               <TabsList>
-                <TabsTrigger value="hive">Hive</TabsTrigger>
-                <TabsTrigger value="movies">Movies</TabsTrigger>
-                <TabsTrigger value="series">Series</TabsTrigger>
+                <TabsTrigger value="movies">Hive Movies</TabsTrigger>
+                <TabsTrigger value="series">Hive Series</TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-2">
                 <DropdownMenu>

@@ -12,21 +12,21 @@ module default {
     );
 
     type User {
+        avatar: str;
         required identity: ext::auth::Identity {
             constraint exclusive;
         };
         required email: str {
             constraint exclusive;
         };
-        multi followers: Follower;
+        username: str {
+            constraint exclusive;
+        };
+        multi followers := .<follower[is Follower];
         required name: str;
         required status: TitleStatus {
             default := "WATCHING";
         };
-        username: str {
-            constraint exclusive;
-        };
-        avatar: str;
         required createdAt: datetime {
             default := datetime_current();
         }
@@ -43,19 +43,36 @@ module default {
             default := datetime_current();
         }
 
-         constraint exclusive on ( (.follower, .followed) );
+        constraint exclusive on ( (.follower, .followed) );
+    }
+
+    type Season {
+        required title: Title;
+        required season: int32;
+        required episodes: int32;
+        required date: cal::local_date;
+        required createdAt: datetime {
+            default := datetime_current();
+        }
+        updatedAt: datetime {
+            rewrite insert using (datetime_of_statement());
+            rewrite update using (datetime_of_statement());
+        }
+
+        constraint exclusive on ( (.title, .season) );
     }
 
     type Title {
-        imdbId: str;
         required tmdbId: int32;
         required name: str;
-        description: str;
         required date: cal::local_date;
+        required type: TitleType;
+        imdbId: str;
+        description: str;
+        rating: float32;
         poster: str;
         posterBlur: str;
-        type: TitleType;
-        updated: datetime {
+        updatedAt: datetime {
             rewrite insert using (datetime_of_statement());
             rewrite update using (datetime_of_statement());
         }
@@ -63,6 +80,9 @@ module default {
             default := datetime_current();
         }
         required genres: array<int32>;
+        multi seasons := .<title[is Season];
+
+        constraint exclusive on ( (.tmdbId, .type) );
     }
 
     type Hive {

@@ -38,6 +38,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { HiveRowData } from "@/types/hive";
 
 import { hiveMetadataInfo, hiveProfile } from "../../actions";
 import { EmptyCard } from "./_components/empty-card";
@@ -227,15 +228,14 @@ export default async function PublicUserProfile({ params }: Props) {
           </div>
         )}
       </Suspense>
-      <Tabs defaultValue="hive" className="w-full">
+      <Tabs defaultValue="movies" className="w-full">
         <div className="flex items-center">
           <TabsList>
-            <TabsTrigger value="hive">Hive</TabsTrigger>
-            <TabsTrigger value="movies">Movies</TabsTrigger>
-            <TabsTrigger value="series">Series</TabsTrigger>
+            <TabsTrigger value="movies">Hive Movies</TabsTrigger>
+            <TabsTrigger value="series">Hive Series</TabsTrigger>
           </TabsList>
         </div>
-        <TableTabs data={hive} data-superjson />
+        <TableTabs data={hive as HiveRowData[]} />
       </Tabs>
     </>
   );

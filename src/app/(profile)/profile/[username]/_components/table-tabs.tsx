@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card";
 import TableContainer from "@/components/ui/datatable/data-table-container";
 import { TabsContent } from "@/components/ui/tabs";
+import { HiveRowData } from "@/types/hive";
 
-import HiveTableView, { HiveRowData } from "./hive-table/table-view";
 import MoviesTableView from "./movies-table/table-view";
 import SeriesTableView from "./series-table/table-view";
 
@@ -20,28 +20,12 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
 
   return (
     <>
-      <TabsContent value="hive">
-        <Card>
-          <CardHeader>
-            <CardTitle>Hive</CardTitle>
-            <CardDescription>
-              A collection of all movies and series that are stored in your
-              hive.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <TableContainer>
-              <HiveTableView data={data} data-superjson />
-            </TableContainer>
-          </CardContent>
-        </Card>
-      </TabsContent>
       <TabsContent value="movies">
         <Card>
           <CardHeader>
-            <CardTitle>Your Movies</CardTitle>
+            <CardTitle>Hive Movies</CardTitle>
             <CardDescription>
-              All your movies that are stored in your Hive.
+              Movies that are stored in your Hive.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -54,9 +38,9 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
       <TabsContent value="series">
         <Card>
           <CardHeader>
-            <CardTitle>Your Series</CardTitle>
+            <CardTitle>Hive Series</CardTitle>
             <CardDescription>
-              All your series that are stored in your Hive.
+              Series that are stored in the Hive.
             </CardDescription>
           </CardHeader>
           <CardContent>
