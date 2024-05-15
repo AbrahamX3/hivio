@@ -3678,76 +3678,6 @@ function strictly_above(...args: any[]) {
   }) as any;
 };
 
-type range_get_upperλFuncExpr<
-  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
-> = $.$expr_Function<
-  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
->;
-type range_get_upperλFuncExpr2<
-  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
-> = $.$expr_Function<
-  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
->;
-function range_get_upper<
-  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
->(
-  r: P1,
-): range_get_upperλFuncExpr<P1>;
-function range_get_upper<
-  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
->(
-  r: P1,
-): range_get_upperλFuncExpr2<P1>;
-function range_get_upper(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::range_get_upper', args, _.spec, [
-    {args: [{typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
-    {args: [{typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "std::range_get_upper",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
-type range_get_lowerλFuncExpr<
-  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
-> = $.$expr_Function<
-  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
->;
-type range_get_lowerλFuncExpr2<
-  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
-> = $.$expr_Function<
-  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
->;
-function range_get_lower<
-  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
->(
-  r: P1,
-): range_get_lowerλFuncExpr<P1>;
-function range_get_lower<
-  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
->(
-  r: P1,
-): range_get_lowerλFuncExpr2<P1>;
-function range_get_lower(...args: any[]) {
-  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::range_get_lower', args, _.spec, [
-    {args: [{typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
-    {args: [{typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
-  ]);
-  return _.syntax.$expressionify({
-    __kind__: $.ExpressionKind.Function,
-    __element__: returnType,
-    __cardinality__: cardinality,
-    __name__: "std::range_get_lower",
-    __args__: positionalArgs,
-    __namedargs__: namedArgs,
-  }) as any;
-};
-
 type range_is_inclusive_upperλFuncExpr<
   P1 extends $.TypeSet<$.RangeType<$anypoint>>,
 > = $.$expr_Function<
@@ -4917,6 +4847,76 @@ function sequence_next(...args: any[]) {
   }) as any;
 };
 
+type range_get_upperλFuncExpr<
+  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
+> = $.$expr_Function<
+  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
+>;
+type range_get_upperλFuncExpr2<
+  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
+> = $.$expr_Function<
+  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
+>;
+function range_get_upper<
+  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
+>(
+  r: P1,
+): range_get_upperλFuncExpr<P1>;
+function range_get_upper<
+  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
+>(
+  r: P1,
+): range_get_upperλFuncExpr2<P1>;
+function range_get_upper(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::range_get_upper', args, _.spec, [
+    {args: [{typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
+    {args: [{typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "std::range_get_upper",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
+type range_get_lowerλFuncExpr<
+  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
+> = $.$expr_Function<
+  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
+>;
+type range_get_lowerλFuncExpr2<
+  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
+> = $.$expr_Function<
+  $.getPrimitiveBaseType<P1["__element__"]["__element__"]>, $.cardutil.overrideLowerBound<$.cardutil.paramCardinality<P1>, 'Zero'>
+>;
+function range_get_lower<
+  P1 extends $.TypeSet<$.RangeType<$anypoint>>,
+>(
+  r: P1,
+): range_get_lowerλFuncExpr<P1>;
+function range_get_lower<
+  P1 extends $.TypeSet<$.MultiRangeType<$anypoint>>,
+>(
+  r: P1,
+): range_get_lowerλFuncExpr2<P1>;
+function range_get_lower(...args: any[]) {
+  const {returnType, cardinality, args: positionalArgs, namedArgs} = _.syntax.$resolveOverload('std::range_get_lower', args, _.spec, [
+    {args: [{typeId: "49748e47-8d91-5269-9a34-2e8ca194e0f2", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
+    {args: [{typeId: "c3231f27-c8a1-5a0c-9830-c71206020eac", optional: false, setoftype: false, variadic: false}], returnTypeId: "581b0325-a044-58d4-aa37-3a85ea671313", returnTypemod: "OptionalType"},
+  ]);
+  return _.syntax.$expressionify({
+    __kind__: $.ExpressionKind.Function,
+    __element__: returnType,
+    __cardinality__: cardinality,
+    __name__: "std::range_get_lower",
+    __args__: positionalArgs,
+    __namedargs__: namedArgs,
+  }) as any;
+};
+
 
 
 export { Endian, JsonEmpty, bigint, bool, bytes, datetime, decimal, duration, float32, float64, int16, int32, int64, json, $sequence, str, uuid, number, $BaseObject, BaseObject, $Object_8ce8c71ee4fa5f73840c22d7eaa58588, Object_8ce8c71ee4fa5f73840c22d7eaa58588, $FreeObject, FreeObject };
@@ -5013,8 +5013,6 @@ type __defaultExports = {
   "multirange": typeof multirange;
   "range_is_empty": typeof range_is_empty;
   "strictly_above": typeof strictly_above;
-  "range_get_upper": typeof range_get_upper;
-  "range_get_lower": typeof range_get_lower;
   "range_is_inclusive_upper": typeof range_is_inclusive_upper;
   "range_is_inclusive_lower": typeof range_is_inclusive_lower;
   "overlaps": typeof overlaps;
@@ -5038,6 +5036,8 @@ type __defaultExports = {
   "to_uuid": typeof to_uuid;
   "sequence_reset": typeof sequence_reset;
   "sequence_next": typeof sequence_next;
+  "range_get_upper": typeof range_get_upper;
+  "range_get_lower": typeof range_get_lower;
   "enc": typeof _module__enc
 };
 const __defaultExports: __defaultExports = {
@@ -5130,8 +5130,6 @@ const __defaultExports: __defaultExports = {
   "multirange": multirange,
   "range_is_empty": range_is_empty,
   "strictly_above": strictly_above,
-  "range_get_upper": range_get_upper,
-  "range_get_lower": range_get_lower,
   "range_is_inclusive_upper": range_is_inclusive_upper,
   "range_is_inclusive_lower": range_is_inclusive_lower,
   "overlaps": overlaps,
@@ -5155,6 +5153,8 @@ const __defaultExports: __defaultExports = {
   "to_uuid": to_uuid,
   "sequence_reset": sequence_reset,
   "sequence_next": sequence_next,
+  "range_get_upper": range_get_upper,
+  "range_get_lower": range_get_lower,
   "enc": _module__enc
 };
 export default __defaultExports;
