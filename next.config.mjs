@@ -10,12 +10,6 @@ const config = {
   experimental: {
     swcPlugins: [["next-superjson-plugin", {}]],
   },
-  // typescript: {
-  //   ignoreBuildErrors: true,
-  // },
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // },
   images: {
     remotePatterns: [
       {
