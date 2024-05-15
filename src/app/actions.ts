@@ -3,10 +3,10 @@
 import { env } from "@/env";
 import { action } from "@/lib/safe-action";
 import {
-  MovieCredits,
-  MovieDetails,
-  SeriesCredits,
-  SeriesDetails,
+  type MovieCredits,
+  type MovieDetails,
+  type SeriesCredits,
+  type SeriesDetails,
 } from "@/types/tmdb";
 
 import { TitleDetailsSchema } from "./validations";

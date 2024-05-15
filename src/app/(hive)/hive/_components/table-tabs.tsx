@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import TableContainer from "@/components/ui/datatable/data-table-container";
 import { TabsContent } from "@/components/ui/tabs";
-import { HiveRowData } from "@/types/hive";
+import { type HiveRowData } from "@/types/hive";
 
 import MoviesTableView from "./movies-table/table-view";
 import SeriesTableView from "./series-table/table-view";

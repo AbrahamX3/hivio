@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
 import * as React from "react";
 import { cva } from "class-variance-authority";
-import { CheckIcon, Loader2, LucideIcon, X } from "lucide-react";
+import { CheckIcon, Loader2, X, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -32,10 +34,10 @@ const StepperContext = React.createContext<
   steps: [],
   activeStep: 0,
   initialStep: 0,
-  nextStep: () => {},
-  prevStep: () => {},
-  resetSteps: () => {},
-  setStep: () => {},
+  nextStep: () => null,
+  prevStep: () => null,
+  resetSteps: () => null,
+  setStep: () => null,
 });
 
 type StepperContextProviderProps = {
@@ -102,7 +104,7 @@ function useStepper() {
     throw new Error("useStepper must be used within a StepperProvider");
   }
 
-  const { children, className, ...rest } = context;
+  const { ...rest } = context;
 
   const isLastStep = context.activeStep === context.steps.length - 1;
   const hasCompletedAllSteps = context.activeStep === context.steps.length;
@@ -247,7 +249,7 @@ const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
     const stepCount = items.length;
 
     const isMobile = useMediaQuery(
-      `(max-width: ${mobileBreakpoint || "768px"})`,
+      `(max-width: ${mobileBreakpoint ?? "768px"})`,
     );
 
     const clickable = !!onClickStep;
@@ -270,7 +272,7 @@ const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
           clickable,
           stepCount,
           isVertical,
-          variant: variant || "circle",
+          variant: variant ?? "circle",
           expandVerticalSteps,
           steps,
           scrollTracking,
@@ -291,9 +293,9 @@ const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
           style={
             {
               "--step-icon-size":
-                variables?.["--step-icon-size"] ||
-                `${VARIABLE_SIZES[size || "md"]}`,
-              "--step-gap": variables?.["--step-gap"] || "8px",
+                variables?.["--step-icon-size"] ??
+                `${VARIABLE_SIZES[size ?? "md"]}`,
+              "--step-gap": variables?.["--step-gap"] ?? "8px",
             } as React.CSSProperties
           }
           {...rest}
@@ -326,7 +328,7 @@ const VerticalContent = ({ children }: { children: React.ReactNode }) => {
       {React.Children.map(children, (child, i) => {
         const isCompletedStep =
           (React.isValidElement(child) &&
-            (child.props as any).isCompletedStep) ??
+            (child.props.isCompletedStep as boolean)) ??
           i < activeStep;
         const isLastStep = i === stepCount - 1;
         const isCurrentStep = i === activeStep;
@@ -405,6 +407,7 @@ interface FullStepProps extends StepProps, StepInternalConfig {}
 
 const Step = React.forwardRef<HTMLLIElement, StepProps>(function Step(
   props,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: React.Ref<any>,
 ) {
   const {
@@ -425,7 +428,7 @@ const Step = React.forwardRef<HTMLLIElement, StepProps>(function Step(
 
   const { isVertical, isError, isLoading, clickable } = useStepper();
 
-  const hasVisited = isCurrentStep || isCompletedStep;
+  const hasVisited = isCurrentStep ?? isCompletedStep;
 
   const sharedProps = {
     isLastStep,
@@ -528,15 +531,15 @@ const VerticalStep = React.forwardRef<HTMLDivElement, VerticalStepProps>(
     } = useStepper();
 
     const opacity = hasVisited ? 1 : 0.8;
-    const localIsLoading = isLoading || state === "loading";
-    const localIsError = isError || state === "error";
+    const localIsLoading = isLoading ?? state === "loading";
+    const localIsError = isError ?? state === "error";
 
     const isLastStep = index === steps.length - 1;
 
     const active =
-      variant === "line" ? isCompletedStep || isCurrentStep : isCompletedStep;
-    const checkIcon = checkIconProp || checkIconContext;
-    const errorIcon = errorIconProp || errorIconContext;
+      variant === "line" ? isCompletedStep ?? isCurrentStep : isCompletedStep;
+    const checkIcon = checkIconProp ?? checkIconContext;
+    const errorIcon = errorIconProp ?? errorIconContext;
 
     const renderChildren = () => {
       if (!expandVerticalSteps) {
@@ -552,7 +555,7 @@ const VerticalStep = React.forwardRef<HTMLDivElement, VerticalStepProps>(
                   scrollTracking &&
                   ((index === 0 &&
                     previousActiveStep &&
-                    previousActiveStep === steps.length) ||
+                    previousActiveStep === steps.length) ??
                     (index && index > 0))
                 ) {
                   node?.scrollIntoView({
@@ -582,14 +585,14 @@ const VerticalStep = React.forwardRef<HTMLDivElement, VerticalStepProps>(
           isLastStepCurrentStep && "gap-[var(--step-gap)]",
           styles?.["vertical-step"],
         )}
-        data-optional={steps[index || 0]?.optional}
+        data-optional={steps[index ?? 0]?.optional}
         data-completed={isCompletedStep}
         data-active={active}
-        data-clickable={clickable || !!onClickStep}
+        data-clickable={clickable ?? !!onClickStep}
         data-invalid={localIsError}
         onClick={() =>
-          onClickStep?.(index || 0, setStep) ||
-          onClickStepGeneral?.(index || 0, setStep)
+          onClickStep?.(index ?? 0, setStep) ??
+          onClickStepGeneral?.(index ?? 0, setStep)
         }
       >
         <div
@@ -672,16 +675,16 @@ const HorizontalStep = React.forwardRef<HTMLDivElement, StepSharedProps>(
       errorIcon: errorIconProp,
     } = props;
 
-    const localIsLoading = isLoading || state === "loading";
-    const localIsError = isError || state === "error";
+    const localIsLoading = isLoading ?? state === "loading";
+    const localIsError = isError ?? state === "error";
 
     const opacity = hasVisited ? 1 : 0.8;
 
     const active =
-      variant === "line" ? isCompletedStep || isCurrentStep : isCompletedStep;
+      variant === "line" ? isCompletedStep ?? isCurrentStep : isCompletedStep;
 
-    const checkIcon = checkIconProp || checkIconContext;
-    const errorIcon = errorIconProp || errorIconContext;
+    const checkIcon = checkIconProp ?? checkIconContext;
+    const errorIcon = errorIconProp ?? errorIconContext;
 
     return (
       <div
@@ -702,12 +705,12 @@ const HorizontalStep = React.forwardRef<HTMLDivElement, StepSharedProps>(
             "flex-1 flex-col border-t-[3px] data-[active=true]:border-primary",
           styles?.["horizontal-step"],
         )}
-        data-optional={steps[index || 0]?.optional}
+        data-optional={steps[index ?? 0]?.optional}
         data-completed={isCompletedStep}
         data-active={active}
         data-invalid={localIsError}
         data-clickable={clickable}
-        onClick={() => onClickStep?.(index || 0, setStep)}
+        onClick={() => onClickStep?.(index ?? 0, setStep)}
         ref={ref}
       >
         <div
@@ -768,9 +771,9 @@ const StepButtonContainer = ({
     styles,
   } = useStepper();
 
-  const currentStepClickable = clickable || !!onClickStep;
+  const currentStepClickable = clickable ?? !!onClickStep;
 
-  const isLoading = isLoadingProp || isLoadingContext;
+  const isLoading = isLoadingProp ?? isLoadingContext;
 
   if (variant === "line") {
     return null;
@@ -793,10 +796,10 @@ const StepButtonContainer = ({
       )}
       aria-current={isCurrentStep ? "step" : undefined}
       data-current={isCurrentStep}
-      data-invalid={isError && (isCurrentStep || isCompletedStep)}
+      data-invalid={isError && (isCurrentStep ?? isCompletedStep)}
       data-active={isCompletedStep}
       data-clickable={currentStepClickable}
-      data-loading={isLoading && (isCurrentStep || isCompletedStep)}
+      data-loading={isLoading && (isCurrentStep ?? isCompletedStep)}
     >
       {children}
     </Button>
@@ -805,7 +808,7 @@ const StepButtonContainer = ({
 
 // <---------- STEP ICON ---------->
 
-type IconType = LucideIcon | React.ComponentType<any> | undefined;
+type IconType = LucideIcon | React.ComponentType<unknown> | undefined;
 
 const iconVariants = cva("", {
   variants: {
@@ -912,7 +915,7 @@ const StepIcon = React.forwardRef<HTMLDivElement, StepIconProps>(
           key="label"
           className={cn("text-md text-center font-medium")}
         >
-          {(index || 0) + 1}
+          {(index ?? 0) + 1}
         </span>
       );
     }, [

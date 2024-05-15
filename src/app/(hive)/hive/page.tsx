@@ -2,6 +2,7 @@ import e from "@edgedb/edgeql-js";
 
 import { getUser, verifyUser } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
+import { type HiveRowData } from "@/types/hive";
 
 import { DashboardContainer } from "./_components/dashboard-container";
 
@@ -25,7 +26,7 @@ async function getData() {
     }))
     .run(client);
 
-  return JSON.parse(JSON.stringify(data));
+  return JSON.parse(JSON.stringify(data)) as HiveRowData[];
 }
 
 export default async function HiveDashboard() {

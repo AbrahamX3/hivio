@@ -11,7 +11,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useStepper } from "@/components/ui/stepper";
-import { SearchResult } from "@/types/tmdb";
+import { type SearchResult } from "@/types/tmdb";
 
 import SearchTitleCard from "../../search-title-card";
 import { StepperFormActions } from "../stepper-form-actions";

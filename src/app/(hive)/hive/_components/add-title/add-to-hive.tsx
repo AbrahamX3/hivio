@@ -33,16 +33,19 @@ import { Input } from "@/components/ui/input";
 import { Step, Stepper } from "@/components/ui/stepper";
 import { useConfetti } from "@/context/use-confetti";
 import { useServerAction } from "@/hooks/use-server-action";
-import { UserSession } from "@/types/auth";
-import { SearchResult } from "@/types/tmdb";
+import { type UserSession } from "@/types/auth";
+import { type SearchResult } from "@/types/tmdb";
 
 import ConfirmTitleCard from "./confirm-title-card";
 import { StepperFooter } from "./stepper/stepper-footer";
 import { StepperFormActions } from "./stepper/stepper-form-actions";
-import { HiveFormStep, HiveFormValues } from "./stepper/steps/hive-form-step";
+import {
+  HiveFormStep,
+  type HiveFormValues,
+} from "./stepper/steps/hive-form-step";
 import {
   TitleFormStep,
-  TitleFormValues,
+  type TitleFormValues,
 } from "./stepper/steps/title-form-step";
 
 const searchFormSchema = z.object({
@@ -138,7 +141,7 @@ export default function AddTitleToHive({ user }: { user: UserSession }) {
         router.refresh();
       })
       .catch((error) => {
-        toast.error(error.message, {
+        toast.error(String(error), {
           id: "add-title",
         });
 

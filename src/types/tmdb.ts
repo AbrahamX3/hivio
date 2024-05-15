@@ -165,7 +165,7 @@ export interface SeriesRecommendation {
 export type MovieDetails = {
   adult: boolean;
   backdrop_path: string;
-  belongs_to_collection: any;
+  belongs_to_collection: unknown;
   budget: number;
   genres: Array<{
     id: number;
@@ -217,7 +217,7 @@ export type SeriesDetails = {
     gender: number;
     profile_path: string;
   }>;
-  episode_run_time: Array<any>;
+  episode_run_time: Array<unknown>;
   first_air_date: string;
   genres: Array<{
     id: number;
@@ -244,7 +244,21 @@ export type SeriesDetails = {
     still_path: string;
   };
   name: string;
-  next_episode_to_air: any;
+  next_episode_to_air: {
+    id: number;
+    overview: string;
+    name: string;
+    vote_average: number;
+    vote_count: number;
+    air_date: string;
+    episode_number: number;
+    episode_type: string;
+    production_code: string;
+    runtime: number;
+    season_number: number;
+    show_id: number;
+    still_path: string;
+  };
   networks: Array<{
     id: number;
     logo_path: string;
@@ -261,7 +275,7 @@ export type SeriesDetails = {
   poster_path: string;
   production_companies: Array<{
     id: number;
-    logo_path: string;
+    logo_path?: string;
     name: string;
     origin_country: string;
   }>;

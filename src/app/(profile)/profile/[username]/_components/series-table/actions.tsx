@@ -14,9 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTitleDetails } from "@/context/title-details-context";
+import { type HiveRowData } from "@/types/hive";
 
 import { TitleDetailsDrawer } from "../title-details-drawer";
-import { HiveRowData } from "./table-view";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

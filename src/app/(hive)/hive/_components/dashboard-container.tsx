@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useTitleDetails } from "@/context/title-details-context";
 import { cn } from "@/lib/utils";
-import { UserSession } from "@/types/auth";
-import { HiveRowData } from "@/types/hive";
+import { type UserSession } from "@/types/auth";
+import { type HiveRowData } from "@/types/hive";
 
 import DashboardStats from "./stats";
 import TableTabs from "./table-tabs";

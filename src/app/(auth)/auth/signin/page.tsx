@@ -8,7 +8,7 @@ import { auth } from "@/lib/edgedb";
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Record<string, string | string[] | undefined>;
 }) {
   const providerInfo = await auth.getProvidersInfo();
   const isSignedIn = await isUserSignedIn();

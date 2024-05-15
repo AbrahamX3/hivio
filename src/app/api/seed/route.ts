@@ -7,7 +7,7 @@ import { titles } from "./data";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const username = searchParams.get("username") as string;
+  const username = searchParams.get("username")!;
 
   const user = e.select(e.User, (user) => ({
     filter_single: e.op(user.username, "=", e.str(username)),

@@ -1,4 +1,4 @@
-import { TitleStatus } from "@edgedb/interfaces";
+import { type TitleStatus } from "@edgedb/interfaces";
 
 export const titles: {
   id: string;

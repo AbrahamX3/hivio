@@ -25,8 +25,8 @@ import { Input } from "@/components/ui/input";
 
 import { saveUsername } from "../../actions";
 import {
-  GeneralSettingsUsernameForm,
   GeneralSettingsUsernameFormSchema,
+  type GeneralSettingsUsernameForm,
 } from "../../validations";
 
 interface Props {

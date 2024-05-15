@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { SearchResult } from "@/types/tmdb";
+import { type SearchResult } from "@/types/tmdb";
 
 interface SearchTitleCardProps {
   result: SearchResult;

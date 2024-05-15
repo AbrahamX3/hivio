@@ -98,9 +98,9 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center justify-center pt-4 align-middle lg:pt-0">
         <div className="flex flex-wrap gap-2 align-middle sm:flex-row">
-          {filters?.map((filter, index) => (
+          {filters?.map((filter) => (
             <DataTableFacetedFilter
-              key={filter.title + "_" + filter.columnId + "_" + name}
+              key={`${name}_${filter.columnId}`}
               column={table.getColumn(filter.columnId)}
               title={filter.title}
               options={filter.options}

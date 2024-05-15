@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { UserSession } from "@/types/auth";
+import { type UserSession } from "@/types/auth";
 
 import AddTitleToHive from "./add-title/add-to-hive";
 

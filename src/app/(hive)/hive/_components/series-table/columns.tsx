@@ -15,9 +15,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
+import { type HiveRowData } from "@/types/hive";
 
 import { HiveSeriesTableActions } from "./actions";
-import { HiveRowData } from "./table-view";
 
 export function SeriesColumns() {
   const columns: ColumnDef<HiveRowData>[] = [

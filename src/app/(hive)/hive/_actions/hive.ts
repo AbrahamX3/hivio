@@ -6,10 +6,14 @@ import { getPlaiceholder } from "plaiceholder";
 
 import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
-import { MultiSearch, SearchResult, SeriesDetails } from "@/types/tmdb";
+import {
+  type MultiSearch,
+  type SearchResult,
+  type SeriesDetails,
+} from "@/types/tmdb";
 
-import { HiveFormValues } from "../_components/add-title/stepper/steps/hive-form-step";
-import { TitleFormValues } from "../_components/add-title/stepper/steps/title-form-step";
+import { type HiveFormValues } from "../_components/add-title/stepper/steps/hive-form-step";
+import { type TitleFormValues } from "../_components/add-title/stepper/steps/title-form-step";
 
 export async function searchTitle({ query }: { query: string }) {
   try {
@@ -128,7 +132,7 @@ export async function addTitleToHive({
           })
           .run(client)
           .catch((error) => {
-            throw new Error(error);
+            throw new Error(JSON.stringify(error));
           });
 
         return insert.id;
@@ -141,7 +145,7 @@ export async function addTitleToHive({
           })
           .run(client)
           .catch((error) => {
-            throw new Error(error);
+            throw new Error(JSON.stringify(error));
           });
 
         return insert.id;
@@ -254,7 +258,7 @@ export async function addTitleToHive({
         })
         .run(client)
         .catch((error) => {
-          throw new Error(error);
+          throw new Error(JSON.stringify(error));
         });
 
       return insert.id;
@@ -267,7 +271,7 @@ export async function addTitleToHive({
         })
         .run(client)
         .catch((error) => {
-          throw new Error(error);
+          throw new Error(JSON.stringify(error));
         });
 
       return insert.id;

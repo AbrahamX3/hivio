@@ -51,14 +51,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  SelectedTitle,
   useTitleDetails,
+  type SelectedTitle,
 } from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
+import { type HiveRowData } from "@/types/hive";
 
 import DeleteHiveTitle from "./delete-title";
-import { HiveRowData } from "./hive-table/table-view";
 
 const USD = Intl.NumberFormat("en-US", {
   style: "currency",
@@ -238,7 +238,7 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
             <div className="flex items-center gap-1">
               <TooltipProvider>
                 {data?.id && <DeleteHiveTitle id={data?.id} />}
-                {data?.title.imdbId || data?.title.tmdbId ? (
+                {data?.title.imdbId ?? data?.title.tmdbId ? (
                   <DropdownMenu>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -665,10 +665,10 @@ export default function TitleDetails({ data }: { data?: HiveRowData }) {
             ))}
         </CardContent>
         <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-          {data?.title.updated && (
+          {data?.title.updatedAt && (
             <div className="text-xs text-muted-foreground">
               <span className="font-semibold">Last Updated: </span>{" "}
-              {format(data?.title.updated, "PPPP p")}
+              {format(data?.title.updatedAt, "PPPP p")}
             </div>
           )}
         </CardFooter>

@@ -5,7 +5,7 @@ import { useAction, useOptimisticAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { UserSession } from "@/types/auth";
+import { type UserSession } from "@/types/auth";
 
 import { followUser, isFollowingUser } from "./actions";
 import { Followers } from "./followers";

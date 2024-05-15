@@ -45,13 +45,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  SelectedTitle,
   useTitleDetails,
+  type SelectedTitle,
 } from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
-
-import { HiveRowData } from "./hive-table/table-view";
+import { type HiveRowData } from "@/types/hive";
 
 interface Props {
   id: string;
@@ -66,7 +65,7 @@ const USD = Intl.NumberFormat("en-US", {
   maximumSignificantDigits: 3,
 });
 
-export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
+export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
   const { setSelectedTitle, selectedTitle } = useTitleDetails();
 
   const {
@@ -242,7 +241,7 @@ export function TitleDetailsDrawer({ id, setOpen, open, data }: Props) {
           )}
           <div className="flex items-center gap-1">
             <TooltipProvider>
-              {data?.title.imdbId || data?.title.tmdbId ? (
+              {data?.title.imdbId ?? data?.title.tmdbId ? (
                 <DropdownMenu>
                   <Tooltip>
                     <TooltipTrigger asChild>

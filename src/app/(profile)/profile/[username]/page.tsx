@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { formatDate } from "date-fns";
@@ -38,7 +38,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { HiveRowData } from "@/types/hive";
+import { type HiveRowData } from "@/types/hive";
 
 import { hiveMetadataInfo, hiveProfile } from "../../actions";
 import { EmptyCard } from "./_components/empty-card";
@@ -94,7 +94,7 @@ export default async function PublicUserProfile({ params }: Props) {
         />
         {user.username && <Follow username={user?.username} />}
       </div>
-      <StatsCards data={hive} data-superjson />
+      <StatsCards data={hive as HiveRowData[]} data-superjson />
       <h3 className="text-2xl font-semibold">Currently Watching</h3>
       <Suspense fallback={<div>Loading...</div>}>
         {currentlyWatching?.length > 0 ? (
@@ -142,7 +142,7 @@ export default async function PublicUserProfile({ params }: Props) {
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
-                              {hive?.title.imdbId || hive?.title.tmdbId ? (
+                              {hive?.title.imdbId ?? hive?.title.tmdbId ? (
                                 <DropdownMenu>
                                   <Tooltip>
                                     <TooltipTrigger asChild>

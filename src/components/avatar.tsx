@@ -25,7 +25,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserSession } from "@/types/auth";
+import { type UserSession } from "@/types/auth";
 
 import { LogoIcon } from "./icons";
 

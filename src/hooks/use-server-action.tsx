@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState, useTransition } from "react";
 
 // https://github.com/vercel/next.js/discussions/51371#discussioncomment-8671340
@@ -19,7 +20,7 @@ export function useServerAction<P extends any[], R>(
 
   const runAction = async (...args: P): Promise<R | undefined> => {
     startTransition(() => {
-      action(...args).then((data) => {
+      void action(...args).then((data) => {
         setResult(data);
         setFinished(true);
       });

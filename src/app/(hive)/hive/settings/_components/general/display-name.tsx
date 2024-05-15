@@ -25,8 +25,8 @@ import { Input } from "@/components/ui/input";
 
 import { saveDisplayName } from "../../actions";
 import {
-  GeneralSettingsDisplayNameForm,
   GeneralSettingsDisplayNameFormSchema,
+  type GeneralSettingsDisplayNameForm,
 } from "../../validations";
 
 interface Props {

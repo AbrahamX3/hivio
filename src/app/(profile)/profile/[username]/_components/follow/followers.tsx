@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { getFollowers, UserFollower } from "./actions";
+import { getFollowers, type UserFollower } from "./actions";
 
 interface Props {
   total: number;

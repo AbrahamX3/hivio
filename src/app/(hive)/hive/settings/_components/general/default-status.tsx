@@ -34,8 +34,8 @@ import { statusOptions } from "@/lib/options";
 
 import { saveStatus } from "../../actions";
 import {
-  GeneralSettingsStatusForm,
   GeneralSettingsStatusFormSchema,
+  type GeneralSettingsStatusForm,
 } from "../../validations";
 
 interface Props {

@@ -35,10 +35,13 @@ import {
 } from "@/components/ui/select";
 import { useConfetti } from "@/context/use-confetti";
 import { statusOptions } from "@/lib/options";
-import { UserSession } from "@/types/auth";
+import { type UserSession } from "@/types/auth";
 
 import { profileOnboarding } from "../hive/actions";
-import { ProfileSetupForm, ProfileSetupFormSchema } from "../hive/validations";
+import {
+  ProfileSetupFormSchema,
+  type ProfileSetupForm,
+} from "../hive/validations";
 
 export function ProfileSetup({ user }: { user: UserSession }) {
   const router = useRouter();
