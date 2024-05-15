@@ -1,6 +1,7 @@
 "use server";
 
 import e from "@edgedb/edgeql-js";
+import { TitleType } from "@edgedb/edgeql-js/modules/default";
 import { getPlaiceholder } from "plaiceholder";
 
 import { env } from "@/env";
@@ -82,7 +83,9 @@ export async function addTitleToHive({
   const client = auth.getSession().client;
   const tmdbId = titleFormValues.tmdbId;
   const TypeEnum =
-    selectedTitleData.media_type === "movie" ? "MOVIE" : "SERIES";
+    selectedTitleData.media_type === "movie"
+      ? TitleType.MOVIE
+      : TitleType.SERIES;
   const isTitleAdded = await e
     .select(e.Title, (title) => ({
       filter_single: e.op(
@@ -187,29 +190,15 @@ export async function addTitleToHive({
     if (type === "SERIES") {
       const seriesData = await fetchSeriesData(selectedTitleData.id);
 
-      // seriesData.seasons.forEach(async (details) => {
-      //   if (details.season_number === 0) return;
-      //   const season = details.season_number;
-      //   const episodes = details.episode_count;
-      //   const date = details.air_date;
-
-      //   await e
-      //     .insert(e.Season, {
-      //       title: e.set(titleId),
-      //       date: e.cal.local_date(date),
-      //       season: e.int32(season),
-      //       episodes: e.int32(episodes),
-      //     })
-      //     .run(client);
-      // });
-
-      const seasons = seriesData.seasons.map((details) => {
-        return {
-          season: details.season_number,
-          episodes: details.episode_count,
-          date: details.air_date,
-        };
-      });
+      const seasons = seriesData.seasons
+        .filter((details) => details.season_number !== 0)
+        .map((details) => {
+          return {
+            season: details.season_number,
+            episodes: details.episode_count,
+            date: details.air_date,
+          };
+        });
 
       const query = e.params(
         {
