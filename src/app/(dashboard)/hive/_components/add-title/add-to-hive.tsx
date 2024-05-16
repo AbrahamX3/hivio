@@ -11,7 +11,7 @@ import { z } from "zod";
 import {
   addTitleToHive,
   searchTitle as getTitleSearch,
-} from "@/app/(hive)/hive/_actions/hive";
+} from "@/app/(dashboard)/hive/_actions/hive";
 import { LogoIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Step, Stepper } from "@/components/ui/stepper";
 import { useConfetti } from "@/context/use-confetti";
 import { useServerAction } from "@/hooks/use-server-action";
+import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
 import { type SearchResult } from "@/types/tmdb";
 
@@ -55,7 +56,13 @@ const searchFormSchema = z.object({
 });
 export type SearchFormValues = z.infer<typeof searchFormSchema>;
 
-export default function AddTitleToHive({ user }: { user: UserSession }) {
+export default function AddTitleToHive({
+  user,
+  className,
+}: {
+  user: UserSession;
+  className?: string;
+}) {
   const searchForm = useForm<z.infer<typeof searchFormSchema>>({
     resolver: zodResolver(searchFormSchema),
     defaultValues: {
@@ -161,9 +168,12 @@ export default function AddTitleToHive({ user }: { user: UserSession }) {
           type="button"
           onClick={handleSearchFocus}
           size="lg"
-          className="group relative flex items-center justify-between gap-4 align-middle font-bold"
+          className={cn(
+            "group relative flex items-center justify-between gap-4 align-middle font-bold",
+            className,
+          )}
         >
-          <span>Add to Hive</span>
+          <span>Add Title</span>
           <LogoIcon className="size-4" />
           <PlusIcon className="absolute right-[25px] top-[22px] size-2 stroke-[4px] group-hover:animate-pulse" />
         </Button>

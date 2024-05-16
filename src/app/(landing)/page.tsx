@@ -22,8 +22,8 @@ export default async function Component() {
                 Your watchlist, amplified with Hivio
               </h1>
               <p className="mx-auto max-w-[700px] md:text-xl">
-                Add and manage your favorite shows and movies, and discover new
-                content with the help of the Hivio community.
+                Manage your favorite shows and movies, and discover new content
+                with the help of the Hivio community.
               </p>
             </div>
             <div className="space-x-4">

@@ -2,8 +2,22 @@ import { redirect } from "next/navigation";
 import { Link } from "next-view-transitions";
 
 import LogoFull, { GoogleIcon } from "@/components/icons";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { isUserSignedIn } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
+import { cn } from "@/lib/utils";
+
+export const metadata = {
+  title: "Sign In",
+  description: "Sign in to your hivio account",
+};
 
 export default async function SignInPage({
   searchParams,
@@ -19,53 +33,54 @@ export default async function SignInPage({
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
-      <div className="mx-auto max-w-sm space-y-4 rounded-md bg-card p-4 text-card-foreground shadow-sm">
-        <div className="flex flex-col items-center justify-center gap-4 rounded-md border-2 border-primary">
-          <Link href="/">
-            <LogoFull className="size-28 text-primary" />
-          </Link>
-          <p className="text-balance text-center">
-            Start amplyfying your boring watchlist
-          </p>
-        </div>
+      <Card className="mx-auto max-w-sm">
+        <CardHeader className="gap-4">
+          <CardTitle className="flex items-center gap-2 align-middle text-2xl">
+            Sign In to{" "}
+            <Link href="/">
+              <LogoFull className="h-6 w-auto text-primary" />
+            </Link>
+          </CardTitle>
+          <CardDescription>
+            Sign In to your account with one of the following providers to get
+            started
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            {providerInfo.oauth.length ? (
+              providerInfo.oauth.map(
+                (provider) =>
+                  provider.name === "builtin::oauth_google" && (
+                    <a
+                      key={provider.name}
+                      href={auth.getOAuthUrl(provider.name)}
+                      className={cn(
+                        buttonVariants({ variant: "outline" }),
+                        "flex w-full items-center justify-between align-middle",
+                      )}
+                    >
+                      <span className="font-semibold">
+                        Login with {provider.display_name}
+                      </span>
+                      <GoogleIcon className="size-5" />
+                    </a>
+                  ),
+              )
+            ) : (
+              <div className="w-[14rem] italic text-slate-500">
+                No OAuth providers configured
+              </div>
+            )}
 
-        <div className="rounded-md border-2 border-dashed border-primary p-6">
-          <div className="space-y-2 pb-6">
-            <p className="text-xl font-bold">Sign In</p>
-            <p className="text-sm text-foreground">
-              Sign in with one of the following providers
-            </p>
+            {searchParams.oauth_error ? (
+              <div className="rounded-md bg-rose-100 px-4 py-3 text-rose-950">
+                {searchParams.oauth_error}
+              </div>
+            ) : null}
           </div>
-          {searchParams.oauth_error ? (
-            <div className="rounded-md bg-rose-100 px-4 py-3 text-rose-950">
-              {searchParams.oauth_error}
-            </div>
-          ) : null}
-
-          {providerInfo.oauth.length ? (
-            providerInfo.oauth.map(
-              (provider) =>
-                provider.name === "builtin::oauth_google" && (
-                  <a
-                    key={provider.name}
-                    href={auth.getOAuthUrl(provider.name)}
-                    className="flex shrink-0 items-center justify-between rounded-lg bg-white p-3 font-medium text-black shadow-md
-                transition-transform hover:scale-[1.03]"
-                  >
-                    <span className="font-semibold">
-                      {provider.display_name}
-                    </span>
-                    <GoogleIcon />
-                  </a>
-                ),
-            )
-          ) : (
-            <div className="w-[14rem] italic text-slate-500">
-              No OAuth providers configured
-            </div>
-          )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }

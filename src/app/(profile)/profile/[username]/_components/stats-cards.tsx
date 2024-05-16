@@ -54,7 +54,7 @@ export default function StatsCards({ data }: Props) {
 
   return (
     <div className="grid w-full gap-4 pt-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-      <Card className="border border-primary">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Finished Titles</CardTitle>
           <CheckCircleIcon className="size-4 text-muted-foreground" />
@@ -67,7 +67,7 @@ export default function StatsCards({ data }: Props) {
         </CardContent>
       </Card>
 
-      <Card className="border border-primary">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Finished Movies</CardTitle>
           <FilmIcon className="size-4 text-muted-foreground" />
@@ -80,7 +80,7 @@ export default function StatsCards({ data }: Props) {
         </CardContent>
       </Card>
 
-      <Card className="border border-primary">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Finished Series</CardTitle>
           <ClapperboardIcon className="size-4 text-muted-foreground" />
@@ -93,7 +93,7 @@ export default function StatsCards({ data }: Props) {
         </CardContent>
       </Card>
 
-      <Card className="border border-primary">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             Currently Watching

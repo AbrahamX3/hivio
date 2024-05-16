@@ -15,6 +15,7 @@ export default function UsersSearchInput() {
   const [query, setQuery] = useState("");
   const debouncedSearch = useDebounce(query, 500);
   const [results, setResults] = useState<UserSearch[]>([]);
+
   const { execute, reset, status } = useAction(searchUsers, {
     onSuccess: (users) => {
       setResults(users);
@@ -35,14 +36,14 @@ export default function UsersSearchInput() {
   return (
     <div className="relative ml-auto flex-1 text-black dark:text-white md:grow-0">
       <div className="relative">
+        <SearchIcon className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-lg bg-background pr-10 md:w-[200px] lg:w-[320px]"
+          className="w-full appearance-none rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
           placeholder="Search users..."
           type="search"
         />
-        <SearchIcon className="absolute right-3 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
       </div>
       {open && query.length > 0 && (
         <div className="absolute mt-2 w-full rounded-md border-2 bg-background shadow-sm md:w-[200px] lg:w-[320px]">

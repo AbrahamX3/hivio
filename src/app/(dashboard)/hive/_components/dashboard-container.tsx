@@ -67,6 +67,12 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
           selectedTitle ? "lg:col-span-2" : "lg:col-span-3",
         )}
       >
+        <div className="mx-auto grid w-full gap-2 rounded-md border px-4 py-4 lg:px-6">
+          <h1 className="text-3xl font-semibold">Settings</h1>
+          <p className="text-muted-foreground">
+            Manage your general account settings and other options.
+          </p>
+        </div>
         <DashboardStats user={user} />
         <div className="flex min-w-0 items-center">
           <Tabs defaultValue="movies" className="w-full">

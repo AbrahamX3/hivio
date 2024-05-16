@@ -130,10 +130,7 @@ export async function addTitleToHive({
             rating: e.float32(hiveFormValues.rating),
             isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
           })
-          .run(client)
-          .catch((error) => {
-            throw new Error(JSON.stringify(error));
-          });
+          .run(client);
 
         return insert.id;
       } else {
@@ -143,10 +140,7 @@ export async function addTitleToHive({
             title: e.set(titleToAdd),
             status: hiveFormValues.status,
           })
-          .run(client)
-          .catch((error) => {
-            throw new Error(JSON.stringify(error));
-          });
+          .run(client);
 
         return insert.id;
       }
@@ -242,10 +236,7 @@ export async function addTitleToHive({
           rating: e.float32(hiveFormValues.rating),
           isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
         })
-        .run(client)
-        .catch((error) => {
-          throw new Error(JSON.stringify(error));
-        });
+        .run(client);
 
       return insert.id;
     } else {
@@ -255,10 +246,7 @@ export async function addTitleToHive({
           title: e.set(titleId),
           status: hiveFormValues.status,
         })
-        .run(client)
-        .catch((error) => {
-          throw new Error(JSON.stringify(error));
-        });
+        .run(client);
 
       return insert.id;
     }

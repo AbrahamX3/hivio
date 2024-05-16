@@ -18,7 +18,7 @@ export default function DashboardStats({ user }: { user: UserSession }) {
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
       <Card className="sm:col-span-2">
         <CardHeader className="pb-3">
-          <CardTitle>Your Hive</CardTitle>
+          <CardTitle>Your Hive Dashboard</CardTitle>
           <CardDescription className="max-w-lg text-balance leading-relaxed">
             Your go-to hub for tracking your movies and series. Store, manage,
             and track your favorite titles.
