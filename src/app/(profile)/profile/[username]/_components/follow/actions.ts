@@ -75,6 +75,22 @@ export const totalFollowers = action(
   },
 );
 
+export const totalFollowing = action(
+  TotalFollowersSchema,
+  async ({ username }) => {
+    const following = await e
+      .select(e.Follower, (follower) => ({
+        id: true,
+        filter: e.op(follower.follower.username, "=", e.str(username)),
+      }))
+      .run(db);
+
+    const total = following.length;
+
+    return total;
+  },
+);
+
 export const isFollowingUser = authAction(
   TotalFollowersSchema,
   async ({ username }) => {
@@ -103,24 +119,50 @@ export interface UserFollower {
   name: string;
 }
 
+export interface UserFollowing {
+  avatar: string | null;
+  username: string | null;
+  name: string;
+}
+
 export const getFollowers = action(FollowSchema, async ({ username }) => {
-  const client = auth.getSession().client;
   const result = await e
-    .select(e.Follower, (follower) => ({
+    .select(e.Follower, (follow) => ({
       follower: {
         username: true,
         name: true,
         avatar: true,
       },
-      filter: e.op(follower.followed.username, "=", e.str(username)),
+      filter: e.op(follow.followed.username, "=", e.str(username)),
     }))
-    .run(client);
+    .run(db);
 
-  const followers = result.map((follower) => ({
-    avatar: follower.follower.avatar,
-    username: follower.follower.username,
-    name: follower.follower.name,
+  const followers = result.map((user) => ({
+    avatar: user.follower.avatar,
+    username: user.follower.username,
+    name: user.follower.name,
   }));
 
   return { followers };
+});
+
+export const getFollowing = action(FollowSchema, async ({ username }) => {
+  const result = await e
+    .select(e.Follower, (follow) => ({
+      followed: {
+        username: true,
+        name: true,
+        avatar: true,
+      },
+      filter: e.op(follow.follower.username, "=", e.str(username)),
+    }))
+    .run(db);
+
+  const following = result.map((user) => ({
+    avatar: user.followed.avatar,
+    username: user.followed.username,
+    name: user.followed.name,
+  }));
+
+  return { following };
 });

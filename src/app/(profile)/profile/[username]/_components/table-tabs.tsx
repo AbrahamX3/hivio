@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import TableContainer from "@/components/ui/datatable/data-table-container";
-import { TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type HiveRowData } from "@/types/hive";
 
 import MoviesTableView from "./movies-table/table-view";
@@ -19,7 +19,23 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
   const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
 
   return (
-    <>
+    <Tabs defaultValue="movies" className="w-full">
+      <div className="flex items-center">
+        <TabsList>
+          <TabsTrigger value="movies" className="gap-2">
+            Movies{" "}
+            <span className="rounded-md bg-background px-3 py-1 text-foreground">
+              {filteredMovies.length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="series" className="gap-2">
+            Series{" "}
+            <span className="rounded-md bg-background px-3 py-1 text-foreground">
+              {filteredSeries.length}
+            </span>
+          </TabsTrigger>
+        </TabsList>
+      </div>
       <TabsContent value="movies">
         <Card>
           <CardHeader>
@@ -30,7 +46,7 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <MoviesTableView data={filteredMovies} data-superjson />
+              <MoviesTableView data={filteredMovies} />
             </TableContainer>
           </CardContent>
         </Card>
@@ -45,11 +61,11 @@ export default function TableTabs({ data }: { data: HiveRowData[] }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <SeriesTableView data={filteredSeries} data-superjson />
+              <SeriesTableView data={filteredSeries} />
             </TableContainer>
           </CardContent>
         </Card>
       </TabsContent>
-    </>
+    </Tabs>
   );
 }

@@ -26,7 +26,6 @@ export default function SeriesTableView({ data }: { data: HiveRowData[] }) {
       columns={SeriesColumns()}
       data={data}
       filters={filters}
-      data-superjson
     />
   );
 }

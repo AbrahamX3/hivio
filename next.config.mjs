@@ -1,5 +1,4 @@
 import { fileURLToPath } from "node:url";
-import withPlaiceholder from "@plaiceholder/next";
 import createJiti from "jiti";
 
 const jiti = createJiti(fileURLToPath(import.meta.url));
@@ -21,4 +20,6 @@ const config = {
     ],
   },
 };
-export default withPlaiceholder(config);
+
+// export default withPlaiceholder(config);
+export default config;

@@ -59,6 +59,9 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
     (hive) => hive.title.id === selectedTitle?.id,
   );
 
+  const filteredMovies = data.filter((hive) => hive.title.type === "MOVIE");
+  const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
+
   return (
     <>
       <div
@@ -78,8 +81,18 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
           <Tabs defaultValue="movies" className="w-full">
             <div className="flex items-center">
               <TabsList>
-                <TabsTrigger value="movies">Hive Movies</TabsTrigger>
-                <TabsTrigger value="series">Hive Series</TabsTrigger>
+                <TabsTrigger value="movies" className="gap-2">
+                  Movies{" "}
+                  <span className="rounded-md bg-background px-3 py-1 text-foreground">
+                    {filteredMovies.length}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="series" className="gap-2">
+                  Series{" "}
+                  <span className="rounded-md bg-background px-3 py-1 text-foreground">
+                    {filteredSeries.length}
+                  </span>
+                </TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-2">
                 <DropdownMenu>

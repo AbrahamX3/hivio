@@ -14,57 +14,56 @@ import {
 
 import {
   followUser,
-  getFollowers,
+  getFollowing,
   type UserFollower,
   type UserFollowing,
 } from "./actions";
 
 interface Props {
-  followers: UserFollower[];
-  following: UserFollowing[];
   username: string;
   currentUser?: string | null;
+  following: UserFollowing[];
+  followers: UserFollower[];
   currentUserFollowing: UserFollowing[];
 }
 
-export function Followers({
+export function Following({
   username,
   currentUser,
-  followers,
   following,
   currentUserFollowing,
 }: Props) {
-  const { execute, status } = useAction(getFollowers);
+  const { execute, status } = useAction(getFollowing);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button onClick={() => execute({ username })} variant="link">
-          {followers.length} Followers
+          {following.length} Following
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>@{username}&apos;s followers</DialogTitle>
+          <DialogTitle>@{username}&apos;s is following</DialogTitle>
         </DialogHeader>
         <div className="max-h-[300px] overflow-y-auto">
           <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
             {status === "executing" || status === "idle" ? (
               <div className="flex flex-col items-center rounded-md p-2 text-center">
-                Finding @{username}&apos;s followers...
+                Finding who @{username}&apos;s follows...
               </div>
-            ) : status === "hasSucceeded" && followers.length === 0 ? (
+            ) : status === "hasSucceeded" && following.length === 0 ? (
               currentUser === username ? (
                 <div className="flex flex-col items-center rounded-md border border-dashed p-2 text-center">
-                  You currently have no followers!
+                  You currently are not following anyone!
                 </div>
               ) : (
                 <div className="flex flex-col items-center rounded-md border border-dashed p-2 text-center">
-                  @{username} has no followers, be the first to follow them!
+                  @{username} is currently not following anyone!
                 </div>
               )
             ) : (
-              followers.map((user) => (
+              following.map((user) => (
                 <div
                   key={`follower_${user.username}`}
                   className="flex w-full items-center justify-between gap-4 align-middle"

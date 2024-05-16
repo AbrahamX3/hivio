@@ -10,7 +10,7 @@ export const metadata = {
   title: "Your Hive",
 };
 
-async function getData() {
+async function getHiveData() {
   const client = auth.getSession().client;
 
   const data = await e
@@ -33,11 +33,14 @@ export default async function HiveDashboard() {
   await verifyUser();
 
   const user = await getUser();
-  const data = await getData();
+  const hive = await getHiveData();
 
   return (
     <main className="grid w-full flex-1 items-start gap-4 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-      <DashboardContainer data={data} user={user} />
+      <DashboardContainer
+        data={JSON.parse(JSON.stringify(hive)) as HiveRowData[]}
+        user={user}
+      />
     </main>
   );
 }

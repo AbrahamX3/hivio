@@ -26,7 +26,6 @@ export default function MoviesTableView({ data }: { data: HiveRowData[] }) {
       columns={MovieColumns()}
       data={data}
       filters={filters}
-      data-superjson
     />
   );
 }

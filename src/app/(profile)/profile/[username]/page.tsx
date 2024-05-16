@@ -31,7 +31,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -94,7 +93,7 @@ export default async function PublicUserProfile({ params }: Props) {
         />
         {user.username && <Follow username={user?.username} />}
       </div>
-      <StatsCards data={hive as HiveRowData[]} data-superjson />
+      <StatsCards data={JSON.parse(JSON.stringify(hive)) as HiveRowData[]} />
       <h3 className="text-2xl font-semibold">Currently Watching</h3>
       <Suspense fallback={<div>Loading...</div>}>
         {currentlyWatching?.length > 0 ? (
@@ -221,22 +220,14 @@ export default async function PublicUserProfile({ params }: Props) {
             </div>
           </div>
         ) : (
-          <div className="flex w-full items-center justify-center rounded-md border border-dashed border-primary p-4">
+          <div className="flex w-full items-center justify-center rounded-md border p-4">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span> @{user.username}</span> is currently not watching anything
             </div>
           </div>
         )}
       </Suspense>
-      <Tabs defaultValue="movies" className="w-full">
-        <div className="flex items-center">
-          <TabsList>
-            <TabsTrigger value="movies">Hive Movies</TabsTrigger>
-            <TabsTrigger value="series">Hive Series</TabsTrigger>
-          </TabsList>
-        </div>
-        <TableTabs data={hive as HiveRowData[]} />
-      </Tabs>
+      <TableTabs data={JSON.parse(JSON.stringify(hive)) as HiveRowData[]} />
     </>
   );
 }
