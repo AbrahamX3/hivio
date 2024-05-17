@@ -93,7 +93,7 @@ export default function AddTitleToHive({
     });
 
     const filteredResults = searchResult?.results.filter(
-      (result) => result.overview,
+      (result) => result.overview && result.poster_path,
     );
 
     setSearchResults(filteredResults ?? []);
@@ -162,7 +162,7 @@ export default function AddTitleToHive({
   }
 
   return (
-    <Drawer>
+    <Drawer direction="right">
       <DrawerTrigger asChild>
         <Button
           type="button"
@@ -178,8 +178,11 @@ export default function AddTitleToHive({
           <PlusIcon className="absolute right-[25px] top-[22px] size-2 stroke-[4px] group-hover:animate-pulse" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[95%]">
-        <div className="mx-auto h-full w-full overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+      <DrawerContent
+        direction="right"
+        className="left-auto right-0 top-0 mr-2 mt-0 h-screen w-full rounded-none pb-4 md:w-[90vw]"
+      >
+        <div className="mx-auto h-full w-full overflow-y-auto p-2 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
           <DrawerHeader>
             <DrawerTitle>Add Title to Your Hive</DrawerTitle>
             <DrawerDescription>
@@ -191,7 +194,7 @@ export default function AddTitleToHive({
           <div className="flex w-full flex-col gap-4 p-4 pb-0">
             <Stepper
               size="sm"
-              variant="circle-alt"
+              variant="circle"
               responsive={false}
               className="sticky top-2 z-10 w-full rounded-md p-2 backdrop-blur supports-[backdrop-filter]:bg-muted/60"
               scrollTracking
@@ -199,8 +202,6 @@ export default function AddTitleToHive({
               steps={[
                 {
                   label: "Search Title",
-                  description:
-                    "Search for a movie or series to add to your hive.",
                 },
                 {
                   label: "Add Title",
@@ -216,7 +217,7 @@ export default function AddTitleToHive({
                     onSubmit={searchForm.handleSubmit(handleSearch)}
                     className="space-y-8"
                   >
-                    <div className="grid w-full grid-cols-4 gap-4 pb-4 md:grid-cols-12">
+                    <div className="grid w-full grid-cols-4 gap-4 md:grid-cols-12">
                       <FormField
                         control={searchForm.control}
                         name="query"

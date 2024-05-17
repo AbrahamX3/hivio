@@ -396,6 +396,7 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
                 <div>
                   <h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
                   <Carousel
+                    data-vaul-no-drag
                     className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]"
                     opts={{
                       align: "start",
@@ -461,6 +462,7 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
               <div>
                 <h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
                 <Carousel
+                  data-vaul-no-drag
                   className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]"
                   opts={{
                     align: "start",

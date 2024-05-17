@@ -40,44 +40,49 @@ export function StepperFormActions({
             onClick={prevStep}
             size="sm"
             type="submit"
-            className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
+            className="flex w-fit items-center justify-between gap-2 px-4 align-middle disabled:cursor-not-allowed disabled:opacity-80"
             variant="secondary"
           >
-            <ChevronLeftIcon className="ml-2 size-4" />
-            <span>Previous</span>
+            <ChevronLeftIcon className="size-4" />
+            <span className="sr-only">Previous</span>
           </Button>
 
           {isLastStep ? (
-            <Button
-              onClick={async () => {
-                if (submitFn) {
-                  const isSuccess = await submitFn();
-                  if (isSuccess) {
-                    nextStep();
+            <>
+              <Button size="sm" variant="secondary" onClick={resetSteps}>
+                Reset
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (submitFn) {
+                    const isSuccess = await submitFn();
+                    if (isSuccess) {
+                      nextStep();
+                    }
                   }
-                }
-              }}
-              disabled={isSubmitFnPending}
-              size="sm"
-              type="button"
-              className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
-            >
-              {!isSubmitFnPending ? (
-                <>
-                  <span>Finish</span>
-                  <CheckCircleIcon className="size-4" />
-                </>
-              ) : (
-                <span>Adding to Hive...</span>
-              )}
-            </Button>
+                }}
+                disabled={isSubmitFnPending}
+                size="sm"
+                type="button"
+                className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
+              >
+                {!isSubmitFnPending ? (
+                  <>
+                    <span>Finish</span>
+                    <CheckCircleIcon className="size-4" />
+                  </>
+                ) : (
+                  <span>Adding to Hive...</span>
+                )}
+              </Button>
+            </>
           ) : isOptionalStep ? (
             <Button
               size="sm"
               type="submit"
               className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
             >
-              <span>Skip</span>
+              <span className="sr-only">Skip</span>
               <SkipForwardIcon className="size-4" />
             </Button>
           ) : (
@@ -86,7 +91,7 @@ export function StepperFormActions({
               type="submit"
               className="flex w-fit items-center justify-between gap-2 px-4 align-middle"
             >
-              <span>Next</span>
+              <span className="sr-only">Next</span>
               <ChevronRightIcon className="size-4" />
             </Button>
           )}

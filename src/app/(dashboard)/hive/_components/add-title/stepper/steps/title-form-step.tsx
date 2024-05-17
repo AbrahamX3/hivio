@@ -14,7 +14,6 @@ import { useStepper } from "@/components/ui/stepper";
 import { type SearchResult } from "@/types/tmdb";
 
 import SearchTitleCard from "../../search-title-card";
-import { StepperFormActions } from "../stepper-form-actions";
 
 const titleFormSchema = z.object({
   tmdbId: z.coerce.number().min(1, {
@@ -59,19 +58,15 @@ export function TitleFormStep({
   }
 
   return (
-    <div className="relative w-full pb-4">
+    <div className="relative mx-auto w-full rounded-md border p-4">
       {isSubmitSuccessful ? (
         searchResults.length > 0 ? (
           <form
             onSubmit={titleForm.handleSubmit(handleSubmit)}
             className="mx-auto min-w-0 max-w-[78%] md:w-full md:lg:max-w-[90%] lg:max-w-[93%]"
           >
-            <Carousel
-              opts={{
-                startIndex: 0,
-              }}
-            >
-              <CarouselContent className="h-ful -ml-1 p-12">
+            <Carousel data-vaul-no-drag>
+              <CarouselContent className="w-full max-w-[380px] xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]">
                 {searchResults.map((result) => (
                   <CarouselItem
                     key={result.id}
@@ -82,7 +77,7 @@ export function TitleFormStep({
                         titleForm.setValue("tmdbId", 0);
                       }
                     }}
-                    className="mx-auto basis-full cursor-pointer px-4 pl-1 transition-transform duration-75 hover:scale-105 lg:basis-1/2 xl:basis-1/3"
+                    className="basis-full md:basis-1/2 lg:basis-2/3 xl:basis-1/2"
                   >
                     <SearchTitleCard
                       result={result}
@@ -100,7 +95,6 @@ export function TitleFormStep({
                 {titleForm.formState.errors.tmdbId.message}
               </p>
             )}
-            <StepperFormActions />
           </form>
         ) : (
           <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
@@ -108,7 +102,7 @@ export function TitleFormStep({
           </div>
         )
       ) : (
-        <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
+        <div className="flex h-[50%] w-full flex-1 flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
           Search for a movie or series to add to your list.
         </div>
       )}
