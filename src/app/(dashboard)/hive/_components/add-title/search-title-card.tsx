@@ -91,7 +91,10 @@ export default function SearchTitleCard({
                 />
               </h3>
               <div className="flex items-center gap-2 text-balance align-middle text-sm">
-                <Badge variant="outline" className="bg-background text-white">
+                <Badge
+                  variant="outline"
+                  className="text-white dark:bg-background"
+                >
                   {releaseDate
                     ? new Date(releaseDate).toLocaleDateString()
                     : "N/A"}
@@ -121,6 +124,9 @@ export function ViewPosterButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
           variant="ghost"
           size="icon"
           className="group absolute right-1 top-1 z-20 hover:bg-transparent"
@@ -154,6 +160,9 @@ export function ViewDescriptionButton({
     <Dialog>
       <DialogTrigger asChild>
         <Button
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
           variant="ghost"
           size="icon"
           className="group size-4 hover:bg-transparent"

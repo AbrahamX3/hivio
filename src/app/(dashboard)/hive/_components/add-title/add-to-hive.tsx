@@ -9,11 +9,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import {
-  addTitleToHive,
-  searchTitle as getTitleSearch,
-  type SeasonData,
-} from "@/app/(dashboard)/hive/_actions/hive";
 import { LogoIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +34,12 @@ import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
 import { type SearchResult } from "@/types/tmdb";
 
-import { findTitleSeasons } from "../../actions";
+import {
+  addTitleToHive,
+  findTitleSeasons,
+  searchTitle,
+  type SeasonData,
+} from "../../actions";
 import ConfirmTitleCard from "./confirm-title-card";
 import { StepperFooter } from "./stepper/stepper-footer";
 import { StepperFormActions } from "./stepper/stepper-form-actions";
@@ -86,7 +86,7 @@ export default function AddTitleToHive({
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [getTitleSearchAction, isGetTitleSearchPending] =
-    useServerAction(getTitleSearch);
+    useServerAction(searchTitle);
 
   const [titleSeasons, setTitleSeasons] = useState<SeasonData[]>([]);
 
@@ -195,9 +195,9 @@ export default function AddTitleToHive({
           <DrawerHeader>
             <DrawerTitle>Add Title to Your Hive</DrawerTitle>
             <DrawerDescription>
-              Add a movie or series to your hive. Your hive is a collection of
-              your movies and series that you&apos;re currently watching, have
-              watched, or that you want to watch.
+              Your hive is a collection of your movies and series that
+              you&apos;re currently watching, have watched, or that you want to
+              watch.
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex w-full flex-col gap-4 p-4 pb-0">

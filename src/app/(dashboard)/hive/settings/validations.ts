@@ -5,7 +5,7 @@ export type GeneralSettingsStatusForm = z.infer<
 >;
 
 export const GeneralSettingsStatusFormSchema = z.object({
-  status: z.enum(["UPCOMING", "PENDING", "WATCHING", "UNFINISHED", "FINISHED"]),
+  status: z.enum(["PENDING", "WATCHING", "UNFINISHED", "FINISHED"]),
 });
 
 export type GeneralSettingsUsernameForm = z.infer<

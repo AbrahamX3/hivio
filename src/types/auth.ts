@@ -3,6 +3,6 @@ export type UserSession = {
   username: string | null;
   avatar: string | null;
   email: string;
-  status: "FINISHED" | "UPCOMING" | "PENDING" | "WATCHING" | "UNFINISHED";
+  status: "FINISHED" | "PENDING" | "WATCHING" | "UNFINISHED";
   name: string;
 };

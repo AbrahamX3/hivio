@@ -19,7 +19,7 @@ export const ProfileSetupFormSchema = z.object({
     .max(50, {
       message: "Display name must be less than 50 characters",
     }),
-  status: z.enum(["UPCOMING", "PENDING", "WATCHING", "UNFINISHED", "FINISHED"]),
+  status: z.enum(["PENDING", "WATCHING", "UNFINISHED", "FINISHED"]),
 });
 
 export const DeleteTitleFromHiveSchema = z.object({

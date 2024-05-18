@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   CheckCircle2,
   Clapperboard,
   Film,
@@ -22,11 +21,6 @@ export const typeOptions = [
 ];
 
 export const statusOptions = [
-  {
-    value: "UPCOMING",
-    label: "Upcoming",
-    icon: AlertCircle,
-  },
   {
     value: "PENDING",
     label: "Pending",

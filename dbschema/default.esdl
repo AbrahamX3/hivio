@@ -2,7 +2,7 @@ using extension auth;
 
 module default {
     scalar type TitleType extending enum<MOVIE, SERIES>;
-    scalar type TitleStatus extending enum<UPCOMING, PENDING, WATCHING, UNFINISHED, FINISHED>;
+    scalar type TitleStatus extending enum<PENDING, WATCHING, UNFINISHED, FINISHED>;
     
     global CurrentUser := (
         assert_single((

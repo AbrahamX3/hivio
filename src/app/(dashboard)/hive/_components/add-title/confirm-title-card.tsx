@@ -14,9 +14,11 @@ interface ConfirmTitleCardProps {
 
 export default function ConfirmTitleCard({
   selectedTitle,
-  hiveFormValues: formValues,
+  hiveFormValues,
 }: ConfirmTitleCardProps) {
-  if (!selectedTitle || !formValues)
+  const type = selectedTitle?.media_type === "movie" ? "MOVIE" : "SERIES";
+
+  if (!selectedTitle || !hiveFormValues)
     return (
       <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
         <h2 className="text-2xl font-bold">No Title Selected</h2>
@@ -89,7 +91,7 @@ export default function ConfirmTitleCard({
             </div>
           </div>
         </div>
-        <FormValuesDisplay formValues={formValues} />
+        <FormValuesDisplay formValues={hiveFormValues} type={type} />
       </>
     );
   }
@@ -124,34 +126,49 @@ export default function ConfirmTitleCard({
           </Dialog>
         )}
         <div className="flex flex-1 flex-col gap-4">
-          <div className="flex items-center gap-2 align-middle">
+          <div className="flex flex-col items-start gap-2 align-middle sm:flex-row sm:items-center">
             <h2 className="font-bold leading-loose tracking-wide">
               {selectedTitle.name}
             </h2>
-            <Badge variant="outline">
-              {selectedTitle.first_air_date
-                ? new Date(selectedTitle.first_air_date).toLocaleDateString()
-                : "N/A"}
-            </Badge>
-            <Badge role="note">Series</Badge>
-            <Badge role="note" variant="secondary">
-              {selectedTitle.vote_average
-                ? selectedTitle.vote_average.toFixed(1)
-                : 0}{" "}
-              / 10
-            </Badge>
+            <div className="flex items-center gap-2 align-middle">
+              <Badge variant="outline">
+                {selectedTitle.first_air_date
+                  ? new Date(selectedTitle.first_air_date).toLocaleDateString()
+                  : "N/A"}
+              </Badge>
+              <Badge role="note">Series</Badge>
+              <Badge role="note" variant="secondary">
+                {selectedTitle.vote_average
+                  ? selectedTitle.vote_average.toFixed(1)
+                  : 0}{" "}
+                / 10
+              </Badge>
+            </div>
           </div>
           <p className="h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
             {selectedTitle.overview}
           </p>
         </div>
       </div>
-      <FormValuesDisplay formValues={formValues} />
+      <FormValuesDisplay formValues={hiveFormValues} type={type} />
     </>
   );
 }
 
-function FormValuesDisplay({ formValues }: { formValues: HiveFormValues }) {
+function FormValuesDisplay({
+  formValues,
+  type,
+}: {
+  formValues: HiveFormValues;
+  type: "MOVIE" | "SERIES";
+}) {
+  const isFinished = formValues.status === "FINISHED";
+  const shouldSetSeason =
+    (isFinished ||
+      formValues.status === "WATCHING" ||
+      formValues.status === "UNFINISHED") &&
+    type === "SERIES";
+
   return (
     <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
       Status: <Badge>{formValues.status}</Badge>
@@ -161,7 +178,7 @@ function FormValuesDisplay({ formValues }: { formValues: HiveFormValues }) {
           <Badge>{formValues.startedAt?.toLocaleDateString()}</Badge>
         </span>
       )}
-      {formValues.status === "FINISHED" && (
+      {isFinished && (
         <>
           {formValues.finishedAt && (
             <span>
@@ -175,6 +192,14 @@ function FormValuesDisplay({ formValues }: { formValues: HiveFormValues }) {
               My Rating: <Badge>{formValues.rating}</Badge>
             </>
           )}
+        </>
+      )}
+      {shouldSetSeason && (
+        <>
+          On:{" "}
+          <Badge>
+            S{formValues.currentSeason}E{formValues.currentEpisode}
+          </Badge>
         </>
       )}
     </div>

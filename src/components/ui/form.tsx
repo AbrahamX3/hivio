@@ -1,6 +1,7 @@
 import * as React from "react";
 import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
+import { AsteriskIcon } from "lucide-react";
 import {
   Controller,
   FormProvider,
@@ -86,17 +87,29 @@ FormItem.displayName = "FormItem";
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    isRequired?: boolean;
+  }
+>(({ className, isRequired = false, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
   return (
-    <Label
-      ref={ref}
-      className={cn(error && "text-destructive", className)}
-      htmlFor={formItemId}
-      {...props}
-    />
+    <>
+      <Label
+        ref={ref}
+        className={cn(error && "text-destructive", className)}
+        htmlFor={formItemId}
+        {...props}
+      />
+      {isRequired && (
+        <span>
+          <AsteriskIcon
+            aria-label="Required"
+            className="ml-1 inline size-4 fill-destructive align-middle text-destructive"
+          />
+        </span>
+      )}
+    </>
   );
 });
 FormLabel.displayName = "FormLabel";
