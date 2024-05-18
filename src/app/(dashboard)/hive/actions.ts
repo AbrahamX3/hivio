@@ -3,11 +3,14 @@
 import { revalidatePath } from "next/cache";
 import e from "@edgedb/edgeql-js";
 
+import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
 import { authAction } from "@/lib/safe-action";
+import { type SeriesDetails } from "@/types/tmdb";
 
 import {
   DeleteTitleFromHiveSchema,
+  FindTitleSeasonsSchema,
   ProfileSetupFormSchema,
 } from "./validations";
 
@@ -65,5 +68,34 @@ export const deleteTitle = authAction(
 
     revalidatePath("/hive");
     return { success: true, data: { id: deleteTitle?.id } };
+  },
+);
+
+export const findTitleSeasons = authAction(
+  FindTitleSeasonsSchema,
+  async ({ tmdbId }) => {
+    const response = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${env.TMDB_API_KEY}`,
+      },
+    });
+
+    const data = (await response.json()) as SeriesDetails;
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch series data");
+    }
+
+    const seasons = data.seasons
+      .map((details) => ({
+        season: details.season_number,
+        episodes: details.episode_count,
+        date: details.air_date,
+      }))
+      .filter((season) => season.season !== 0);
+
+    return seasons;
   },
 );

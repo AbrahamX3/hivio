@@ -94,8 +94,11 @@ module default {
         required isFavorite: bool {
             default := false;
         }
+        currentSeason: int32;
+        currentEpisode: int32;
         rating: float32;
         finishedAt: datetime;
+        startedAt: datetime;
         required createdAt: datetime {
             default := datetime_current();
         }

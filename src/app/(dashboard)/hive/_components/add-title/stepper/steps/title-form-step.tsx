@@ -29,6 +29,7 @@ interface TitleFormStepProps {
   setFormValues: (values: TitleFormValues) => void;
   handleSearchClear: () => void;
   setSelectedTitleData: (data: SearchResult | undefined) => void;
+  handleSeasons: (tmdbId: number) => void;
 }
 
 export function TitleFormStep({
@@ -37,6 +38,7 @@ export function TitleFormStep({
   setFormValues,
   handleSearchClear,
   setSelectedTitleData,
+  handleSeasons,
 }: TitleFormStepProps) {
   const { nextStep } = useStepper();
 
@@ -52,6 +54,11 @@ export function TitleFormStep({
     const selectedTitle = searchResults.find(
       (result) => result.id === values.tmdbId,
     );
+
+    if (selectedTitle?.media_type === "tv") {
+      handleSeasons(values.tmdbId);
+    }
+
     setSelectedTitleData(selectedTitle);
     nextStep();
     handleSearchClear();

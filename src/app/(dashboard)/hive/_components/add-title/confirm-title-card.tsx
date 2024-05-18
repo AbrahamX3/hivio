@@ -155,13 +155,24 @@ function FormValuesDisplay({ formValues }: { formValues: HiveFormValues }) {
   return (
     <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
       Status: <Badge>{formValues.status}</Badge>
+      {formValues.startedAt && (
+        <span>
+          Date Started:{" "}
+          <Badge>{formValues.startedAt?.toLocaleDateString()}</Badge>
+        </span>
+      )}
       {formValues.status === "FINISHED" && (
         <>
-          Date Finished: <Badge>{formValues.date?.toLocaleDateString()}</Badge>
+          {formValues.finishedAt && (
+            <span>
+              Date Finished:{" "}
+              <Badge>{formValues.finishedAt?.toLocaleDateString()}</Badge>
+            </span>
+          )}
           Favorite: <Badge>{formValues.isFavorite ? "Yes" : "No"}</Badge>
           {formValues.rating > 0 && (
             <>
-              Rating: <Badge>{formValues.rating}</Badge>
+              My Rating: <Badge>{formValues.rating}</Badge>
             </>
           )}
         </>

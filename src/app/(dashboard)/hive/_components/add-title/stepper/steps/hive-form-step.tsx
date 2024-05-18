@@ -10,6 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { type SeasonData } from "@/app/(dashboard)/hive/_actions/hive";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -43,31 +44,51 @@ import { cn } from "@/lib/utils";
 
 import { StepperFormActions } from "../stepper-form-actions";
 
+const basehiveFormSchema = z.object({
+  currentSeason: z.coerce.number().min(1).optional(),
+  currentEpisode: z.coerce.number().min(1).optional(),
+  startedAt: z.date().optional(),
+});
+
 const hiveFormSchema = z
   .discriminatedUnion("status", [
-    z.object({
-      status: z.literal("FINISHED"),
-      date: z.date(),
-      isFavorite: z.boolean().optional(),
-      rating: z.coerce.number().min(0).max(10).default(0),
-    }),
-    z.object({
-      status: z
-        .enum(["UPCOMING", "PENDING", "WATCHING", "UNFINISHED"])
-        .default("WATCHING"),
-    }),
+    z
+      .object({
+        status: z.literal("FINISHED"),
+        finishedAt: z.date().optional(),
+        isFavorite: z.boolean().optional(),
+        rating: z.coerce.number().min(0).max(10).default(0),
+      })
+      .merge(basehiveFormSchema),
+    z
+      .object({
+        status: z.enum(["UPCOMING", "PENDING", "WATCHING", "UNFINISHED"]),
+      })
+      .merge(basehiveFormSchema),
   ])
   .transform((data) => {
-    if (data.status === "FINISHED") {
-      const utcDate = fromZonedTime(
-        data.date,
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-      );
-
+    if (data.status === "FINISHED" && data.startedAt && data.finishedAt) {
       return {
         ...data,
-        date: utcDate,
+        startedAt: fromZonedTime(
+          data.startedAt,
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ),
+        finishedAt: fromZonedTime(
+          data.finishedAt,
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ),
       };
+    } else {
+      if (data.startedAt) {
+        return {
+          ...data,
+          startedAt: fromZonedTime(
+            data.startedAt,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ),
+        };
+      }
     }
 
     return data;
@@ -83,11 +104,15 @@ interface HiveFormStepProps {
     | "PENDING"
     | "FINISHED";
   setFormValues: (values: HiveFormValues) => void;
+  titleSeasons: SeasonData[];
+  type: "MOVIE" | "SERIES";
 }
 
 export function HiveFormStep({
   defaultStatus,
   setFormValues,
+  titleSeasons,
+  type,
 }: HiveFormStepProps) {
   const { nextStep } = useStepper();
 
@@ -95,6 +120,8 @@ export function HiveFormStep({
     resolver: zodResolver(hiveFormSchema),
     defaultValues: {
       status: defaultStatus ?? "WATCHING",
+      currentSeason: 1,
+      currentEpisode: 1,
     },
   });
 
@@ -145,11 +172,171 @@ export function HiveFormStep({
           )}
         />
 
+        {type === "SERIES" && titleSeasons.length > 0 && (
+          <>
+            <FormField
+              control={hiveForm.control}
+              name="currentSeason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Season</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select the season you are on" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {titleSeasons.map(({ season }) => (
+                        <SelectItem
+                          key={`season_${season}`}
+                          value={String(season)}
+                        >
+                          Season {season}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {hiveForm.watch("currentSeason") !== 0 && (
+              <FormField
+                control={hiveForm.control}
+                name="currentEpisode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Current Episode</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={String(field.value)}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select the episode you are on" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Array.from({
+                          length:
+                            titleSeasons.find(
+                              (s) =>
+                                s.season ===
+                                Number(hiveForm.watch("currentSeason")),
+                            )?.episodes ?? 0,
+                        }).map((_, index) => (
+                          <SelectItem
+                            key={`episode_${index + 1}`}
+                            value={String(index + 1)}
+                          >
+                            Episode {index + 1}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </>
+        )}
+
+        <FormField
+          control={hiveForm.control}
+          name="startedAt"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Date Started</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto size-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                <p>The date you started watching this title.</p>
+                <div className="flex w-full items-center justify-between gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => field.onChange(new Date())}
+                  >
+                    Today <CalendarCheck2Icon className="ml-2 size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      field.onChange(new Date(Date.now() - 1000 * 60 * 60 * 24))
+                    }
+                  >
+                    Yesterday <CalendarMinusIcon className="ml-2 size-4" />
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      field.onChange(
+                        new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+                      )
+                    }
+                  >
+                    2 days ago <CalendarMinusIcon className="ml-2 size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => field.onChange(undefined)}
+                  >
+                    Clear <CalendarOffIcon className="ml-2 size-4" />
+                  </Button>
+                </div>
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {hiveForm.watch("status") === "FINISHED" && (
           <>
             <FormField
               control={hiveForm.control}
-              name="date"
+              name="finishedAt"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date Finished</FormLabel>

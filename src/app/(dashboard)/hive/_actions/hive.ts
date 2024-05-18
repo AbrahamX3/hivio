@@ -57,7 +57,13 @@ async function fetchPosterBlur(path: string) {
   return base64;
 }
 
-async function fetchSeriesData(tmdbId: number) {
+export interface SeasonData {
+  season: number;
+  episodes: number;
+  date: string;
+}
+
+export async function fetchSeriesData(tmdbId: number): Promise<SeasonData[]> {
   const response = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}`, {
     method: "GET",
     headers: {
@@ -72,7 +78,13 @@ async function fetchSeriesData(tmdbId: number) {
     throw new Error("Failed to fetch series data");
   }
 
-  return data;
+  const seasons = data.seasons.map((details) => ({
+    season: details.season_number,
+    episodes: details.episode_count,
+    date: details.air_date,
+  }));
+
+  return seasons;
 }
 
 export async function addTitleToHive({
@@ -126,7 +138,14 @@ export async function addTitleToHive({
             addedBy: e.global.CurrentUser,
             title: e.set(titleToAdd),
             status: hiveFormValues.status,
-            finishedAt: e.datetime(hiveFormValues.date),
+            finishedAt: hiveFormValues.finishedAt
+              ? e.datetime(hiveFormValues.finishedAt)
+              : undefined,
+            startedAt: hiveFormValues.startedAt
+              ? e.datetime(hiveFormValues.startedAt)
+              : undefined,
+            currentEpisode: hiveFormValues.currentEpisode,
+            currentSeason: hiveFormValues.currentSeason,
             rating: e.float32(hiveFormValues.rating),
             isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
           })
@@ -138,6 +157,8 @@ export async function addTitleToHive({
           .insert(e.Hive, {
             addedBy: e.global.CurrentUser,
             title: e.set(titleToAdd),
+            currentEpisode: hiveFormValues.currentEpisode,
+            currentSeason: hiveFormValues.currentSeason,
             status: hiveFormValues.status,
           })
           .run(client);
@@ -182,17 +203,7 @@ export async function addTitleToHive({
     }));
 
     if (type === "SERIES") {
-      const seriesData = await fetchSeriesData(selectedTitleData.id);
-
-      const seasons = seriesData.seasons
-        .filter((details) => details.season_number !== 0)
-        .map((details) => {
-          return {
-            season: details.season_number,
-            episodes: details.episode_count,
-            date: details.air_date,
-          };
-        });
+      const seasons = await fetchSeriesData(selectedTitleData.id);
 
       const query = e.params(
         {
@@ -232,7 +243,14 @@ export async function addTitleToHive({
           addedBy: e.global.CurrentUser,
           title: e.set(titleId),
           status: hiveFormValues.status,
-          finishedAt: e.datetime(hiveFormValues.date),
+          finishedAt: hiveFormValues.finishedAt
+            ? e.datetime(hiveFormValues.finishedAt)
+            : undefined,
+          startedAt: hiveFormValues.startedAt
+            ? e.datetime(hiveFormValues.startedAt)
+            : undefined,
+          currentEpisode: hiveFormValues.currentEpisode,
+          currentSeason: hiveFormValues.currentSeason,
           rating: e.float32(hiveFormValues.rating),
           isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
         })
@@ -244,6 +262,8 @@ export async function addTitleToHive({
         .insert(e.Hive, {
           addedBy: e.global.CurrentUser,
           title: e.set(titleId),
+          currentEpisode: hiveFormValues.currentEpisode,
+          currentSeason: hiveFormValues.currentSeason,
           status: hiveFormValues.status,
         })
         .run(client);

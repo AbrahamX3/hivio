@@ -192,6 +192,9 @@ export function ViewExternalPlatformsButton({
       href={`https://www.themoviedb.org/${type}/${tmdbId}`}
       target="_blank"
       rel="noreferrer"
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       className="group flex items-center justify-between gap-4"
     >
       <LinkIcon className="block size-3 group-hover:hidden" />

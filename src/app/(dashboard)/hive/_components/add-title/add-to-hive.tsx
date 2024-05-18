@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, XIcon } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -11,6 +12,7 @@ import { z } from "zod";
 import {
   addTitleToHive,
   searchTitle as getTitleSearch,
+  type SeasonData,
 } from "@/app/(dashboard)/hive/_actions/hive";
 import { LogoIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -37,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
 import { type SearchResult } from "@/types/tmdb";
 
+import { findTitleSeasons } from "../../actions";
 import ConfirmTitleCard from "./confirm-title-card";
 import { StepperFooter } from "./stepper/stepper-footer";
 import { StepperFormActions } from "./stepper/stepper-form-actions";
@@ -84,6 +87,12 @@ export default function AddTitleToHive({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [getTitleSearchAction, isGetTitleSearchPending] =
     useServerAction(getTitleSearch);
+
+  const [titleSeasons, setTitleSeasons] = useState<SeasonData[]>([]);
+
+  const { execute: findTitleSeasonsAction } = useAction(findTitleSeasons, {
+    onSuccess: (data) => setTitleSeasons(data),
+  });
 
   const [isAddTitlePending, setIsAddTitlePending] = useState(false);
 
@@ -194,9 +203,9 @@ export default function AddTitleToHive({
           <div className="flex w-full flex-col gap-4 p-4 pb-0">
             <Stepper
               size="sm"
-              variant="circle"
+              variant="circle-alt"
               responsive={false}
-              className="sticky top-2 z-10 w-full rounded-md p-2 backdrop-blur supports-[backdrop-filter]:bg-muted/60"
+              className="sticky top-2 z-10 w-full rounded-md p-2 text-sm backdrop-blur supports-[backdrop-filter]:bg-muted/60"
               scrollTracking
               initialStep={0}
               steps={[
@@ -261,6 +270,9 @@ export default function AddTitleToHive({
                   </form>
                 </Form>
                 <TitleFormStep
+                  handleSeasons={(tmdbId: number) =>
+                    findTitleSeasonsAction({ tmdbId })
+                  }
                   setSelectedTitleData={setSelectedTitleData}
                   handleSearchClear={handleSearchClear}
                   setFormValues={(values) => setTitleFormValues(values)}
@@ -270,6 +282,12 @@ export default function AddTitleToHive({
               </Step>
               <Step label="Add Title">
                 <HiveFormStep
+                  type={
+                    selectedTitleData?.media_type === "movie"
+                      ? "MOVIE"
+                      : "SERIES"
+                  }
+                  titleSeasons={titleSeasons}
                   setFormValues={(values) => setHiveFormValues(values)}
                   defaultStatus={user.status}
                 />

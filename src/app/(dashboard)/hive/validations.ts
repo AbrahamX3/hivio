@@ -27,3 +27,9 @@ export const DeleteTitleFromHiveSchema = z.object({
     message: "Title ID is required",
   }),
 });
+
+export const FindTitleSeasonsSchema = z.object({
+  tmdbId: z.number().min(1, {
+    message: "tmdbId is required",
+  }),
+});
