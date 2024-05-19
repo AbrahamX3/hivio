@@ -1,3 +1,4 @@
+import { fromZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
 export type ProfileSetupForm = z.infer<typeof ProfileSetupFormSchema>;
@@ -32,4 +33,77 @@ export const FindTitleSeasonsSchema = z.object({
   tmdbId: z.number().min(1, {
     message: "tmdbId is required",
   }),
+});
+
+export const FindTitleDetails = z.object({
+  tmdbId: z.number().min(1, {
+    message: "tmdbId is required",
+  }),
+  type: z.enum(["movie", "tv"]),
+});
+
+export const basehiveFormSchema = z.object({
+  currentSeason: z.coerce.number().min(1).optional(),
+  currentEpisode: z.coerce.number().min(1).optional(),
+  startedAt: z.date().optional(),
+});
+
+export const hiveFormSchema = z
+  .discriminatedUnion("status", [
+    z
+      .object({
+        status: z.literal("FINISHED"),
+        finishedAt: z.date().optional(),
+        isFavorite: z.boolean().optional(),
+        rating: z.coerce.number().min(0).max(10).default(0),
+      })
+      .merge(basehiveFormSchema),
+    z
+      .object({
+        status: z.enum(["PENDING", "WATCHING", "UNFINISHED"]),
+      })
+      .merge(basehiveFormSchema),
+  ])
+  .transform((data) => {
+    if (data.status === "FINISHED" && data.startedAt && data.finishedAt) {
+      return {
+        ...data,
+        startedAt: fromZonedTime(
+          data.startedAt,
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ),
+        finishedAt: fromZonedTime(
+          data.finishedAt,
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ),
+      };
+    } else {
+      if (data.startedAt) {
+        return {
+          ...data,
+          startedAt: fromZonedTime(
+            data.startedAt,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ),
+        };
+      }
+    }
+
+    return data;
+  });
+
+export type HiveFormValues = z.infer<typeof hiveFormSchema>;
+
+export const titleFormSchema = z.object({
+  tmdbId: z.coerce.number().min(1, {
+    message: "Select a movie or series by clicking on a card.",
+  }),
+  type: z.enum(["movie", "tv"]),
+});
+
+export type TitleFormValues = z.infer<typeof titleFormSchema>;
+
+export const AddTitleToHiveSchema = z.object({
+  hiveFormValues: hiveFormSchema,
+  titleFormValues: titleFormSchema,
 });

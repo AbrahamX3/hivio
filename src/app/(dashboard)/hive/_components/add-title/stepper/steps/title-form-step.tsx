@@ -1,8 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
+import {
+  titleFormSchema,
+  type TitleFormValues,
+} from "@/app/(dashboard)/hive/validations";
 import {
   Carousel,
   CarouselContent,
@@ -14,14 +17,6 @@ import { useStepper } from "@/components/ui/stepper";
 import { type SearchResult } from "@/types/tmdb";
 
 import SearchTitleCard from "../../search-title-card";
-
-const titleFormSchema = z.object({
-  tmdbId: z.coerce.number().min(1, {
-    message: "Select a movie or series by clicking on a card.",
-  }),
-});
-
-export type TitleFormValues = z.infer<typeof titleFormSchema>;
 
 interface TitleFormStepProps {
   isSubmitSuccessful: boolean;
@@ -80,6 +75,7 @@ export function TitleFormStep({
                     onClick={() => {
                       if (titleForm.watch("tmdbId") !== result.id) {
                         titleForm.setValue("tmdbId", result.id);
+                        titleForm.setValue("type", result.media_type);
                       } else {
                         titleForm.setValue("tmdbId", 0);
                       }

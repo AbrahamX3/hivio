@@ -1,5 +1,4 @@
-"use client";
-
+import { useEffect } from "react";
 import {
   CheckCircleIcon,
   ChevronLeftIcon,
@@ -13,9 +12,13 @@ import { useStepper } from "@/components/ui/stepper";
 export function StepperFormActions({
   submitFn,
   isSubmitFnPending,
+  isSubmitSuccessful,
+  setIsSubmitSuccessful,
 }: {
-  submitFn?: () => Promise<boolean>;
+  submitFn?: () => boolean;
   isSubmitFnPending?: boolean;
+  isSubmitSuccessful: boolean;
+  setIsSubmitSuccessful: (isSuccess: boolean) => void;
 }) {
   const {
     prevStep,
@@ -26,6 +29,13 @@ export function StepperFormActions({
     isLastStep,
     isOptionalStep,
   } = useStepper();
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      nextStep();
+      setIsSubmitSuccessful(false);
+    }
+  }, [isSubmitSuccessful, nextStep, setIsSubmitSuccessful]);
 
   return (
     <div className="flex w-full justify-end gap-2">
@@ -55,10 +65,7 @@ export function StepperFormActions({
               <Button
                 onClick={async () => {
                   if (submitFn) {
-                    const isSuccess = await submitFn();
-                    if (isSuccess) {
-                      nextStep();
-                    }
+                    submitFn();
                   }
                 }}
                 disabled={isSubmitFnPending}

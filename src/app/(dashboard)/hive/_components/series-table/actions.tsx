@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { type Row } from "@tanstack/react-table";
 import { Info, MoreHorizontal, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
@@ -115,7 +115,7 @@ function DeleteTitle({
         toast.success("Title deleted from your hive!", {
           id: "delete-title",
         });
-        router.reload();
+        router.refresh();
         setSelectedTitle(null);
       }
     },

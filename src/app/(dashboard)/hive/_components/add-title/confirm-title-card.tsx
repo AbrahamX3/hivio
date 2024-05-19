@@ -13,7 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type SearchResult } from "@/types/tmdb";
 
-import { type HiveFormValues } from "./stepper/steps/hive-form-step";
+import { type HiveFormValues } from "../../validations";
 
 interface ConfirmTitleCardProps {
   selectedTitle?: SearchResult;

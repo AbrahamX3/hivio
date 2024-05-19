@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
 import {
   CalendarCheck2Icon,
   CalendarIcon,
@@ -9,9 +8,12 @@ import {
   CalendarOffIcon,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { type SeasonData } from "@/app/(dashboard)/hive/actions";
+import {
+  hiveFormSchema,
+  type HiveFormValues,
+} from "@/app/(dashboard)/hive/validations";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -45,58 +47,6 @@ import { cn } from "@/lib/utils";
 import { type SearchResult } from "@/types/tmdb";
 
 import { StepperFormActions } from "../stepper-form-actions";
-
-const basehiveFormSchema = z.object({
-  currentSeason: z.coerce.number().min(1).optional(),
-  currentEpisode: z.coerce.number().min(1).optional(),
-  startedAt: z.date().optional(),
-});
-
-const hiveFormSchema = z
-  .discriminatedUnion("status", [
-    z
-      .object({
-        status: z.literal("FINISHED"),
-        finishedAt: z.date().optional(),
-        isFavorite: z.boolean().optional(),
-        rating: z.coerce.number().min(0).max(10).default(0),
-      })
-      .merge(basehiveFormSchema),
-    z
-      .object({
-        status: z.enum(["PENDING", "WATCHING", "UNFINISHED"]),
-      })
-      .merge(basehiveFormSchema),
-  ])
-  .transform((data) => {
-    if (data.status === "FINISHED" && data.startedAt && data.finishedAt) {
-      return {
-        ...data,
-        startedAt: fromZonedTime(
-          data.startedAt,
-          Intl.DateTimeFormat().resolvedOptions().timeZone,
-        ),
-        finishedAt: fromZonedTime(
-          data.finishedAt,
-          Intl.DateTimeFormat().resolvedOptions().timeZone,
-        ),
-      };
-    } else {
-      if (data.startedAt) {
-        return {
-          ...data,
-          startedAt: fromZonedTime(
-            data.startedAt,
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
-          ),
-        };
-      }
-    }
-
-    return data;
-  });
-
-export type HiveFormValues = z.infer<typeof hiveFormSchema>;
 
 interface HiveFormStepProps {
   defaultStatus: "WATCHING" | "UNFINISHED" | "PENDING" | "FINISHED";

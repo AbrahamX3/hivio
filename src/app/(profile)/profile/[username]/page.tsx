@@ -38,6 +38,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { convertMinutesToHrMin } from "@/lib/utils";
 import { type HiveRowData } from "@/types/hive";
 
 import { hiveMetadataInfo, hiveProfile } from "../../actions";
@@ -169,7 +170,13 @@ export default async function PublicUserProfile({ params }: Props) {
                                 </TooltipContent>
                               </Tooltip>
                               <div className="flex items-center gap-2">
-                                <ViewDetailsButton data={hive as HiveRowData} />
+                                <ViewDetailsButton
+                                  data={
+                                    JSON.parse(
+                                      JSON.stringify(hive),
+                                    ) as HiveRowData
+                                  }
+                                />
                                 {hive?.title.imdbId ?? hive?.title.tmdbId ? (
                                   <DropdownMenu>
                                     <Tooltip>
@@ -233,18 +240,32 @@ export default async function PublicUserProfile({ params }: Props) {
                                     S{hive.currentSeason}E{hive.currentEpisode}
                                   </span>
                                   <span className="text-muted-foreground">
-                                    ({calculateProgress(hive as HiveRowData)}%)
+                                    (
+                                    {calculateProgress(
+                                      JSON.parse(
+                                        JSON.stringify(hive),
+                                      ) as HiveRowData,
+                                    ).toFixed(2)}
+                                    %)
                                   </span>
                                 </div>
                                 <Progress
                                   className="h-2"
-                                  value={calculateProgress(hive as HiveRowData)}
+                                  value={calculateProgress(
+                                    JSON.parse(
+                                      JSON.stringify(hive),
+                                    ) as HiveRowData,
+                                  )}
                                 />
                               </div>
                             ) : (
                               <div className="flex h-4 w-full items-center justify-center gap-2 text-center align-middle text-xs">
                                 <span className="font-semibold">Runtime: </span>
-                                <span>{hive.title.runtime ?? "Unknown"}</span>
+                                <span>
+                                  {hive.title.runtime
+                                    ? convertMinutesToHrMin(hive.title.runtime)
+                                    : "Unknown"}
+                                </span>
                               </div>
                             )}
                           </CardFooter>

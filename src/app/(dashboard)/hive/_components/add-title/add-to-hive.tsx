@@ -1,10 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, XIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -35,22 +35,17 @@ import { type UserSession } from "@/types/auth";
 import { type SearchResult } from "@/types/tmdb";
 
 import {
-  addTitleToHive,
+  addTitleHive,
   findTitleSeasons,
   searchTitle,
   type SeasonData,
 } from "../../actions";
+import { type HiveFormValues, type TitleFormValues } from "../../validations";
 import ConfirmTitleCard from "./confirm-title-card";
 import { StepperFooter } from "./stepper/stepper-footer";
 import { StepperFormActions } from "./stepper/stepper-form-actions";
-import {
-  HiveFormStep,
-  type HiveFormValues,
-} from "./stepper/steps/hive-form-step";
-import {
-  TitleFormStep,
-  type TitleFormValues,
-} from "./stepper/steps/title-form-step";
+import { HiveFormStep } from "./stepper/steps/hive-form-step";
+import { TitleFormStep } from "./stepper/steps/title-form-step";
 
 const searchFormSchema = z.object({
   query: z.string().min(1, {
@@ -73,6 +68,7 @@ export default function AddTitleToHive({
     },
   });
   const { tossConfetti } = useConfetti();
+  const router = useRouter();
 
   const [hiveFormValues, setHiveFormValues] = useState<
     HiveFormValues | undefined
@@ -87,14 +83,50 @@ export default function AddTitleToHive({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [getTitleSearchAction, isGetTitleSearchPending] =
     useServerAction(searchTitle);
-
   const [titleSeasons, setTitleSeasons] = useState<SeasonData[]>([]);
-
+  const [isSuccess, setIsSuccess] = useState(false);
   const { execute: findTitleSeasonsAction } = useAction(findTitleSeasons, {
     onSuccess: (data) => setTitleSeasons(data),
   });
 
-  const [isAddTitlePending, setIsAddTitlePending] = useState(false);
+  const { execute: AddTitleAction, status: AddTitleStatus } = useAction(
+    addTitleHive,
+    {
+      onSuccess: ({ success, error }) => {
+        if (success) {
+          setIsSuccess(true);
+          toast.success("Title added to your Hive", {
+            id: "add-title",
+          });
+
+          if (hiveFormValues && hiveFormValues.status === "FINISHED") {
+            tossConfetti();
+          }
+
+          setHiveFormValues(undefined);
+          setTitleFormValues(undefined);
+          setSelectedTitleData(undefined);
+
+          router.refresh();
+        } else {
+          setIsSuccess(false);
+          toast.error(error.reason, {
+            id: "add-title",
+          });
+        }
+      },
+      onExecute: () => {
+        toast.loading("Adding Title to your Hive", {
+          id: "add-title",
+        });
+      },
+      onError: () => {
+        toast.error("Error adding title to your hive", {
+          id: "add-title",
+        });
+      },
+    },
+  );
 
   async function handleSearch(values: z.infer<typeof searchFormSchema>) {
     const searchResult = await getTitleSearchAction({
@@ -113,8 +145,6 @@ export default function AddTitleToHive({
     setSearchResults([]);
   }
 
-  const router = useRouter();
-
   function handleSearchFocus() {
     const timeout = setTimeout(() => {
       searchForm.setFocus("query");
@@ -123,51 +153,12 @@ export default function AddTitleToHive({
     return () => clearTimeout(timeout);
   }
 
-  async function handleSubmit() {
-    let isSuccess = false;
+  function handleSubmit() {
+    if (!hiveFormValues || !titleFormValues) return false;
 
-    if (!hiveFormValues || !titleFormValues || !selectedTitleData)
-      return isSuccess;
+    AddTitleAction({ hiveFormValues, titleFormValues });
 
-    setIsAddTitlePending(true);
-    toast.loading("Adding Title to your Hive", {
-      id: "add-title",
-    });
-
-    await addTitleToHive({
-      hiveFormValues,
-      titleFormValues,
-      selectedTitleData,
-    })
-      .then((id) => {
-        if (!id) return;
-
-        toast.success("Title added to your Hive", {
-          id: "add-title",
-        });
-
-        if (hiveFormValues.status === "FINISHED") {
-          tossConfetti();
-        }
-
-        setHiveFormValues(undefined);
-        setTitleFormValues(undefined);
-        setSelectedTitleData(undefined);
-        isSuccess = true;
-        router.refresh();
-      })
-      .catch((error) => {
-        toast.error(String(error), {
-          id: "add-title",
-        });
-
-        isSuccess = false;
-      })
-      .finally(() => {
-        setIsAddTitlePending(false);
-      });
-
-    return isSuccess;
+    return true;
   }
 
   return (
@@ -299,7 +290,9 @@ export default function AddTitleToHive({
                   hiveFormValues={hiveFormValues}
                 />
                 <StepperFormActions
-                  isSubmitFnPending={isAddTitlePending}
+                  isSubmitSuccessful={isSuccess}
+                  setIsSubmitSuccessful={setIsSuccess}
+                  isSubmitFnPending={AddTitleStatus === "executing"}
                   submitFn={handleSubmit}
                 />
               </Step>
