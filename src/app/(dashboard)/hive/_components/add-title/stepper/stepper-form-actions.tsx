@@ -17,8 +17,8 @@ export function StepperFormActions({
 }: {
   submitFn?: () => boolean;
   isSubmitFnPending?: boolean;
-  isSubmitSuccessful: boolean;
-  setIsSubmitSuccessful: (isSuccess: boolean) => void;
+  isSubmitSuccessful?: boolean;
+  setIsSubmitSuccessful?: (isSuccess: boolean) => void;
 }) {
   const {
     prevStep,
@@ -33,7 +33,9 @@ export function StepperFormActions({
   useEffect(() => {
     if (isSubmitSuccessful) {
       nextStep();
-      setIsSubmitSuccessful(false);
+      if (setIsSubmitSuccessful) {
+        setIsSubmitSuccessful(false);
+      }
     }
   }, [isSubmitSuccessful, nextStep, setIsSubmitSuccessful]);
 
