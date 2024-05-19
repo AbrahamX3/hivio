@@ -72,6 +72,7 @@ module default {
         rating: float32;
         poster: str;
         posterBlur: str;
+        runtime: int32;
         updatedAt: datetime {
             rewrite insert using (datetime_of_statement());
             rewrite update using (datetime_of_statement());

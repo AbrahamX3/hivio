@@ -1,5 +1,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { InfoIcon } from "lucide-react";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { ClockIcon, InfoIcon, StarIcon } from "lucide-react";
 
 import {
   Accordion,
@@ -7,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
 import {
@@ -14,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
 import { type HiveRowData } from "@/types/hive";
 
@@ -30,8 +34,11 @@ export function SeriesColumns() {
       cell: ({ row }) => {
         return (
           <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {row.getValue("Title Name")}
+            <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
+              {row.original.isFavorite && (
+                <StarIcon className="size-4 text-primary" />
+              )}
+              <span>{row.getValue("Title Name")}</span>
             </span>
           </div>
         );
@@ -128,6 +135,40 @@ export function SeriesColumns() {
             </PopoverTrigger>
             <PopoverContent className="flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
               <div className="flex flex-col gap-2 align-middle text-sm">
+                {row.original.currentSeason && row.original.currentSeason && (
+                  <div>
+                    {row.original.status === "WATCHING" && (
+                      <p>
+                        <span className="font-semibold">Currently on: </span>
+                        <Badge>
+                          s{row.original.currentSeason}e
+                          {row.original.currentEpisode}
+                        </Badge>
+                      </p>
+                    )}
+
+                    {row.original.status === "UNFINISHED" && (
+                      <p>
+                        <span className="font-semibold">Stayed on: </span>
+                        <Badge>
+                          s{row.original.currentSeason}e
+                          {row.original.currentEpisode}
+                        </Badge>
+                      </p>
+                    )}
+
+                    {row.original.status === "FINISHED" && (
+                      <p>
+                        <span className="font-semibold">Finished on: </span>
+                        <Badge>
+                          s{row.original.currentSeason}e
+                          {row.original.currentEpisode}
+                        </Badge>
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <Accordion type="single" collapsible className="w-full">
                   {orderedSeasons.map(({ season, episodes, date, id }) => (
                     <AccordionItem key={id} value={id}>
@@ -209,6 +250,77 @@ export function SeriesColumns() {
       },
       filterFn: (row, id, value: string) => {
         return value.includes(row.getValue(id));
+      },
+    },
+    {
+      id: "Start/Finished",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Start/Finished" />
+      ),
+      cell: ({ row }) => {
+        return row.original.startedAt ? (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                <ClockIcon className="size-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full">
+              <Tabs defaultValue="local" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="local">
+                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  </TabsTrigger>
+                  <TabsTrigger value="utc">UTC</TabsTrigger>
+                </TabsList>
+                <TabsContent value="local">
+                  <div className="flex flex-col gap-y-2">
+                    <span className="font-medium">Started On:</span>
+                    <span>
+                      {format(
+                        toZonedTime(
+                          new Date(row.original.startedAt),
+                          Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        ),
+                        "PPPP",
+                      )}
+                    </span>
+                    {row.original.finishedAt && (
+                      <>
+                        <span className="font-medium">Finished On:</span>
+                        <span>
+                          {format(
+                            toZonedTime(
+                              new Date(row.original.finishedAt),
+                              Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            ),
+                            "PPPP",
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </TabsContent>
+                <TabsContent value="utc">
+                  <div className="flex flex-col gap-y-2">
+                    <span className="font-medium">Started On:</span>
+                    <span>{format(row.original.startedAt, "PPPP")}</span>
+                    {row.original.finishedAt && (
+                      <>
+                        <span className="font-medium">Finished On:</span>
+                        <span>{format(row.original.finishedAt, "PPPP")}</span>
+                      </>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <Button disabled variant="outline" className="w-max">
+            N/A
+          </Button>
+        );
       },
     },
     {

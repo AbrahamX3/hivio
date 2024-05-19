@@ -27,7 +27,11 @@ export default function StatsCards({ data }: Props) {
     ?.filter(
       (hive) => hive.status === "FINISHED" && hive.title.type === "MOVIE",
     )
-    .filter((hive) => hive.finishedAt?.getMonth() === new Date().getMonth());
+    .filter(
+      (hive) =>
+        hive.finishedAt &&
+        new Date(hive.finishedAt).getMonth() === new Date().getMonth(),
+    );
 
   const finishedSeries = data?.filter(
     (hive) => hive.status === "FINISHED" && hive.title.type === "SERIES",
@@ -36,7 +40,11 @@ export default function StatsCards({ data }: Props) {
     ?.filter(
       (hive) => hive.status === "FINISHED" && hive.title.type === "SERIES",
     )
-    .filter((hive) => hive.finishedAt?.getMonth() === new Date().getMonth());
+    .filter(
+      (hive) =>
+        hive.finishedAt &&
+        new Date(hive.finishedAt).getMonth() === new Date().getMonth(),
+    );
 
   const currentlyWatching = data?.filter((hive) => hive.status === "WATCHING");
 
@@ -44,7 +52,11 @@ export default function StatsCards({ data }: Props) {
     ?.filter(
       (hive) => hive.status === "WATCHING" && hive.title.type === "MOVIE",
     )
-    .filter((hive) => hive.finishedAt?.getMonth() === new Date().getMonth());
+    .filter(
+      (hive) =>
+        hive.finishedAt &&
+        new Date(hive.finishedAt)?.getMonth() === new Date().getMonth(),
+    );
 
   const currentWatchingSeries = data
     ?.filter(

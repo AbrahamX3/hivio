@@ -47,11 +47,11 @@ export function MovieColumns() {
       id: "Personal Rating",
       accessorFn: (row) => row.rating,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Your Rating" />
+        <DataTableColumnHeader column={column} title="Personal Rating" />
       ),
 
       cell: ({ row }) => {
-        const rating = Number(row.getValue("Your Rating")).toFixed(1);
+        const rating = Number(row.getValue("Personal Rating")).toFixed(1);
         return (
           <div className="flex space-x-2">
             <span

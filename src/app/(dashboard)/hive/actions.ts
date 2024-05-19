@@ -9,6 +9,7 @@ import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
 import { authAction } from "@/lib/safe-action";
 import {
+  type MovieDetails,
   type MultiSearch,
   type SearchResult,
   type SeriesDetails,
@@ -180,6 +181,24 @@ export async function fetchSeriesData(tmdbId: number): Promise<SeasonData[]> {
   return seasons;
 }
 
+export async function fetchMovieDetails(tmdbId: number): Promise<MovieDetails> {
+  const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${env.TMDB_API_KEY}`,
+    },
+  });
+
+  const data = (await response.json()) as MovieDetails;
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch movie details");
+  }
+
+  return data;
+}
+
 export async function addTitleToHive({
   hiveFormValues,
   selectedTitleData,
@@ -286,6 +305,7 @@ export async function addTitleToHive({
         poster: e.str(selectedTitleData.poster_path),
         posterBlur: posterBlur,
         type: TypeEnum,
+
         genres: genre_ids,
         imdbId: imdbId ?? null,
       })
