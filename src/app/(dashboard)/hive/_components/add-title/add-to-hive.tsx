@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, XIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -189,9 +189,9 @@ export default function AddTitleToHive({
       </DrawerTrigger>
       <DrawerContent
         direction="right"
-        className="left-auto right-0 top-0 mr-2 mt-0 h-screen w-full rounded-none pb-4 md:w-[90vw]"
+        className="left-auto right-0 top-0 mt-0 h-screen w-full rounded-none pb-4 md:w-[90vw]"
       >
-        <div className="mx-auto h-full w-full overflow-y-auto p-2 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+        <div className="mx-auto h-full w-full overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
           <DrawerHeader>
             <DrawerTitle>Add Title to Your Hive</DrawerTitle>
             <DrawerDescription>
@@ -287,6 +287,7 @@ export default function AddTitleToHive({
                       ? "MOVIE"
                       : "SERIES"
                   }
+                  selectedTitleData={selectedTitleData}
                   titleSeasons={titleSeasons}
                   setFormValues={(values) => setHiveFormValues(values)}
                   defaultStatus={user.status}

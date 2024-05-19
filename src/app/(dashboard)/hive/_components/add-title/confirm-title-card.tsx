@@ -1,8 +1,16 @@
 import Image from "next/image";
-import { InfoIcon } from "lucide-react";
+import { BookOpenTextIcon, BookTextIcon, InfoIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { type SearchResult } from "@/types/tmdb";
 
 import { type HiveFormValues } from "./stepper/steps/hive-form-step";
@@ -67,7 +75,7 @@ export default function ConfirmTitleCard({
             </Dialog>
           )}
           <div className="flex flex-1 flex-col gap-4">
-            <div className="flex items-center gap-2 align-middle">
+            <div className="flex flex-wrap items-center gap-2 align-middle">
               <h2 className="font-bold leading-loose tracking-wide">
                 {selectedTitle.title}
               </h2>
@@ -84,11 +92,10 @@ export default function ConfirmTitleCard({
                 / 10
               </Badge>
             </div>
-            <div className="h-full max-h-28 min-h-28 overflow-y-auto rounded-md border scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
-              <p className="h-full overflow-auto text-pretty p-4 text-sm leading-relaxed tracking-wide">
-                {selectedTitle.overview}
-              </p>
-            </div>
+            <p className="hidden h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 xs:flex">
+              {selectedTitle.overview}
+            </p>
+            <ViewDescriptionButton description={selectedTitle.overview} />
           </div>
         </div>
         <FormValuesDisplay formValues={hiveFormValues} type={type} />
@@ -130,7 +137,7 @@ export default function ConfirmTitleCard({
             <h2 className="font-bold leading-loose tracking-wide">
               {selectedTitle.name}
             </h2>
-            <div className="flex items-center gap-2 align-middle">
+            <div className="flex flex-wrap items-center gap-2 align-middle">
               <Badge variant="outline">
                 {selectedTitle.first_air_date
                   ? new Date(selectedTitle.first_air_date).toLocaleDateString()
@@ -145,9 +152,10 @@ export default function ConfirmTitleCard({
               </Badge>
             </div>
           </div>
-          <p className="h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+          <p className="hidden h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 xs:flex">
             {selectedTitle.overview}
           </p>
+          <ViewDescriptionButton description={selectedTitle.overview} />
         </div>
       </div>
       <FormValuesDisplay formValues={hiveFormValues} type={type} />
@@ -170,8 +178,10 @@ function FormValuesDisplay({
     type === "SERIES";
 
   return (
-    <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
-      Status: <Badge>{formValues.status}</Badge>
+    <div className="flex h-full max-h-56 w-full flex-wrap gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
+      <span>
+        Status: <Badge>{formValues.status}</Badge>
+      </span>
       {formValues.startedAt && (
         <span>
           Date Started:{" "}
@@ -186,22 +196,66 @@ function FormValuesDisplay({
               <Badge>{formValues.finishedAt?.toLocaleDateString()}</Badge>
             </span>
           )}
-          Favorite: <Badge>{formValues.isFavorite ? "Yes" : "No"}</Badge>
+          <span>
+            Favorite: <Badge>{formValues.isFavorite ? "Yes" : "No"}</Badge>
+          </span>
           {formValues.rating > 0 && (
             <>
-              My Rating: <Badge>{formValues.rating}</Badge>
+              <span>
+                My Rating: <Badge>{formValues.rating}</Badge>
+              </span>
             </>
           )}
         </>
       )}
       {shouldSetSeason && (
         <>
-          On:{" "}
-          <Badge>
-            S{formValues.currentSeason}E{formValues.currentEpisode}
-          </Badge>
+          <span>
+            On:{" "}
+            <Badge>
+              S{formValues.currentSeason}E{formValues.currentEpisode}
+            </Badge>
+          </span>
         </>
       )}
     </div>
+  );
+}
+
+export function ViewDescriptionButton({
+  description,
+}: {
+  description: string;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          variant="outline"
+          size="icon"
+          className="group flex py-2 hover:bg-transparent xs:hidden"
+        >
+          <BookTextIcon className="size-4 group-hover:hidden" />
+          <BookOpenTextIcon className="hidden size-4 group-hover:block" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="h-screen max-h-[90dvh] sm:h-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold">
+            Description
+          </DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="my-4 w-full">
+          <div className="flex flex-col items-center justify-center gap-4 align-middle md:flex-row">
+            <div className="max-w-prose text-pretty leading-6 tracking-wide">
+              {description}
+            </div>
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 }

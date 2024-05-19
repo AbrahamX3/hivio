@@ -203,7 +203,7 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
     <Drawer open={open} onOpenChange={setOpen} direction="right">
       <DrawerContent
         direction="right"
-        className="left-auto right-0 top-0 mr-2 mt-0 h-screen w-full rounded-none pb-4 md:w-[600px]"
+        className="left-auto right-0 top-0 mt-0 h-screen w-full rounded-none pb-4 md:w-[600px]"
       >
         <div className="mx-auto grid w-full gap-0.5 px-5 pt-6">
           <DrawerTitle className="group flex items-center gap-5 align-middle">

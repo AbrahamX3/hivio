@@ -68,7 +68,7 @@ export function StepperFormActions({
               >
                 {!isSubmitFnPending ? (
                   <>
-                    <span>Finish</span>
+                    <span>Add to Hive</span>
                     <CheckCircleIcon className="size-4" />
                   </>
                 ) : (

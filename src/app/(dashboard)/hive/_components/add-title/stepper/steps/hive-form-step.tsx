@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
@@ -42,6 +42,7 @@ import { useStepper } from "@/components/ui/stepper";
 import { Switch } from "@/components/ui/switch";
 import { statusOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
+import { type SearchResult } from "@/types/tmdb";
 
 import { StepperFormActions } from "../stepper-form-actions";
 
@@ -101,16 +102,39 @@ interface HiveFormStepProps {
   defaultStatus: "WATCHING" | "UNFINISHED" | "PENDING" | "FINISHED";
   setFormValues: (values: HiveFormValues) => void;
   titleSeasons: SeasonData[];
+  selectedTitleData: SearchResult | undefined;
   type: "MOVIE" | "SERIES";
 }
+
+const createSeasonsMap = (titleSeasons: SeasonData[]) => {
+  const seasonsMap = new Map<number, number[]>();
+
+  titleSeasons.forEach((season) => {
+    const episodesArray = Array.from(
+      { length: season.episodes },
+      (_, index) => index + 1,
+    );
+    seasonsMap.set(season.season, episodesArray);
+  });
+
+  return seasonsMap;
+};
 
 export function HiveFormStep({
   defaultStatus,
   setFormValues,
   titleSeasons,
   type,
+  selectedTitleData,
 }: HiveFormStepProps) {
   const { nextStep } = useStepper();
+
+  const releaseDate =
+    selectedTitleData?.media_type === "movie"
+      ? selectedTitleData.release_date
+      : selectedTitleData?.first_air_date;
+
+  const isTitleWatchable = releaseDate && new Date() >= new Date(releaseDate);
 
   const hiveForm = useForm<HiveFormValues>({
     resolver: zodResolver(hiveFormSchema),
@@ -128,20 +152,44 @@ export function HiveFormStep({
     nextStep();
   }
 
+  const seasonsMap = useMemo(
+    () => createSeasonsMap(titleSeasons),
+    [titleSeasons],
+  );
+
   const canSetSeason =
     hiveForm.watch("status") === "UNFINISHED" ||
     hiveForm.watch("status") === "WATCHING" ||
     hiveForm.watch("status") === "FINISHED";
 
-  const lastSeason = titleSeasons.at(-1)?.season ?? 0;
-  const lastEpisode = titleSeasons.at(-1)?.episodes ?? 0;
+  const currentSeason = hiveForm.watch("currentSeason");
+  const episodes = seasonsMap.get(Number(currentSeason)) ?? [];
+
+  const lastSeason = useMemo(
+    () => titleSeasons.at(-1)?.season ?? 0,
+    [titleSeasons],
+  );
+  const lastEpisode = useMemo(
+    () => titleSeasons.at(-1)?.episodes ?? 0,
+    [titleSeasons],
+  );
+
   const isFinished = hiveForm.watch("status") === "FINISHED";
 
   useEffect(() => {
     if (type === "SERIES") {
       if (isFinished) {
-        hiveForm.setValue("currentSeason", lastSeason);
-        hiveForm.setValue("currentEpisode", lastEpisode);
+        const timeout1 = setTimeout(() => {
+          hiveForm.setValue("currentSeason", lastSeason);
+        }, 100);
+        const timeout2 = setTimeout(() => {
+          hiveForm.setValue("currentEpisode", lastEpisode);
+        }, 200);
+
+        return () => {
+          clearTimeout(timeout1);
+          clearTimeout(timeout2);
+        };
       } else {
         hiveForm.setValue("currentSeason", 1);
         hiveForm.setValue("currentEpisode", 1);
@@ -159,11 +207,17 @@ export function HiveFormStep({
         <FormField
           control={hiveForm.control}
           name="status"
-          defaultValue={defaultStatus ?? "WATCHING"}
+          defaultValue={
+            isTitleWatchable ? defaultStatus ?? "WATCHING" : "PENDING"
+          }
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel isRequired>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                disabled={!isTitleWatchable}
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full truncate">
                     <SelectValue placeholder="Select the status..." />
@@ -246,19 +300,12 @@ export function HiveFormStep({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.from({
-                          length:
-                            titleSeasons.find(
-                              (s) =>
-                                s.season ===
-                                Number(hiveForm.watch("currentSeason")),
-                            )?.episodes ?? 0,
-                        }).map((_, index) => (
+                        {episodes.map((episode) => (
                           <SelectItem
-                            key={`episode_${index + 1}`}
-                            value={String(index + 1)}
+                            key={`episode_${episode}`}
+                            value={String(episode)}
                           >
-                            Episode {index + 1}
+                            Episode {episode}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -311,7 +358,7 @@ export function HiveFormStep({
                 </Popover>
                 <FormDescription>
                   <p>The date you started watching this title.</p>
-                  <div className="flex w-full items-center justify-between gap-2 pt-2">
+                  <div className="flex w-full flex-wrap items-center gap-2 pt-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -402,7 +449,7 @@ export function HiveFormStep({
                   </Popover>
                   <FormDescription>
                     <p>The date you finished watching this title.</p>
-                    <div className="flex w-full items-center justify-between gap-2 pt-2">
+                    <div className="flex w-full flex-wrap items-center gap-2 pt-2">
                       <Button
                         type="button"
                         variant="outline"
