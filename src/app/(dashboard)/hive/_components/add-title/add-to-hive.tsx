@@ -191,7 +191,7 @@ export default function AddTitleToHive({
               watch.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="flex w-full flex-col gap-4 p-4 pb-0">
+          <div className="mb-8 flex w-full flex-col gap-4 p-3 sm:mb-0">
             <Stepper
               size="sm"
               variant="circle-alt"
