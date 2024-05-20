@@ -107,3 +107,11 @@ export const AddTitleToHiveSchema = z.object({
   hiveFormValues: hiveFormSchema,
   titleFormValues: titleFormSchema,
 });
+
+export type SearchFormValues = z.infer<typeof searchFormSchema>;
+
+export const searchFormSchema = z.object({
+  query: z.string().min(1, {
+    message: "Search query is required",
+  }),
+});

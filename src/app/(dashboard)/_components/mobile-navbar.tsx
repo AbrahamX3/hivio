@@ -37,7 +37,7 @@ export default function MobileNavbar({ user }: Props) {
           <Link href="/" className="mb-4 flex items-center gap-2 font-semibold">
             <LogoFull className="h-7 w-auto text-primary" />
           </Link>
-          <ActiveLink name="Hive" href="/hive">
+          <ActiveLink name="My Hive" href="/hive">
             <Home className="size-5" />
           </ActiveLink>
           {user?.username && (

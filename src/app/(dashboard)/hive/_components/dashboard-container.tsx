@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
 import { type HiveRowData } from "@/types/hive";
 
-import DashboardStats from "./stats";
+import DashboardHeader from "./dashboard-header";
 import TableTabs from "./table-tabs";
 import TitleDetails from "./title-details";
 
@@ -76,7 +76,10 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
             Manage your general account settings and other options.
           </p>
         </div>
-        <DashboardStats user={user} />
+        <DashboardHeader
+          user={user}
+          hive={JSON.parse(JSON.stringify(data)) as HiveRowData[]}
+        />
         <div className="flex min-w-0 items-center">
           <Tabs defaultValue="movies" className="w-full">
             <div className="flex items-center">

@@ -7,7 +7,7 @@ import { PlusIcon, XIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { type z } from "zod";
 
 import { LogoIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -40,19 +40,16 @@ import {
   searchTitle,
   type SeasonData,
 } from "../../actions";
-import { type HiveFormValues, type TitleFormValues } from "../../validations";
+import {
+  searchFormSchema,
+  type HiveFormValues,
+  type TitleFormValues,
+} from "../../validations";
 import ConfirmTitleCard from "./confirm-title-card";
 import { StepperFooter } from "./stepper/stepper-footer";
 import { StepperFormActions } from "./stepper/stepper-form-actions";
 import { HiveFormStep } from "./stepper/steps/hive-form-step";
 import { TitleFormStep } from "./stepper/steps/title-form-step";
-
-const searchFormSchema = z.object({
-  query: z.string().min(1, {
-    message: "Search query is required",
-  }),
-});
-export type SearchFormValues = z.infer<typeof searchFormSchema>;
 
 export default function AddTitleToHive({
   user,

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { type Row } from "@tanstack/react-table";
-import { Info, MoreHorizontal, TrashIcon } from "lucide-react";
+import { EditIcon, Info, MoreHorizontal, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import { Link } from "next-view-transitions";
 import { toast } from "sonner";
 
 import {
@@ -72,6 +73,15 @@ export function HiveMoviesTableActions<TData>({
             >
               View Extra Details
               <Info className="mr-2 size-4" />
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                className="flex justify-between gap-4"
+                href={`/hive/${data.id}`}
+              >
+                Edit Hive Title
+                <EditIcon className="mr-2 size-4" />
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
               className="flex justify-between gap-4"

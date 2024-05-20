@@ -32,7 +32,7 @@ export default function DashboardSiderbar({ user }: Props) {
         </div>
         <div className="flex-1">
           <nav className="grid items-start gap-2 px-2 text-sm font-medium lg:px-4">
-            <SidebarLink name="Hive" href="/hive">
+            <SidebarLink name="My Hive" href="/hive">
               <Home className="size-4" />
             </SidebarLink>
             {user?.username && (

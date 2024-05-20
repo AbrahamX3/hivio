@@ -346,7 +346,7 @@ export function HiveFormStep({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => field.onChange(null)}
+                      onClick={() => field.onChange(undefined)}
                     >
                       Clear <CalendarOffIcon className="ml-2 size-4" />
                     </Button>
@@ -437,7 +437,7 @@ export function HiveFormStep({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => field.onChange(null)}
+                        onClick={() => field.onChange(undefined)}
                       >
                         Clear <CalendarOffIcon className="ml-2 size-4" />
                       </Button>

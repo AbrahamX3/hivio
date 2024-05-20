@@ -429,3 +429,28 @@ async function getIMDBId(tmdbId: number, type: "MOVIE" | "SERIES") {
 
   return data.imdb_id;
 }
+
+export async function getHiveData() {
+  const client = auth.getSession().client;
+
+  const data = await e
+    .select(e.Hive, (hive) => ({
+      ...e.Hive["*"],
+      title: {
+        ...e.Title["*"],
+        seasons: {
+          ...e.Season["*"],
+        },
+      },
+      order_by: [
+        {
+          expression: hive.createdAt,
+          direction: e.DESC,
+        },
+      ],
+      filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+    }))
+    .run(client);
+
+  return data;
+}

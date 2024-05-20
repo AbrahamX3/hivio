@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/auth";
+import { getUser, verifyUser } from "@/lib/auth";
 
 import DefaultStatusForm from "./_components/general/default-status";
 import DisplayNameForm from "./_components/general/display-name";
@@ -9,6 +9,8 @@ export const metadata = {
 };
 
 export default async function Settings() {
+  await verifyUser();
+
   const user = await getUser();
 
   return (

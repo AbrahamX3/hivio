@@ -1,33 +1,12 @@
-import e from "@edgedb/edgeql-js";
-
 import { getUser, verifyUser } from "@/lib/auth";
-import { auth } from "@/lib/edgedb";
 import { type HiveRowData } from "@/types/hive";
 
 import { DashboardContainer } from "./_components/dashboard-container";
+import { getHiveData } from "./actions";
 
 export const metadata = {
   title: "Your Hive",
 };
-
-async function getHiveData() {
-  const client = auth.getSession().client;
-
-  const data = await e
-    .select(e.Hive, (hive) => ({
-      ...e.Hive["*"],
-      title: {
-        ...e.Title["*"],
-        seasons: {
-          ...e.Season["*"],
-        },
-      },
-      filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
-    }))
-    .run(client);
-
-  return JSON.parse(JSON.stringify(data)) as HiveRowData[];
-}
 
 export default async function HiveDashboard() {
   await verifyUser();
