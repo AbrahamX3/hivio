@@ -582,9 +582,7 @@ export function HiveForm({ hive }: HiveFormStepProps) {
           </CardContent>
         </Card>
         <div className="flex items-center justify-center gap-2 md:hidden">
-          <Button type="button" variant="destructive" size="sm">
-            Delete <TrashIcon className="ml-2 size-4" />
-          </Button>
+          <DeleteTitle id={hive.id} type={hive.title.type} />
           <Button
             disabled={!hiveForm.formState.isDirty}
             type="submit"
