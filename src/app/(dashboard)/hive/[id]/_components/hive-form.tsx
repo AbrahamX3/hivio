@@ -218,7 +218,7 @@ export function HiveForm({ hive }: HiveFormStepProps) {
         onSubmit={hiveForm.handleSubmit(handleSubmit)}
         className="col-span-3 flex w-full flex-col gap-4"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Link
             href="/hive"
             className={cn(
@@ -232,7 +232,10 @@ export function HiveForm({ hive }: HiveFormStepProps) {
             <ChevronLeftIcon className="h-4 w-4" />
             <span className="sr-only">Back to Hive</span>
           </Link>
-          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
+          <h1
+            title={hive.title.name}
+            className="w-60 flex-1 shrink truncate whitespace-nowrap text-xl font-semibold tracking-tight"
+          >
             {hive.title.name}
           </h1>
           <Badge className="ml-auto sm:ml-0">{hive.status}</Badge>

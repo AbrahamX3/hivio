@@ -11,6 +11,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from "@/lib/utils";
+
+function isUuid(str: string): boolean {
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
 
 export default function DashboardBreadcrumb() {
   const path = usePathname();
@@ -39,7 +46,10 @@ export default function DashboardBreadcrumb() {
               {path == crumb.href ? (
                 <BreadcrumbPage>
                   <BreadcrumbLink
-                    className="font-medium capitalize text-primary hover:text-primary/80"
+                    className={cn(
+                      !isUuid(crumb.title) && "capitalize",
+                      "font-medium text-primary hover:text-primary/80",
+                    )}
                     href={crumb.href}
                   >
                     {crumb.title}
@@ -49,7 +59,10 @@ export default function DashboardBreadcrumb() {
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href={crumb.href}
-                    className="font-medium capitalize"
+                    className={cn(
+                      !isUuid(crumb.title) && "capitalize",
+                      "font-medium",
+                    )}
                   >
                     {crumb.title}
                   </BreadcrumbLink>

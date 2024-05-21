@@ -11,11 +11,12 @@ export default async function not_found() {
       <div className="max-w-md space-y-4 text-center">
         <UserIcon className="mx-auto h-16 w-16 text-gray-500 dark:text-gray-400" />
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-          This title does not exist in your hive
+          This title or page does not exist
         </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          The requested title not be found in your hive. Please go back to your
-          hive dashboard and try editing the desired title again.
+          The requested title or page could not be found. Please go back to your
+          hive dashboard and try editing the desired title again or navigate to
+          the correct page.
         </p>
         <Link
           className="inline-flex h-9 items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
