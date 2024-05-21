@@ -79,7 +79,7 @@ export default function HiveProfileFilter({ hive }: HiveProfileFilterProps) {
 
   return (
     <>
-      <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
         <h1 className="text-2xl font-bold">Discover Hive Profiles</h1>
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:flex-nowrap">
           <Button variant="outline" onClick={handleReset}>

@@ -65,7 +65,7 @@ export default function UserCard({ user }: UserCardProps) {
             <UsersIcon className="size-4" />
           </Badge>
           {topGenres.map((item) => (
-            <Badge key={item.id} variant="secondary">
+            <Badge key={item.id} variant="secondary" className="line-clamp-1">
               {item.label}
             </Badge>
           ))}

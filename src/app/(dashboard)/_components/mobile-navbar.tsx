@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MenuIcon, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  Home,
+  MenuIcon,
+  SettingsIcon,
+  UserIcon,
+  UserRoundSearchIcon,
+} from "lucide-react";
 
 import LogoFull from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -45,6 +51,9 @@ export default function MobileNavbar({ user }: Props) {
               <UserIcon className="size-5" />
             </ActiveLink>
           )}
+          <ActiveLink name="Discover Profiles" href="/discover">
+            <UserRoundSearchIcon className="size-5" />
+          </ActiveLink>
           <ActiveLink name="Settings" href="/hive/settings">
             <SettingsIcon className="size-5" />
           </ActiveLink>

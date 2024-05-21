@@ -2,9 +2,10 @@ import { CircleUserIcon, RocketIcon, TelescopeIcon } from "lucide-react";
 import { Link } from "next-view-transitions";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { isUserSignedIn } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Home",
@@ -27,6 +28,14 @@ export default async function Component() {
               </p>
             </div>
             <div className="space-x-4">
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "secondary", size: "lg" }),
+                )}
+                href="/discover"
+              >
+                Discover Profiles
+              </Link>
               <Button asChild size="lg" variant="outline">
                 {isSignedIn ? (
                   <Link href="/hive">Get Started</Link>

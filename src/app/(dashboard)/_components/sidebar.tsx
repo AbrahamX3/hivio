@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  Home,
+  SettingsIcon,
+  UserIcon,
+  UserRoundSearchIcon,
+} from "lucide-react";
 
 import LogoFull from "@/components/icons";
 import {
@@ -40,6 +45,9 @@ export default function DashboardSiderbar({ user }: Props) {
                 <UserIcon className="size-4" />
               </SidebarLink>
             )}
+            <SidebarLink name="Discover Profiles" href="/discover">
+              <UserRoundSearchIcon className="size-4" />
+            </SidebarLink>
             <SidebarLink name="Settings" href="/hive/settings">
               <SettingsIcon className="size-4" />
             </SidebarLink>
