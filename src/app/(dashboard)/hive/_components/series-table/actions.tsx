@@ -8,6 +8,7 @@ import { useAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +29,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTitleDetails } from "@/context/title-details-context";
-import { type HiveRowData } from "@/types/hive";
 
 import { deleteTitle } from "../../actions";
 
@@ -38,7 +38,7 @@ interface DataTableRowActionsProps<TData> {
 export function HiveSeriesTableActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const data = row.original as HiveRowData;
+  const data = row.original as HiveProfile[0];
 
   const { setSelectedTitle } = useTitleDetails();
   const [openDeleteAlert, setOpenDeleteAlert] = useState(false);

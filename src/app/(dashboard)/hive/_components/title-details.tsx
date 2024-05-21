@@ -56,8 +56,8 @@ import {
 } from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
-import { type HiveRowData } from "@/types/hive";
 
+import { type HiveData } from "../actions";
 import DeleteHiveTitle from "./delete-title";
 
 const USD = Intl.NumberFormat("en-US", {
@@ -66,7 +66,7 @@ const USD = Intl.NumberFormat("en-US", {
   maximumSignificantDigits: 3,
 });
 
-export default function TitleDetails({ data }: { data?: HiveRowData }) {
+export default function TitleDetails({ data }: { data?: HiveData[0] }) {
   const { setSelectedTitle, selectedTitle } = useTitleDetails();
 
   const {

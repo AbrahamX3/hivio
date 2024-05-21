@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { type Season } from "@edgedb/interfaces";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import {
@@ -71,15 +70,15 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { statusOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
-import { type HiveRowData } from "@/types/hive";
 
-import { deleteTitle } from "../../actions";
+import { deleteTitle, type HiveData } from "../../actions";
+import { updateTitleFromHive } from "../actions";
 
 interface HiveFormStepProps {
-  hive: HiveRowData;
+  hive: HiveData[0];
 }
 
-const createSeasonsMap = (titleSeasons: Season[]) => {
+const createSeasonsMap = (titleSeasons: HiveData[0]["title"]["seasons"]) => {
   const seasonsMap = new Map<number, number[]>();
 
   titleSeasons.forEach((season) => {
@@ -93,7 +92,7 @@ const createSeasonsMap = (titleSeasons: Season[]) => {
   return seasonsMap;
 };
 
-function handleValues(hide: HiveRowData) {
+function handleValues(hide: HiveData[0]) {
   if (hide.status === "WATCHING") {
     return {
       currentEpisode: hide.currentEpisode ?? undefined,
@@ -129,16 +128,46 @@ function handleValues(hide: HiveRowData) {
 }
 
 export function HiveForm({ hive }: HiveFormStepProps) {
+  const router = useRouter();
   const seasons = hive.title.seasons;
+
   const isTitleWatchable = new Date() >= new Date(hive.title.date.toString());
 
+  const { execute } = useAction(updateTitleFromHive, {
+    onSuccess: ({ success, error }) => {
+      if (success) {
+        toast.success("Title updated successfully", {
+          id: "update-title",
+        });
+
+        router.refresh();
+      } else {
+        toast.error(error.reason, {
+          id: "update-title",
+        });
+      }
+    },
+    onExecute: () => {
+      toast.loading("Updating title...", {
+        id: "update-title",
+      });
+    },
+    onError: () => {
+      toast.error("Error updating title!", {
+        id: "update-title",
+      });
+    },
+  });
   const hiveForm = useForm<HiveFormValues>({
     resolver: zodResolver(hiveFormSchema),
     defaultValues: handleValues(hive),
   });
 
   function handleSubmit(values: HiveFormValues) {
-    console.log(values);
+    execute({
+      form: values,
+      id: hive.id,
+    });
   }
 
   const seasonsMap = useMemo(() => createSeasonsMap(seasons), [seasons]);

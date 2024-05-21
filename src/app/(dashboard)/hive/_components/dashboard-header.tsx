@@ -9,13 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { type UserSession } from "@/types/auth";
-import { type HiveRowData } from "@/types/hive";
 
+import { type HiveData } from "../actions";
 import AddTitleToHive from "./add-title/add-to-hive";
 
 interface DashboardHeaderProps {
   user: UserSession;
-  hive: HiveRowData[];
+  hive: HiveData;
 }
 
 export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {

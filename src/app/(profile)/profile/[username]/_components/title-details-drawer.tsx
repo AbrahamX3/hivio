@@ -13,6 +13,7 @@ import {
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import {
   getMovieCredits,
   getMovieDetails,
@@ -50,13 +51,12 @@ import {
 } from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
-import { type HiveRowData } from "@/types/hive";
 
 interface Props {
   id: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  data: HiveRowData;
+  data: HiveProfile[0];
 }
 
 const USD = Intl.NumberFormat("en-US", {

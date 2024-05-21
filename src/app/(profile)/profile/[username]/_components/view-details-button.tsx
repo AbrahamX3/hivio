@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -11,12 +12,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTitleDetails } from "@/context/title-details-context";
-import { type HiveRowData } from "@/types/hive";
 
 import { TitleDetailsDrawer } from "./title-details-drawer";
 
 interface Props {
-  data: HiveRowData;
+  data: HiveProfile[0];
 }
 
 export default function ViewDetailsButton({ data }: Props) {

@@ -1,8 +1,7 @@
 import { getUser, verifyUser } from "@/lib/auth";
-import { type HiveRowData } from "@/types/hive";
 
 import { DashboardContainer } from "./_components/dashboard-container";
-import { getHiveData } from "./actions";
+import { getHiveData, type HiveData } from "./actions";
 
 export const metadata = {
   title: "Your Hive",
@@ -17,7 +16,7 @@ export default async function HiveDashboard() {
   return (
     <main className="grid w-full flex-1 items-start gap-4 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
       <DashboardContainer
-        data={JSON.parse(JSON.stringify(hive)) as HiveRowData[]}
+        data={JSON.parse(JSON.stringify(hive)) as HiveData}
         user={user}
       />
     </main>

@@ -1,15 +1,20 @@
 "use server";
 
-import e from "@edgedb/edgeql-js";
+import e, { type $infer } from "@edgedb/edgeql-js";
 
 import { db } from "@/lib/edgedb";
 import { action } from "@/lib/safe-action";
 
 import { UserProfile } from "./validations";
 
-export const hiveProfile = action(UserProfile, async ({ username }) => {
-  const hive = await e
-    .select(e.Hive, (hive) => ({
+export type HiveProfile = $infer<typeof HiveProfile>;
+
+const HiveProfile = e.params(
+  {
+    username: e.str,
+  },
+  ({ username }) => {
+    return e.select(e.Hive, (hive) => ({
       ...e.Hive["*"],
       title: {
         ...e.Title["*"],
@@ -23,9 +28,15 @@ export const hiveProfile = action(UserProfile, async ({ username }) => {
           direction: e.DESC,
         },
       ],
-      filter: e.op(hive.addedBy.username, "=", e.str(username)),
-    }))
-    .run(db);
+      filter: e.op(hive.addedBy.username, "=", username),
+    }));
+  },
+);
+
+export const hiveProfile = action(UserProfile, async ({ username }) => {
+  const hive = await HiveProfile.run(db, {
+    username,
+  });
 
   const user = await e
     .select(e.User, (user) => ({

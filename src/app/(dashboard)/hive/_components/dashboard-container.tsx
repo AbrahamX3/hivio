@@ -28,15 +28,15 @@ import {
 import { useTitleDetails } from "@/context/title-details-context";
 import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
-import { type HiveRowData } from "@/types/hive";
 
+import { type HiveData } from "../actions";
 import DashboardHeader from "./dashboard-header";
 import TableTabs from "./table-tabs";
 import TitleDetails from "./title-details";
 
 interface DashboardContainerProps {
   user: UserSession;
-  data: HiveRowData[];
+  data: HiveData;
 }
 
 export function DashboardContainer({ user, data }: DashboardContainerProps) {
@@ -78,7 +78,7 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
         </div>
         <DashboardHeader
           user={user}
-          hive={JSON.parse(JSON.stringify(data)) as HiveRowData[]}
+          hive={JSON.parse(JSON.stringify(data)) as HiveData}
         />
         <div className="flex min-w-0 items-center">
           <Tabs defaultValue="movies" className="w-full">

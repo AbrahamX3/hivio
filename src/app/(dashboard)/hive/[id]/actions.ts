@@ -1,11 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import e from "@edgedb/edgeql-js";
 
 import { auth } from "@/lib/edgedb";
 import { authAction } from "@/lib/safe-action";
 
-import { GetTitleFromHiveSchema } from "./validations";
+import { GetTitleFromHiveSchema, saveTitleFormSchema } from "./validations";
 
 export const getTitleFromHive = authAction(
   GetTitleFromHiveSchema,
@@ -68,6 +69,111 @@ export const getTitleFromHiveMetadata = authAction(
       data: {
         name: data.title.name,
         status: data.status,
+      },
+    };
+  },
+);
+
+export const updateTitleFromHive = authAction(
+  saveTitleFormSchema,
+  async (formData) => {
+    const client = auth.getSession().client;
+    const { form, id } = formData;
+
+    if (form.status === "FINISHED") {
+      const result = await e
+        .update(e.Hive, (hive) => ({
+          set: {
+            status: form.status,
+            currentEpisode: form.currentEpisode,
+            currentSeason: form.currentSeason,
+            finishedAt: form.finishedAt,
+            rating: form.rating,
+            startedAt: form.startedAt,
+            isFavorite: form.isFavorite,
+          },
+          filter_single: e.op(
+            e.op(hive.id, "=", e.uuid(id)),
+            "and",
+            e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+          ),
+        }))
+        .run(client);
+
+      revalidatePath("/hive");
+      return {
+        success: true,
+        data: result,
+      };
+    } else if (form.status === "PENDING") {
+      const result = await e
+        .update(e.Hive, (hive) => ({
+          set: {
+            status: form.status,
+          },
+          filter_single: e.op(
+            e.op(hive.id, "=", e.uuid(id)),
+            "and",
+            e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+          ),
+        }))
+        .run(client);
+
+      revalidatePath("/hive");
+      return {
+        success: true,
+        data: result,
+      };
+    } else if (form.status === "UNFINISHED") {
+      const result = await e
+        .update(e.Hive, (hive) => ({
+          set: {
+            status: form.status,
+            currentEpisode: form.currentEpisode,
+            currentSeason: form.currentSeason,
+            startedAt: form.startedAt,
+          },
+          filter_single: e.op(
+            e.op(hive.id, "=", e.uuid(id)),
+            "and",
+            e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+          ),
+        }))
+        .run(client);
+
+      revalidatePath("/hive");
+      return {
+        success: true,
+        data: result,
+      };
+    } else if (form.status === "WATCHING") {
+      const result = await e
+        .update(e.Hive, (hive) => ({
+          set: {
+            status: form.status,
+            currentEpisode: form.currentEpisode,
+            currentSeason: form.currentSeason,
+            startedAt: form.startedAt,
+          },
+          filter_single: e.op(
+            e.op(hive.id, "=", e.uuid(id)),
+            "and",
+            e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+          ),
+        }))
+        .run(client);
+
+      revalidatePath("/hive");
+      return {
+        success: true,
+        data: result,
+      };
+    }
+
+    return {
+      success: false,
+      error: {
+        reason: "Error updating title",
       },
     };
   },

@@ -39,9 +39,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { convertMinutesToHrMin } from "@/lib/utils";
-import { type HiveRowData } from "@/types/hive";
 
-import { hiveMetadataInfo, hiveProfile } from "../../actions";
+import { hiveMetadataInfo, hiveProfile, type HiveProfile } from "../../actions";
 import { EmptyCard } from "./_components/empty-card";
 import Follow from "./_components/follow/follow";
 import StatsCards from "./_components/stats-cards";
@@ -85,7 +84,7 @@ export default async function PublicUserProfile({ params }: Props) {
 
   const currentlyWatching = hive?.filter((hive) => hive.status === "WATCHING");
 
-  function calculateProgress(hive: HiveRowData) {
+  function calculateProgress(hive: HiveProfile[0]) {
     const currentSeasonNumber = hive.currentSeason ?? 0;
     const currentEpisodeNumber = hive.currentEpisode ?? 0;
     const currentTitle = hive.title;
@@ -121,7 +120,7 @@ export default async function PublicUserProfile({ params }: Props) {
         />
         {user.username && <Follow username={user?.username} />}
       </div>
-      <StatsCards data={JSON.parse(JSON.stringify(hive)) as HiveRowData[]} />
+      <StatsCards data={JSON.parse(JSON.stringify(hive)) as HiveProfile} />
       <h3 className="text-2xl font-semibold">Currently Watching</h3>
       <Suspense fallback={<div>Loading...</div>}>
         {currentlyWatching?.length > 0 ? (
@@ -174,7 +173,7 @@ export default async function PublicUserProfile({ params }: Props) {
                                   data={
                                     JSON.parse(
                                       JSON.stringify(hive),
-                                    ) as HiveRowData
+                                    ) as HiveProfile[0]
                                   }
                                 />
                                 {hive?.title.imdbId ?? hive?.title.tmdbId ? (
@@ -244,7 +243,7 @@ export default async function PublicUserProfile({ params }: Props) {
                                     {calculateProgress(
                                       JSON.parse(
                                         JSON.stringify(hive),
-                                      ) as HiveRowData,
+                                      ) as HiveProfile[0],
                                     ).toFixed(2)}
                                     %)
                                   </span>
@@ -254,7 +253,7 @@ export default async function PublicUserProfile({ params }: Props) {
                                   value={calculateProgress(
                                     JSON.parse(
                                       JSON.stringify(hive),
-                                    ) as HiveRowData,
+                                    ) as HiveProfile[0],
                                   )}
                                 />
                               </div>
@@ -299,7 +298,7 @@ export default async function PublicUserProfile({ params }: Props) {
           </div>
         )}
       </Suspense>
-      <TableTabs data={JSON.parse(JSON.stringify(hive)) as HiveRowData[]} />
+      <TableTabs data={JSON.parse(JSON.stringify(hive)) as HiveProfile} />
     </>
   );
 }

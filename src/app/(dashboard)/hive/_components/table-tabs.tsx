@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/card";
 import TableContainer from "@/components/ui/datatable/data-table-container";
 import { TabsContent } from "@/components/ui/tabs";
-import { type HiveRowData } from "@/types/hive";
 
+import { type HiveData } from "../actions";
 import MoviesTableView from "./movies-table/table-view";
 import SeriesTableView from "./series-table/table-view";
 
-export default function TableTabs({ data }: { data: HiveRowData[] }) {
+export default function TableTabs({ data }: { data: HiveData }) {
   const filteredMovies = data.filter((hive) => hive.title.type === "MOVIE");
   const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
 

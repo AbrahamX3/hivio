@@ -2,11 +2,11 @@
 
 import { DataTable } from "@/components/ui/datatable/data-table";
 import { genreOptions, statusOptions } from "@/lib/options";
-import { type HiveRowData } from "@/types/hive";
 
+import { type HiveData } from "../../actions";
 import { SeriesColumns } from "./columns";
 
-export default function SeriesTableView({ data }: { data: HiveRowData[] }) {
+export default function SeriesTableView({ data }: { data: HiveData }) {
   const filters = [
     {
       columnId: "Status",

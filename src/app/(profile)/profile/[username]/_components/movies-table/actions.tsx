@@ -4,6 +4,7 @@ import { useState } from "react";
 import { type Row } from "@tanstack/react-table";
 import { Info, MoreHorizontal } from "lucide-react";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTitleDetails } from "@/context/title-details-context";
-import { type HiveRowData } from "@/types/hive";
 
 import { TitleDetailsDrawer } from "../title-details-drawer";
 
@@ -24,7 +24,7 @@ interface DataTableRowActionsProps<TData> {
 export function HiveMoviesTableActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const data = row.original as HiveRowData;
+  const data = row.original as HiveProfile[0];
 
   const { setSelectedTitle } = useTitleDetails();
   const [openDetails, setOpenDetails] = useState(false);

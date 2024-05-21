@@ -7,11 +7,11 @@ import {
   PlayCircleIcon,
 } from "lucide-react";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { type HiveRowData } from "@/types/hive";
 
 interface Props {
-  data: HiveRowData[];
+  data: HiveProfile;
 }
 
 export default function StatsCards({ data }: Props) {

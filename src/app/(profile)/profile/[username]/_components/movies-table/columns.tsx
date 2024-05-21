@@ -1,13 +1,13 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
-import { type HiveRowData } from "@/types/hive";
 
 import { HiveMoviesTableActions } from "./actions";
 
 export function MovieColumns() {
-  const columns: ColumnDef<HiveRowData>[] = [
+  const columns: ColumnDef<HiveProfile[0]>[] = [
     {
       id: "Title Name",
       accessorFn: (row) => row.title.name,

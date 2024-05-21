@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { ClockIcon, InfoIcon, StarIcon } from "lucide-react";
 
+import { type HiveProfile } from "@/app/(profile)/actions";
 import {
   Accordion,
   AccordionContent,
@@ -19,12 +20,11 @@ import {
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
-import { type HiveRowData } from "@/types/hive";
 
 import { HiveSeriesTableActions } from "./actions";
 
 export function SeriesColumns() {
-  const columns: ColumnDef<HiveRowData>[] = [
+  const columns: ColumnDef<HiveProfile[0]>[] = [
     {
       id: "Title Name",
       accessorFn: (row) => row.title.name,

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import e from "@edgedb/edgeql-js";
+import e, { type $infer } from "@edgedb/edgeql-js";
 import { TitleType } from "@edgedb/edgeql-js/modules/default";
 import { getPlaiceholder } from "plaiceholder";
 
@@ -430,27 +430,27 @@ async function getIMDBId(tmdbId: number, type: "MOVIE" | "SERIES") {
   return data.imdb_id;
 }
 
+export type HiveData = $infer<typeof getHiveDataQuery>;
+
+const getHiveDataQuery = e.select(e.Hive, (hive) => ({
+  ...e.Hive["*"],
+  title: {
+    ...e.Title["*"],
+    seasons: {
+      ...e.Season["*"],
+    },
+  },
+  order_by: [
+    {
+      expression: hive.createdAt,
+      direction: e.DESC,
+    },
+  ],
+  filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+}));
+
 export async function getHiveData() {
   const client = auth.getSession().client;
 
-  const data = await e
-    .select(e.Hive, (hive) => ({
-      ...e.Hive["*"],
-      title: {
-        ...e.Title["*"],
-        seasons: {
-          ...e.Season["*"],
-        },
-      },
-      order_by: [
-        {
-          expression: hive.createdAt,
-          direction: e.DESC,
-        },
-      ],
-      filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
-    }))
-    .run(client);
-
-  return data;
+  return await getHiveDataQuery.run(client);
 }

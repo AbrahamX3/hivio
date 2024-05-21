@@ -19,12 +19,12 @@ import {
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
-import { type HiveRowData } from "@/types/hive";
 
+import { type HiveData } from "../../actions";
 import { HiveSeriesTableActions } from "./actions";
 
 export function SeriesColumns() {
-  const columns: ColumnDef<HiveRowData>[] = [
+  const columns: ColumnDef<HiveData[0]>[] = [
     {
       id: "Title Name",
       accessorFn: (row) => row.title.name,
