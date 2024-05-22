@@ -255,7 +255,7 @@ async function updateTitle({
 
   const client = auth.getSession().client;
 
-  await e
+  const updatedTitle = await e
     .update(e.Title, (title) => ({
       filter_single: e.op(
         e.op(title.tmdbId, "=", e.int32(tmdbId)),
@@ -274,6 +274,51 @@ async function updateTitle({
       },
     }))
     .run(client);
+
+  if (data.type === "tv" && updatedTitle?.id) {
+    const titleId = e.select(e.Title, (title) => ({
+      filter_single: e.op(title.id, "=", e.uuid(updatedTitle.id)),
+    }));
+
+    const query = e.params(
+      {
+        seasons: e.array(
+          e.tuple({
+            season: e.int32,
+            episodes: e.int32,
+            date: e.str,
+          }),
+        ),
+      },
+      ({ seasons }) => {
+        return e.for(e.array_unpack(seasons), ({ date, season, episodes }) => {
+          return e.insert(e.Season, {
+            title: e.set(titleId),
+            season: season,
+            episodes: episodes,
+            air_date: e.cast(e.cal.local_date, date),
+          });
+        });
+      },
+    );
+
+    const seasons = data.seasons
+      .filter(
+        (season) =>
+          season.season_number !== 0 &&
+          season.episode_count !== 0 &&
+          season.air_date !== null,
+      )
+      .map((details) => ({
+        season: details.season_number,
+        episodes: details.episode_count,
+        date: details.air_date,
+      }));
+
+    await query.run(client, {
+      seasons,
+    });
+  }
 }
 
 export const addTitleHive = authAction(

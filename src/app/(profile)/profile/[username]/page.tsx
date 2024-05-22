@@ -132,7 +132,7 @@ export default async function PublicUserProfile({ params }: Props) {
                             placeholder="blur"
                             alt={hive.title.name}
                             className="aspect-[2/3] w-full rounded-t-lg object-cover"
-                            src={`https://image.tmdb.org/t/p/original${hive.title.poster}`}
+                            src={`https://image.tmdb.org/t/p/w780${hive.title.poster}`}
                             height={750}
                             width={500}
                           />

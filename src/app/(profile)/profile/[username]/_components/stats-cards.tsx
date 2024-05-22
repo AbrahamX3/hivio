@@ -58,27 +58,27 @@ export default function StatsCards({ data }: Props) {
 
   const currentWatchingMoviesText =
     currentWatchingMovies.length === 0
-      ? "no movies"
+      ? "0 movies"
       : `${currentWatchingMovies.length} ${currentWatchingMovies.length === 1 ? "movie" : "movies"}`;
 
   const currentWatchingSeriesText =
     currentWatchingSeries.length === 0
-      ? "no series"
+      ? "0 series"
       : `${currentWatchingSeries.length} ${currentWatchingSeries.length === 1 ? "series" : "series"}`;
 
   const finishedSeriesThisMonthText =
     finishedSeriesThisMonth.length === 0
-      ? "no series"
+      ? "0 series"
       : `${finishedSeriesThisMonth.length} ${finishedSeriesThisMonth.length === 1 ? "series" : "series"}`;
 
   const finishedMoviesThisMonthText =
     finishedMoviesThisMonth.length === 0
-      ? "no movies"
+      ? "0 movies"
       : `${finishedMoviesThisMonth.length} ${finishedMoviesThisMonth.length === 1 ? "movie" : "movies"}`;
 
   const finishedTitlesThisYearText =
     finishedTitles.length === 0
-      ? "no titles"
+      ? "0 titles"
       : `${finishedTitlesThisYear.length} ${finishedTitlesThisYear.length === 1 ? "title" : "titles"}`;
 
   return (

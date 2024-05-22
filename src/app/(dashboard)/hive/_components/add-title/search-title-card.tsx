@@ -138,7 +138,7 @@ export function ViewPosterButton({
       <DialogContent className="h-[90vh]">
         <div className="max-h-[85vh] w-full p-6">
           <Image
-            src={`https://image.tmdb.org/t/p/original${poster}`}
+            src={`https://image.tmdb.org/t/p/w500${poster}`}
             alt={alt}
             unoptimized
             width={780}
