@@ -55,7 +55,7 @@ export const hiveFormSchema = z
         status: z.literal("FINISHED"),
         finishedAt: z.date().optional(),
         isFavorite: z.boolean().optional(),
-        rating: z.coerce.number().min(0).max(10).default(0),
+        rating: z.coerce.number().min(0).max(10).default(0).optional(),
       })
       .merge(basehiveFormSchema),
     z

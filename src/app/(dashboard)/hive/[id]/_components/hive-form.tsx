@@ -92,7 +92,7 @@ const createSeasonsMap = (titleSeasons: HiveData[0]["title"]["seasons"]) => {
   return seasonsMap;
 };
 
-function handleValues(hide: HiveData[0]) {
+function handleValues(hide: HiveData[0]): HiveFormValues {
   if (hide.status === "WATCHING") {
     return {
       currentEpisode: hide.currentEpisode ?? undefined,
@@ -124,18 +124,24 @@ function handleValues(hide: HiveData[0]) {
       startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
       status: hide.status,
     };
+  } else {
+    return {
+      currentEpisode: hide.currentEpisode ?? undefined,
+      currentSeason: hide.currentSeason ?? undefined,
+      startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
+      status: hide.status,
+    };
   }
 }
 
 export function HiveForm({ hive }: HiveFormStepProps) {
   const seasons = hive.title.seasons;
-
   const isTitleWatchable =
     new Date() >= new Date(hive.title.release_date.toString());
 
   const hiveForm = useForm<HiveFormValues>({
     resolver: zodResolver(hiveFormSchema),
-    defaultValues: handleValues(hive),
+    values: handleValues(hive),
   });
 
   const { execute } = useAction(updateTitleFromHive, {
