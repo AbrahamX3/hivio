@@ -118,7 +118,7 @@ export default async function PublicUserProfile({ params }: Props) {
           username={user?.username}
           joinedDate={user?.createdAt}
         />
-        {user.username && <Follow username={user?.username} />}
+        {user.username && <Follow hiveUserProfile={user} />}
       </div>
       <StatsCards data={JSON.parse(JSON.stringify(hive)) as HiveProfile} />
       <h3 className="text-2xl font-semibold">Currently Watching</h3>

@@ -28,6 +28,13 @@ export default async function Component() {
               </p>
             </div>
             <div className="space-x-4">
+              <Button asChild size="lg" variant="outline">
+                {isSignedIn ? (
+                  <Link href="/hive">Get Started</Link>
+                ) : (
+                  <Link href="/auth/signin">Get Started</Link>
+                )}
+              </Button>
               <Link
                 className={cn(
                   buttonVariants({ variant: "secondary", size: "lg" }),
@@ -36,13 +43,6 @@ export default async function Component() {
               >
                 Discover Profiles
               </Link>
-              <Button asChild size="lg" variant="outline">
-                {isSignedIn ? (
-                  <Link href="/hive">Get Started</Link>
-                ) : (
-                  <Link href="/auth/signin">Get Started</Link>
-                )}
-              </Button>
             </div>
           </div>
         </div>

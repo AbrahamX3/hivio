@@ -22,7 +22,9 @@ module default {
         username: str {
             constraint exclusive;
         };
-        multi followers := .<follower[is Follower];
+        multi hive := .<addedBy[is Hive];
+        multi followers := .<followed[is Follow];
+        multi following := .<follower[is Follow];
         required name: str;
         required status: TitleStatus {
             default := "WATCHING";
@@ -36,7 +38,7 @@ module default {
         }
     }
 
-    type Follower {
+    type Follow {
         required follower: User;
         required followed: User;
         required createdAt: datetime {

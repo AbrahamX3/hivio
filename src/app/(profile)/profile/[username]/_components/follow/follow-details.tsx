@@ -4,39 +4,30 @@ import { Suspense } from "react";
 import { useOptimisticAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
+import { type HiveUser } from "@/app/(profile)/actions";
 import { Button } from "@/components/ui/button";
 import { type UserSession } from "@/types/auth";
 
-import {
-  followUser,
-  totalFollowers,
-  type UserFollower,
-  type UserFollowing,
-} from "./actions";
+import { followUser } from "./actions";
 import { Followers } from "./followers";
 import { Following } from "./following";
 
 interface Props {
-  username: string;
-  userFollowers: UserFollower[];
-  userFollowing: UserFollowing[];
-  currentUserFollowing: UserFollowing[];
+  hiveUserProfile: HiveUser;
   currentUser: UserSession | null;
 }
 
-export default function FollowDetails({
-  username,
-  userFollowers,
-  userFollowing,
-  currentUser,
-  currentUserFollowing,
-}: Props) {
-  const isFollowingUser = userFollowers.some(
-    (user) => user.username === currentUser?.username,
+export default function FollowDetails({ currentUser, hiveUserProfile }: Props) {
+  const isFollowingUser = hiveUserProfile?.followers.some(
+    (user) => user.follower.username === currentUser?.username,
   );
+
   const { execute, optimisticData } = useOptimisticAction(
     followUser,
-    { totalFollowers: userFollowers.length, following: isFollowingUser },
+    {
+      totalFollowers: hiveUserProfile?.total_followers,
+      following: isFollowingUser,
+    },
     (state, { total }) => {
       return {
         totalFollowers: total ?? 0,
@@ -48,13 +39,13 @@ export default function FollowDetails({
   return (
     <>
       {currentUser?.id ? (
-        currentUser?.username !== username && (
+        currentUser?.username !== hiveUserProfile?.username && (
           <Button
             variant="outline"
             onClick={() =>
               execute({
-                username,
-                total: totalFollowers.length,
+                username: hiveUserProfile?.username ?? "",
+                total: hiveUserProfile?.total_followers ?? 0,
               })
             }
           >
@@ -85,11 +76,8 @@ export default function FollowDetails({
         }
       >
         <Following
-          currentUserFollowing={currentUserFollowing}
-          followers={userFollowers}
-          following={userFollowing}
-          currentUser={currentUser?.username}
-          username={username}
+          hiveUserProfile={hiveUserProfile}
+          currentUserUsername={currentUser?.username}
         />
       </Suspense>
       <Suspense
@@ -101,10 +89,7 @@ export default function FollowDetails({
       >
         <Followers
           currentUser={currentUser?.username}
-          followers={userFollowers}
-          following={userFollowing}
-          username={username}
-          currentUserFollowing={currentUserFollowing}
+          hiveUserProfile={hiveUserProfile}
         />
       </Suspense>
     </>
