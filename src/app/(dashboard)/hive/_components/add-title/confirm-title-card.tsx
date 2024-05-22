@@ -205,7 +205,7 @@ function FormValuesDisplay({
           <span>
             Favorite: <Badge>{formValues.isFavorite ? "Yes" : "No"}</Badge>
           </span>
-          {formValues.rating > 0 && (
+          {formValues?.rating && (
             <>
               <span>
                 My Rating: <Badge>{formValues.rating}</Badge>

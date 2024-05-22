@@ -489,7 +489,9 @@ export const addTitleHive = authAction(
               : undefined,
             currentEpisode: hiveFormValues.currentEpisode,
             currentSeason: hiveFormValues.currentSeason,
-            rating: e.float32(hiveFormValues.rating),
+            rating: hiveFormValues.rating
+              ? e.float32(hiveFormValues.rating)
+              : undefined,
             isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
           })
           .run(client);
