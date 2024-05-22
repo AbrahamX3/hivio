@@ -51,7 +51,9 @@ module default {
     }
 
     type Season {
-        required title: Title;
+        required title: Title {
+            on target delete delete source;
+        };
         required season: int32;
         required episodes: int32;
         required air_date: cal::local_date;
@@ -94,7 +96,9 @@ module default {
     }
 
     type Hive {
-        required addedBy: User;
+        required addedBy: User {
+            on target delete delete source;
+        };
         required title: Title;
         required status: TitleStatus;
         required isFavorite: bool {

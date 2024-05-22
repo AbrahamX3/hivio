@@ -211,6 +211,11 @@ export function HiveForm({ hive }: HiveFormStepProps) {
     }
   }, [hiveForm, isTitleWatchable]);
 
+  useEffect(() => {
+    hiveForm.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <Form {...hiveForm}>
       <form
