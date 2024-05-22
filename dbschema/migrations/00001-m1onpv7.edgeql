@@ -1,4 +1,4 @@
-CREATE MIGRATION m13sib7oouq5jl6urvqqoe6blkbsylcdcd6jvocu4i5rye35la6zea
+CREATE MIGRATION m1onpv7bio2tqxydb76s2i6phachied3wi3wen632k4etgzwaw64va
     ONTO initial
 {
   CREATE EXTENSION pgcrypto VERSION '1.3';
@@ -9,16 +9,19 @@ CREATE MIGRATION m13sib7oouq5jl6urvqqoe6blkbsylcdcd6jvocu4i5rye35la6zea
       CREATE REQUIRED PROPERTY tmdbId: std::int32;
       CREATE REQUIRED PROPERTY type: default::TitleType;
       CREATE CONSTRAINT std::exclusive ON ((.tmdbId, .type));
+      CREATE INDEX ON (.type);
+      CREATE INDEX ON (.tmdbId);
       CREATE REQUIRED PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_current());
       };
-      CREATE REQUIRED PROPERTY date: cal::local_date;
       CREATE PROPERTY description: std::str;
       CREATE PROPERTY imdbId: std::str;
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE PROPERTY poster: std::str;
       CREATE PROPERTY posterBlur: std::str;
       CREATE PROPERTY rating: std::float32;
+      CREATE REQUIRED PROPERTY release_date: cal::local_date;
+      CREATE PROPERTY runtime: std::int32;
       CREATE PROPERTY updatedAt: std::datetime {
           CREATE REWRITE
               INSERT 
@@ -28,7 +31,7 @@ CREATE MIGRATION m13sib7oouq5jl6urvqqoe6blkbsylcdcd6jvocu4i5rye35la6zea
               USING (std::datetime_of_statement());
       };
   };
-  CREATE SCALAR TYPE default::TitleStatus EXTENDING enum<UPCOMING, PENDING, WATCHING, UNFINISHED, FINISHED>;
+  CREATE SCALAR TYPE default::TitleStatus EXTENDING enum<PENDING, WATCHING, UNFINISHED, FINISHED>;
   CREATE TYPE default::User {
       CREATE REQUIRED LINK identity: ext::auth::Identity {
           CREATE CONSTRAINT std::exclusive;
@@ -55,37 +58,34 @@ CREATE MIGRATION m13sib7oouq5jl6urvqqoe6blkbsylcdcd6jvocu4i5rye35la6zea
       CREATE PROPERTY username: std::str {
           CREATE CONSTRAINT std::exclusive;
       };
+      CREATE INDEX ON (.username);
   };
-  CREATE TYPE default::Follower {
-      CREATE REQUIRED LINK follower: default::User;
+  CREATE TYPE default::Follow {
       CREATE REQUIRED LINK followed: default::User;
+      CREATE REQUIRED LINK follower: default::User;
       CREATE CONSTRAINT std::exclusive ON ((.follower, .followed));
       CREATE REQUIRED PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_current());
       };
   };
-  ALTER TYPE default::User {
-      CREATE MULTI LINK followers := (.<follower[IS default::Follower]);
-  };
-  CREATE GLOBAL default::CurrentUser := (std::assert_single((SELECT
-      default::User
-  FILTER
-      (.identity = GLOBAL ext::auth::ClientTokenIdentity)
-  )));
   CREATE TYPE default::Hive {
       CREATE REQUIRED LINK addedBy: default::User;
+      CREATE REQUIRED PROPERTY status: default::TitleStatus;
+      CREATE INDEX ON (.status);
       CREATE REQUIRED LINK title: default::Title {
           CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_current());
       };
+      CREATE PROPERTY currentEpisode: std::int32;
+      CREATE PROPERTY currentSeason: std::int32;
       CREATE PROPERTY finishedAt: std::datetime;
       CREATE REQUIRED PROPERTY isFavorite: std::bool {
           SET default := false;
       };
       CREATE PROPERTY rating: std::float32;
-      CREATE REQUIRED PROPERTY status: default::TitleStatus;
+      CREATE PROPERTY startedAt: std::datetime;
       CREATE PROPERTY updatedAt: std::datetime {
           CREATE REWRITE
               INSERT 
@@ -95,14 +95,24 @@ CREATE MIGRATION m13sib7oouq5jl6urvqqoe6blkbsylcdcd6jvocu4i5rye35la6zea
               USING (std::datetime_of_statement());
       };
   };
+  ALTER TYPE default::User {
+      CREATE MULTI LINK followers := (.<followed[IS default::Follow]);
+      CREATE MULTI LINK following := (.<follower[IS default::Follow]);
+      CREATE MULTI LINK hive := (.<addedBy[IS default::Hive]);
+  };
+  CREATE GLOBAL default::CurrentUser := (std::assert_single((SELECT
+      default::User
+  FILTER
+      (.identity = GLOBAL ext::auth::ClientTokenIdentity)
+  )));
   CREATE TYPE default::Season {
       CREATE REQUIRED LINK title: default::Title;
       CREATE REQUIRED PROPERTY season: std::int32;
       CREATE CONSTRAINT std::exclusive ON ((.title, .season));
+      CREATE REQUIRED PROPERTY air_date: cal::local_date;
       CREATE REQUIRED PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_current());
       };
-      CREATE REQUIRED PROPERTY date: cal::local_date;
       CREATE REQUIRED PROPERTY episodes: std::int32;
       CREATE PROPERTY updatedAt: std::datetime {
           CREATE REWRITE

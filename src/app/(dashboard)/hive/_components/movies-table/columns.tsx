@@ -26,7 +26,7 @@ export function MovieColumns() {
     },
     {
       id: "Year",
-      accessorFn: (row) => row.title.date,
+      accessorFn: (row) => row.title.release_date,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Year" />
       ),

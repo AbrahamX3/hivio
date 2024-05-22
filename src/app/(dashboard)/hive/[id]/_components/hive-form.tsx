@@ -128,10 +128,15 @@ function handleValues(hide: HiveData[0]) {
 }
 
 export function HiveForm({ hive }: HiveFormStepProps) {
-  const router = useRouter();
   const seasons = hive.title.seasons;
 
-  const isTitleWatchable = new Date() >= new Date(hive.title.date.toString());
+  const isTitleWatchable =
+    new Date() >= new Date(hive.title.release_date.toString());
+
+  const hiveForm = useForm<HiveFormValues>({
+    resolver: zodResolver(hiveFormSchema),
+    defaultValues: handleValues(hive),
+  });
 
   const { execute } = useAction(updateTitleFromHive, {
     onSuccess: ({ success, error }) => {
@@ -139,8 +144,6 @@ export function HiveForm({ hive }: HiveFormStepProps) {
         toast.success("Title updated successfully", {
           id: "update-title",
         });
-
-        router.refresh();
       } else {
         toast.error(error.reason, {
           id: "update-title",
@@ -157,10 +160,6 @@ export function HiveForm({ hive }: HiveFormStepProps) {
         id: "update-title",
       });
     },
-  });
-  const hiveForm = useForm<HiveFormValues>({
-    resolver: zodResolver(hiveFormSchema),
-    defaultValues: handleValues(hive),
   });
 
   function handleSubmit(values: HiveFormValues) {

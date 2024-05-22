@@ -28,7 +28,10 @@ export default function ConfirmTitleCard({
 
   if (!selectedTitle || !hiveFormValues)
     return (
-      <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
+      <div
+        data-vaul-no-drag
+        className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50"
+      >
         <h2 className="text-2xl font-bold">No Title Selected</h2>
         <div className="mt-4 flex items-center justify-center gap-2 rounded-md border px-4 py-2">
           <InfoIcon className="size-4 opacity-50" />
@@ -47,7 +50,10 @@ export default function ConfirmTitleCard({
   if (selectedTitle.media_type === "movie") {
     return (
       <>
-        <div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
+        <div
+          data-vaul-no-drag
+          className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50"
+        >
           {selectedTitle.poster_path && (
             <Dialog>
               <DialogTrigger asChild>

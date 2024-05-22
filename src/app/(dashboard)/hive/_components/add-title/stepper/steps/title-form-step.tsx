@@ -100,12 +100,18 @@ export function TitleFormStep({
             )}
           </form>
         ) : (
-          <div className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
+          <div
+            data-vaul-no-drag
+            className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50"
+          >
             No results found using your search.
           </div>
         )
       ) : (
-        <div className="flex h-[50%] w-full flex-1 flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50">
+        <div
+          data-vaul-no-drag
+          className="flex h-[50%] w-full flex-1 flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50"
+        >
           Search for a movie or series to add to your list.
         </div>
       )}

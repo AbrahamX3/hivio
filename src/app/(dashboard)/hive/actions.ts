@@ -3,11 +3,12 @@
 import { revalidatePath } from "next/cache";
 import e, { type $infer } from "@edgedb/edgeql-js";
 import { TitleType } from "@edgedb/edgeql-js/modules/default";
+import { subDays } from "date-fns";
 import { getPlaiceholder } from "plaiceholder";
 
 import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
-import { authAction } from "@/lib/safe-action";
+import { action, authAction } from "@/lib/safe-action";
 import {
   type MovieDetails,
   type MultiSearch,
@@ -134,7 +135,7 @@ export async function searchTitle({ query }: { query: string }) {
   }
 }
 
-async function fetchPosterBlur(path: string) {
+export async function fetchPosterBlur(path: string) {
   const buffer = await fetch(path).then(async (res) =>
     Buffer.from(await res.arrayBuffer()),
   );
@@ -194,7 +195,7 @@ export async function fetchMovieDetails(tmdbId: number): Promise<MovieDetails> {
   return data;
 }
 
-export const findTitleDetails = authAction(
+export const findTitleDetails = action(
   FindTitleDetails,
   async ({ tmdbId, type }) => {
     const result = await fetch(
@@ -224,6 +225,57 @@ export const findTitleDetails = authAction(
   },
 );
 
+async function updateTitle({
+  tmdbId,
+  type,
+}: {
+  tmdbId: number;
+  type: "MOVIE" | "SERIES";
+}) {
+  const titleDetails = await findTitleDetails({
+    tmdbId,
+    type: type === "MOVIE" ? "movie" : "tv",
+  });
+
+  const data = titleDetails.data;
+
+  if (!data) {
+    throw new Error("Failed to fetch title details");
+  }
+
+  const TypeEnum = type === "MOVIE" ? TitleType.MOVIE : TitleType.SERIES;
+  const name = data?.type === "movie" ? data.title : data.name;
+  const release_date =
+    data.type === "movie" ? data.release_date : data.first_air_date;
+  const { overview, poster_path } = data;
+  const genre_ids = data.genres.map((genre) => genre.id);
+  const posterBlurhash = await fetchPosterBlur(
+    `https://image.tmdb.org/t/p/original${poster_path}`,
+  );
+
+  const client = auth.getSession().client;
+
+  await e
+    .update(e.Title, (title) => ({
+      filter_single: e.op(
+        e.op(title.tmdbId, "=", e.int32(tmdbId)),
+        "and",
+        e.op(title.type, "=", TypeEnum),
+      ),
+      set: {
+        name: e.str(name),
+        description: e.str(overview),
+        release_date: e.cal.local_date(release_date),
+        poster: e.str(poster_path),
+        posterBlur: posterBlurhash,
+        runtime: data.type === "movie" ? e.int32(data.runtime) : undefined,
+        rating: data.vote_average ? e.float32(data.vote_average) : undefined,
+        genres: genre_ids,
+      },
+    }))
+    .run(client);
+}
+
 export const addTitleHive = authAction(
   AddTitleToHiveSchema,
   async ({ hiveFormValues, titleFormValues }) => {
@@ -233,6 +285,9 @@ export const addTitleHive = authAction(
       titleFormValues.type === "movie" ? TitleType.MOVIE : TitleType.SERIES;
     const isTitleAdded = await e
       .select(e.Title, (title) => ({
+        tmdbId: true,
+        type: true,
+        updatedAt: true,
         filter_single: e.op(
           e.op(title.tmdbId, "=", e.int32(tmdbId)),
           "and",
@@ -271,7 +326,7 @@ export const addTitleHive = authAction(
           tmdbId: e.int32(id),
           name: e.str(name),
           description: e.str(overview),
-          date: e.cal.local_date(date),
+          release_date: e.cal.local_date(date),
           poster: e.str(poster_path),
           posterBlur: posterBlurhash,
           type: TypeEnum,
@@ -305,7 +360,7 @@ export const addTitleHive = authAction(
                   title: e.set(titleId),
                   season: season,
                   episodes: episodes,
-                  date: e.cast(e.cal.local_date, date),
+                  air_date: e.cast(e.cal.local_date, date),
                 });
               },
             );
@@ -328,6 +383,18 @@ export const addTitleHive = authAction(
         await query.run(client, {
           seasons,
         });
+      }
+    } else {
+      // update title if last update has been more than 3 days ago
+      if (isTitleAdded.updatedAt) {
+        const updatedAt = isTitleAdded.updatedAt;
+        const threeDaysAgo = subDays(new Date(), 1);
+        if (updatedAt < threeDaysAgo) {
+          await updateTitle({
+            tmdbId: isTitleAdded.tmdbId,
+            type: isTitleAdded.type,
+          });
+        }
       }
     }
 

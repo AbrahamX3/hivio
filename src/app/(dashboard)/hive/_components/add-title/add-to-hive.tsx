@@ -214,7 +214,10 @@ export default function AddTitleToHive({
                     onSubmit={searchForm.handleSubmit(handleSearch)}
                     className="space-y-8"
                   >
-                    <div className="grid w-full grid-cols-4 gap-4 md:grid-cols-12">
+                    <div
+                      data-vaul-no-drag
+                      className="grid w-full grid-cols-4 gap-4 md:grid-cols-12"
+                    >
                       <FormField
                         control={searchForm.control}
                         name="query"

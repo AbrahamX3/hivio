@@ -7,9 +7,6 @@ jiti("./src/env");
 
 /** @type {import("next").NextConfig} */
 const config = {
-  experimental: {
-    swcPlugins: [["next-superjson-plugin", {}]],
-  },
   images: {
     remotePatterns: [
       {

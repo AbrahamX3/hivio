@@ -36,6 +36,8 @@ module default {
             rewrite insert using (datetime_of_statement());
             rewrite update using (datetime_of_statement());
         }
+
+        index on (.username);
     }
 
     type Follow {
@@ -52,7 +54,7 @@ module default {
         required title: Title;
         required season: int32;
         required episodes: int32;
-        required date: cal::local_date;
+        required air_date: cal::local_date;
         required createdAt: datetime {
             default := datetime_current();
         }
@@ -67,7 +69,7 @@ module default {
     type Title {
         required tmdbId: int32;
         required name: str;
-        required date: cal::local_date;
+        required release_date: cal::local_date;
         required type: TitleType;
         imdbId: str;
         description: str;
@@ -86,6 +88,9 @@ module default {
         multi seasons := .<title[is Season];
 
         constraint exclusive on ( (.tmdbId, .type) );
+
+        index on (.tmdbId);
+        index on (.type);
     }
 
     type Hive {
@@ -109,5 +114,7 @@ module default {
             rewrite insert using (datetime_of_statement());
             rewrite update using (datetime_of_statement());
         }
+
+        index on (.status);
     }
 };

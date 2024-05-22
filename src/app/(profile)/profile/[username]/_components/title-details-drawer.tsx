@@ -231,11 +231,11 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
           </DrawerTitle>
         </div>
         <div className="mx-auto flex w-full items-center justify-between gap-1 px-5 pb-4 pt-2 align-middle">
-          {data?.title.date && (
+          {data?.title.release_date && (
             <div className="flex flex-col align-middle text-sm text-muted-foreground">
               <span className="font-medium">Release Date</span>
               <span className="text-lg font-semibold">
-                {formatDate(data?.title.date.toString(), "PPP")}
+                {formatDate(data?.title.release_date.toString(), "PPP")}
               </span>
             </div>
           )}

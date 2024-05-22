@@ -101,6 +101,7 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
+      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,
@@ -120,6 +121,7 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
+      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,
@@ -142,6 +144,7 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
+      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,
@@ -164,6 +167,7 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
+      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,

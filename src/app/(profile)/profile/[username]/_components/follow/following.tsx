@@ -23,7 +23,7 @@ export function Following({ hiveUserProfile, currentUserUsername }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="link">
+        <Button variant="link" className="text-black dark:text-primary">
           {hiveUserProfile?.total_following} Following
         </Button>
       </DialogTrigger>

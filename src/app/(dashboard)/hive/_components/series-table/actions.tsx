@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { type Row } from "@tanstack/react-table";
 import { EditIcon, Info, MoreHorizontal, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
@@ -9,17 +8,16 @@ import { Link } from "next-view-transitions";
 import { toast } from "sonner";
 
 import { type HiveProfile } from "@/app/(profile)/actions";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -115,8 +113,6 @@ function DeleteTitle({
   setOpenDeleteAlert: (open: boolean) => void;
   type?: "MOVIE" | "SERIES" | null;
 }) {
-  const router = useRouter();
-
   const { setSelectedTitle } = useTitleDetails();
 
   const { execute, status } = useAction(deleteTitle, {
@@ -125,7 +121,6 @@ function DeleteTitle({
         toast.success("Title deleted from your hive!", {
           id: "delete-title",
         });
-        router.refresh();
         setSelectedTitle(null);
       }
     },
@@ -143,29 +138,31 @@ function DeleteTitle({
   });
 
   return (
-    <AlertDialog
+    <Dialog
       open={openDeleteAlert}
       onOpenChange={() => setOpenDeleteAlert(false)}
     >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¡Warning!</AlertDialogTitle>
-          <AlertDialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>¡Warning!</DialogTitle>
+          <DialogDescription>
             ¿Are you sure you want to delete this{" "}
             {type ? type.toLowerCase() : "title"} from your hive?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button
             disabled={status === "executing"}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            variant="destructive"
             onClick={() => execute({ id })}
           >
             Confirm
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

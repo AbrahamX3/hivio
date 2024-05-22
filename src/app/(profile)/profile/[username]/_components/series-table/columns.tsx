@@ -46,7 +46,7 @@ export function SeriesColumns() {
     },
     {
       id: "Year",
-      accessorFn: (row) => row.title.date,
+      accessorFn: (row) => row.title.release_date,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Year" />
       ),
@@ -170,14 +170,14 @@ export function SeriesColumns() {
                 )}
 
                 <Accordion type="single" collapsible className="w-full">
-                  {orderedSeasons.map(({ season, episodes, date, id }) => (
+                  {orderedSeasons.map(({ season, episodes, air_date, id }) => (
                     <AccordionItem key={id} value={id}>
                       <AccordionTrigger>Season {season}</AccordionTrigger>
                       <AccordionContent>
                         <div className="flex gap-x-2 align-middle">
                           <span className="font-bold">Air Date</span>
                           <span className="font-extralight">
-                            {new Date(date.toString()).toLocaleDateString()}
+                            {new Date(air_date.toString()).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex gap-x-2 align-middle">

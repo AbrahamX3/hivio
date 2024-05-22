@@ -9,7 +9,7 @@ import LogoFull, {
 
 export function Footer() {
   return (
-    <footer className="w-full border-2 border-b-0 border-l-0 border-r-0 border-t-border">
+    <footer className="w-full border-2 border-b-0 border-l-0 border-r-0 border-t-border bg-background">
       <div className="container flex w-full flex-col items-center justify-between gap-4 py-6 md:flex-row md:gap-0">
         <div className="flex items-center gap-4 align-middle">
           <LogoFull className="h-6 w-auto" />
