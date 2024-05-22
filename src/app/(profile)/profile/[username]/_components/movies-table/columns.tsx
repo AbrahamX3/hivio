@@ -2,7 +2,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 
 import { type HiveProfile } from "@/app/(profile)/actions";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
-import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
+import { genreOptions, statusOptions } from "@/lib/options";
 
 import { HiveMoviesTableActions } from "./actions";
 
@@ -117,34 +117,6 @@ export function MovieColumns() {
         return value.every((val: string) =>
           row.getValue<string[]>(id).includes(val),
         );
-      },
-    },
-    {
-      id: "Type",
-      accessorFn: (row) => row.title.type,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Type" />
-      ),
-      cell: ({ row }) => {
-        const type = typeOptions.find(
-          (type) => type.value === row.getValue("Type"),
-        );
-
-        if (!type) {
-          return null;
-        }
-
-        return (
-          <div className="flex w-[100px] items-center">
-            {type.icon && (
-              <type.icon className="mr-2 size-4 text-muted-foreground" />
-            )}
-            <span>{type.label}</span>
-          </div>
-        );
-      },
-      filterFn: (row, id, value: string) => {
-        return value.includes(row.getValue(id));
       },
     },
     {
