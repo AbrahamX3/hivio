@@ -1,4 +1,8 @@
+"use client";
+
 import { type ColumnDef } from "@tanstack/react-table";
+import { StarIcon } from "lucide-react";
+import { Link } from "next-view-transitions";
 
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
 import { genreOptions, statusOptions } from "@/lib/options";
@@ -16,11 +20,17 @@ export function MovieColumns() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {row.getValue("Title Name")}
+          <Link
+            className="flex space-x-2 hover:text-primary"
+            href={`/hive/${row.original.id}`}
+          >
+            <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
+              {row.original.isFavorite && (
+                <StarIcon className="size-4 text-primary" />
+              )}
+              <span>{row.getValue("Title Name")}</span>
             </span>
-          </div>
+          </Link>
         );
       },
     },

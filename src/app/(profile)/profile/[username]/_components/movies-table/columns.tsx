@@ -1,4 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
+import { StarIcon } from "lucide-react";
 
 import { type HiveProfile } from "@/app/(profile)/actions";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
@@ -17,8 +18,11 @@ export function MovieColumns() {
       cell: ({ row }) => {
         return (
           <div className="flex space-x-2">
-            <span className="max-w-[500px] truncate font-medium">
-              {row.getValue("Title Name")}
+            <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
+              {row.original.isFavorite && (
+                <StarIcon className="size-4 text-primary" />
+              )}
+              <span>{row.getValue("Title Name")}</span>
             </span>
           </div>
         );

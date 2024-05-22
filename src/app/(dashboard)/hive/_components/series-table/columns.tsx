@@ -1,7 +1,10 @@
+"use client";
+
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { ClockIcon, InfoIcon, StarIcon } from "lucide-react";
+import { Link } from "next-view-transitions";
 
 import {
   Accordion,
@@ -33,14 +36,17 @@ export function SeriesColumns() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex space-x-2">
+          <Link
+            className="flex space-x-2 hover:text-primary"
+            href={`/hive/${row.original.id}`}
+          >
             <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
               {row.original.isFavorite && (
                 <StarIcon className="size-4 text-primary" />
               )}
               <span>{row.getValue("Title Name")}</span>
             </span>
-          </div>
+          </Link>
         );
       },
     },
