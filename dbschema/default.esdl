@@ -41,8 +41,12 @@ module default {
     }
 
     type Follow {
-        required follower: User;
-        required followed: User;
+        required follower: User {
+            on target delete delete source;
+        };
+        required followed: User {
+            on target delete delete source;
+        };
         required createdAt: datetime {
             default := datetime_current();
         }
@@ -99,7 +103,9 @@ module default {
         required addedBy: User {
             on target delete delete source;
         };
-        required title: Title;
+        required title: Title {
+            on target delete delete source;
+        };
         required status: TitleStatus;
         required isFavorite: bool {
             default := false;

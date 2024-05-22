@@ -24,7 +24,7 @@ export default async function Component() {
               </h1>
               <p className="mx-auto max-w-[700px] md:text-xl">
                 Manage your favorite shows and movies and discover new content
-                with the help of the Hivio community.
+                with the help of the Hivio community
               </p>
             </div>
             <div className="space-x-4">
