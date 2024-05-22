@@ -343,7 +343,7 @@ export const addTitleHive = authAction(
 
     // If title isn't in title collection, add since if it's
     // not in the collection, nobody can have it yet in their hive.
-    if (!isTitleAdded) {
+    if (!isTitleAdded?.tmdbId) {
       const titleDetails = await findTitleDetails({
         tmdbId: titleFormValues.tmdbId,
         type: titleFormValues.type,
@@ -479,7 +479,7 @@ export const addTitleHive = authAction(
         const insert = await e
           .insert(e.Hive, {
             addedBy: e.global.CurrentUser,
-            title: e.set(titleToAdd),
+            title: titleToAdd,
             status: hiveFormValues.status,
             finishedAt: hiveFormValues.finishedAt
               ? e.datetime(hiveFormValues.finishedAt)
@@ -502,7 +502,7 @@ export const addTitleHive = authAction(
         const insert = await e
           .insert(e.Hive, {
             addedBy: e.global.CurrentUser,
-            title: e.set(titleToAdd),
+            title: titleToAdd,
             currentEpisode: hiveFormValues.currentEpisode,
             currentSeason: hiveFormValues.currentSeason,
             status: hiveFormValues.status,

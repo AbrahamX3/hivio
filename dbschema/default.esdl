@@ -95,9 +95,7 @@ module default {
 
     type Hive {
         required addedBy: User;
-        required title: Title {
-            constraint exclusive;
-        };
+        required title: Title;
         required status: TitleStatus;
         required isFavorite: bool {
             default := false;
@@ -114,6 +112,8 @@ module default {
             rewrite insert using (datetime_of_statement());
             rewrite update using (datetime_of_statement());
         }
+
+        constraint exclusive on ( (.title, .addedBy) );
 
         index on (.status);
     }
