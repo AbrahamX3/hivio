@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ImageResponse } from "next/og";
 import { type NextRequest } from "next/server";
 
@@ -76,9 +77,12 @@ export async function GET(request: NextRequest) {
           }}
         >
           {avatar !== "none" ? (
-            <img
+            <Image
+              width={100}
+              height={100}
               src={avatar}
               alt={name}
+              unoptimized
               style={{
                 width: "100px",
                 height: "100px",
