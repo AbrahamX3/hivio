@@ -1,6 +1,6 @@
-# Hivio - Your Watchlist Companion
+<img src="public/logo.png" alt="Hivio" width="auto" height="100">
 
-![Hivio](public/logo.png)
+# Hivio - Your Watchlist Companion
 
 Hivio, pronounced /haɪˈviːoʊ/ (HAY-vee-oh), is a watchlist companion that helps
 you easily search, add, manage and organize your series and movies through a
