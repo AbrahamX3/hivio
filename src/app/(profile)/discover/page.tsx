@@ -2,6 +2,10 @@ import Background from "./_components/background";
 import HiveProfileFilter from "./_components/filter";
 import { getHiveProfiles } from "./actions";
 
+export const metadata = {
+  title: "Discover",
+};
+
 export default async function Discover() {
   const { data } = await getHiveProfiles({ limit: 100 });
 
