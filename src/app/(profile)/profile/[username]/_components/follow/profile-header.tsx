@@ -28,11 +28,13 @@ export function ProfileHeader({
     <div className="flex items-center gap-4">
       <Avatar className="h-16 w-16">
         {avatar && <AvatarImage alt={`@${username}`} src={avatar} />}
-        <AvatarFallback>{username?.slice(0, 1)}</AvatarFallback>
+        <AvatarFallback className="uppercase">
+          {username?.slice(0, 1)}
+        </AvatarFallback>
       </Avatar>
       <div className="grid gap-1">
-        <div className="text-2xl font-bold">{name}</div>
-        <div className="flex items-center gap-2 align-middle text-sm text-gray-500 dark:text-gray-400">
+        <h1 className="text-2xl font-bold">{name}</h1>
+        <h2 className="flex items-center gap-2 align-middle text-sm text-gray-500 dark:text-gray-400">
           <Button
             className="m-0 h-fit p-0 text-black dark:text-primary"
             variant="link"
@@ -74,7 +76,7 @@ export function ProfileHeader({
               </HoverCard>
             </>
           )}
-        </div>
+        </h2>
       </div>
     </div>
   );

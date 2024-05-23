@@ -7,16 +7,31 @@ import { TailwindIndicator } from "@/components/providers/tailwind-indicator";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Confetti } from "@/context/confetti";
+import { env } from "@/env";
 
-import "./globals.css";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
     default: "Hivio",
     template: "Hivio - %s",
   },
-  description: "A simple and fast way to track your shows and movies",
+  description: "Your Amplified Watchlist Companion",
   icons: [{ rel: "icon", url: "/icon.svg" }],
+  openGraph: {
+    title: "Hivio",
+    description: "Your Amplified Watchlist Companion",
+    url: env.NEXT_PUBLIC_BASE_URL,
+    type: "website",
+    images: [
+      {
+        url: env.NEXT_PUBLIC_BASE_URL + "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "Hivio",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -31,6 +46,13 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable}`}
         suppressHydrationWarning
       >
+        <head>
+          <link
+            rel="canonical"
+            href={env.NEXT_PUBLIC_BASE_URL}
+            key="canonical"
+          />
+        </head>
         <body className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3">
           <ThemeProvider
             attribute="class"

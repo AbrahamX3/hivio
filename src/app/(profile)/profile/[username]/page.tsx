@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { env } from "@/env";
 import { convertMinutesToHrMin } from "@/lib/utils";
 
 import { hiveMetadataInfo, hiveProfile, type HiveProfile } from "../../actions";
@@ -42,20 +43,50 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const username = params.username;
+  const profileUsername = params.username;
 
-  const { data } = await hiveMetadataInfo({ username });
+  const { data } = await hiveMetadataInfo({ username: profileUsername });
+  const user = data?.data?.user;
 
-  if (!data?.success && data) {
+  if (!user) {
     return {
       title: "User not found",
     };
   }
 
-  const title = `${data?.data.user.name} (@${data?.data.user.username})`;
+  const { name, username, avatar } = user;
+
+  if (!name || !username || !avatar) {
+    return {
+      title: "User not found",
+    };
+  }
+
+  const title = `${name} (@${username})`;
+
+  const base_url = `${env.NEXT_PUBLIC_BASE_URL}/api/og/profile`;
+
+  const og_url = new URL(base_url);
+  og_url.searchParams.set("username", username);
+  og_url.searchParams.set("name", name);
+  og_url.searchParams.set("avatar", avatar);
 
   return {
     title,
+    description: `@${username}'s Hive Profile`,
+    openGraph: {
+      title,
+      description: `@${username}'s Hive Profile`,
+      url: `${env.NEXT_PUBLIC_BASE_URL}/${username}`,
+      images: [
+        {
+          url: og_url,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
   };
 }
 

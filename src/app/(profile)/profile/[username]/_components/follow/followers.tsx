@@ -61,7 +61,9 @@ export function Followers({ currentUser, hiveUserProfile }: Props) {
                         {avatar && (
                           <AvatarImage alt={`@${username}`} src={avatar} />
                         )}
-                        <AvatarFallback>{username?.slice(0, 1)}</AvatarFallback>
+                        <AvatarFallback className="uppercase">
+                          {username?.slice(0, 1)}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="relative">
                         <div className="max-w-44 truncate font-medium">

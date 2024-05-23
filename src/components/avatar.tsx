@@ -37,7 +37,7 @@ export default function DashboardAvatar({
   user,
   signOutUrl,
 }: AvatarDropDownProps) {
-  const { name, avatar } = user;
+  const { name, avatar, username } = user;
   const { setTheme } = useTheme();
   return (
     <DropdownMenu>
@@ -48,9 +48,7 @@ export default function DashboardAvatar({
           className="overflow-hidden rounded-full"
         >
           <Avatar>
-            {avatar && (
-              <AvatarImage src={avatar} referrerPolicy="no-referrer" />
-            )}
+            {avatar && <AvatarImage alt={`@${username}`} src={avatar} />}
             <AvatarFallback className="uppercase">
               {name?.slice(0, 1)}
             </AvatarFallback>

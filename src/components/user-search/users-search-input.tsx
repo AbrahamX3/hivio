@@ -72,7 +72,9 @@ export default function UsersSearchInput() {
                       {avatar && (
                         <AvatarImage alt={`@${username}`} src={avatar} />
                       )}
-                      <AvatarFallback>{username?.slice(0, 1)}</AvatarFallback>
+                      <AvatarFallback className="uppercase">
+                        {username?.slice(0, 1)}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="truncate font-medium">{name}</div>

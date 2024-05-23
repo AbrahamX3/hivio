@@ -92,6 +92,7 @@ export const hiveMetadataInfo = action(UserProfile, async ({ username }) => {
     .select(e.User, (user) => ({
       username: true,
       name: true,
+      avatar: true,
       filter_single: e.op(user.username, "=", e.str(username)),
     }))
     .run(db);

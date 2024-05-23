@@ -50,7 +50,9 @@ export default function UserCard({ user }: UserCardProps) {
         <div className="flex items-center gap-4">
           <Avatar className="size-12">
             {avatar && <AvatarImage alt={`@${username}`} src={avatar} />}
-            <AvatarFallback>{username?.slice(0, 1)}</AvatarFallback>
+            <AvatarFallback className="uppercase">
+              {username?.slice(0, 1)}
+            </AvatarFallback>
           </Avatar>
           <div>
             <h3 className="text-lg font-semibold group-hover:underline group-hover:underline-offset-4">
