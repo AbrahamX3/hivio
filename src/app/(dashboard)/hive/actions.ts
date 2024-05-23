@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import e, { type $infer } from "@edgedb/edgeql-js";
 import { TitleType } from "@edgedb/edgeql-js/modules/default";
-import { subDays } from "date-fns";
 import { getPlaiceholder } from "plaiceholder";
 
 import { env } from "@/env";
@@ -319,6 +318,8 @@ async function updateTitle({
       seasons,
     });
   }
+
+  return { success: true, data: updatedTitle?.id };
 }
 
 export const addTitleHive = authAction(
@@ -433,8 +434,13 @@ export const addTitleHive = authAction(
       // update title if last update has been more than 3 days ago
       if (isTitleAdded.updatedAt) {
         const updatedAt = isTitleAdded.updatedAt;
-        const threeDaysAgo = subDays(new Date(), 1);
-        if (updatedAt < threeDaysAgo) {
+        const today = new Date();
+
+        const diffInDays = Math.abs(
+          (today.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        if (diffInDays >= 3) {
           await updateTitle({
             tmdbId: isTitleAdded.tmdbId,
             type: isTitleAdded.type,
