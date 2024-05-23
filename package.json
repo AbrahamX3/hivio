@@ -1,7 +1,7 @@
 {
   "name": "hivio",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,9 +16,7 @@
     "edge:start": "edgedb instance start -I hivio",
     "edge:stop": "edgedb instance stop -I hivio",
     "edge:migration": "edgedb migration create",
-    "edge:migrate-dev": "edgedb migrate",
-    "edge:studio": "edgedb ui",
-    "ox": "bunx oxlint@latest"
+    "edge:migrate": "edgedb migrate"
   },
   "engines": {
     "node": "20.x"
