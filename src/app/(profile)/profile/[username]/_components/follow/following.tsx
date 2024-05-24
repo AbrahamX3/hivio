@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+import { useOptimisticAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
 
@@ -11,15 +13,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { type UserSession } from "@/types/auth";
 
 import { followUser } from "./actions";
 
 interface Props {
-  currentUserUsername?: string | null;
+  currentUser: UserSession | null;
   hiveUserProfile: HiveUser;
 }
 
-export function Following({ hiveUserProfile, currentUserUsername }: Props) {
+export function Following({ hiveUserProfile, currentUser }: Props) {
+  const router = useRouter();
+
+  const isFollowingUser = hiveUserProfile?.following.some(
+    (user) => user.followed.username === currentUser?.username,
+  );
+
+  const { execute, optimisticData, status } = useOptimisticAction(
+    followUser,
+    {
+      totalFollowers: hiveUserProfile?.total_following,
+      following: isFollowingUser,
+    },
+    (state, { total }) => {
+      return {
+        totalFollowers: total ?? 0,
+        following: state.following,
+      };
+    },
+    { onSuccess: () => router.refresh() },
+  );
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -36,7 +61,7 @@ export function Following({ hiveUserProfile, currentUserUsername }: Props) {
         <div className="max-h-[300px] overflow-y-auto">
           <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
             {hiveUserProfile?.total_following === 0 ? (
-              currentUserUsername === hiveUserProfile?.username ? (
+              currentUser === hiveUserProfile?.username ? (
                 <div className="flex flex-col items-center rounded-md border border-dashed p-2 text-center">
                   You currently are not following anyone!
                 </div>
@@ -73,22 +98,30 @@ export function Following({ hiveUserProfile, currentUserUsername }: Props) {
                         </div>
                       </div>
                     </Link>
-                    {currentUserUsername ? (
-                      username !== currentUserUsername ? (
+                    {currentUser ? (
+                      username !== currentUser.username ? (
                         <Button
+                          disabled={status === "executing"}
+                          className={cn(
+                            status === "executing" && "animate-pulse",
+                          )}
                           onClick={async () =>
-                            await followUser({
+                            execute({
                               username: username ?? "",
-                              total: hiveUserProfile.total_following,
+                              total: hiveUserProfile?.total_following,
                             })
                           }
                         >
-                          {hiveUserProfile.following.find(
-                            (following) =>
-                              following.followed.username === username,
-                          )
-                            ? "Following"
-                            : "Follow"}
+                          {status === "executing"
+                            ? optimisticData.following
+                              ? "Unfollowing"
+                              : "Following"
+                            : hiveUserProfile?.following.find(
+                                  (following) =>
+                                    following.followed.username === username,
+                                )
+                              ? "Unfollow"
+                              : "Follow"}
                         </Button>
                       ) : (
                         <Button disabled>Follow</Button>

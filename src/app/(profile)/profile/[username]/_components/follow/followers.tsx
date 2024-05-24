@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+import { useOptimisticAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
 
@@ -11,15 +13,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { type UserSession } from "@/types/auth";
 
 import { followUser } from "./actions";
 
 interface Props {
   hiveUserProfile: HiveUser;
-  currentUser?: string | null;
+  currentUser: UserSession | null;
 }
 
 export function Followers({ currentUser, hiveUserProfile }: Props) {
+  const router = useRouter();
+
+  const isFollowingUser = hiveUserProfile?.following.some(
+    (user) => user.followed.username === currentUser?.username,
+  );
+
+  const { execute, optimisticData, status } = useOptimisticAction(
+    followUser,
+    {
+      totalFollowers: hiveUserProfile?.total_following,
+      following: isFollowingUser,
+    },
+    (state, { total }) => {
+      return {
+        totalFollowers: total ?? 0,
+        following: state.following,
+      };
+    },
+    { onSuccess: () => router.refresh() },
+  );
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -75,21 +100,29 @@ export function Followers({ currentUser, hiveUserProfile }: Props) {
                       </div>
                     </Link>
                     {currentUser ? (
-                      username !== currentUser ? (
+                      username !== currentUser.username ? (
                         <Button
+                          disabled={status === "executing"}
+                          className={cn(
+                            status === "executing" && "animate-pulse",
+                          )}
                           onClick={async () =>
-                            await followUser({
+                            execute({
                               username: username ?? "",
                               total: hiveUserProfile?.total_following,
                             })
                           }
                         >
-                          {hiveUserProfile?.following.find(
-                            (following) =>
-                              following.followed.username === username,
-                          )
-                            ? "Following"
-                            : "Follow"}
+                          {status === "executing"
+                            ? optimisticData.following
+                              ? "Unfollowing"
+                              : "Following"
+                            : hiveUserProfile?.following.find(
+                                  (following) =>
+                                    following.followed.username === username,
+                                )
+                              ? "Unfollow"
+                              : "Follow"}
                         </Button>
                       ) : (
                         <Button disabled>Follow</Button>

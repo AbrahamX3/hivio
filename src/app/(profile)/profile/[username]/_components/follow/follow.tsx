@@ -86,7 +86,7 @@ export default function Follow({ currentUser, hiveUserProfile }: Props) {
       >
         <Following
           hiveUserProfile={hiveUserProfile}
-          currentUserUsername={currentUser?.username}
+          currentUser={currentUser}
         />
       </Suspense>
       <Suspense
@@ -97,7 +97,7 @@ export default function Follow({ currentUser, hiveUserProfile }: Props) {
         }
       >
         <Followers
-          currentUser={currentUser?.username}
+          currentUser={currentUser}
           hiveUserProfile={hiveUserProfile}
         />
       </Suspense>
