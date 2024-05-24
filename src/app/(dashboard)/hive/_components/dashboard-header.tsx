@@ -71,8 +71,12 @@ export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {
         <CardContent>
           <p className="flex-1 text-xs text-muted-foreground">
             Currently watching {currentWatchingMovies.length}{" "}
-            {currentWatchingMovies.length > 1 ? "movies" : "movie"} and{" "}
-            {currentWatchingSeries.length}{" "}
+            {currentWatchingMovies.length > 1
+              ? "movies"
+              : currentWatchingMovies.length === 0
+                ? "movies"
+                : "movie"}{" "}
+            and {currentWatchingSeries.length}{" "}
             {currentWatchingSeries.length > 1 ? "series" : "series"} in total
           </p>
         </CardContent>
@@ -88,8 +92,8 @@ export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {
         <CardContent>
           <p className="text-xs text-muted-foreground">
             {finishedSeriesThisMonth.length}{" "}
-            {finishedSeriesThisMonth.length > 1 ? "series" : "series"} finished
-            this month and {finishedMoviesThisMonth.length}{" "}
+            {finishedSeriesThisMonth.length > 1 ? "series" : "series"} and{" "}
+            {finishedMoviesThisMonth.length}{" "}
             {finishedMoviesThisMonth.length > 1 ? "movies" : "movie"} finished
             this month
           </p>

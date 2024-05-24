@@ -11,12 +11,14 @@ import TableContainer from "@/components/ui/datatable/data-table-container";
 import { TabsContent } from "@/components/ui/tabs";
 
 import { type HiveData } from "../actions";
+import WatchingTableView from "./currently-watching-table/table-view";
 import MoviesTableView from "./movies-table/table-view";
 import SeriesTableView from "./series-table/table-view";
 
 export default function TableTabs({ data }: { data: HiveData }) {
   const filteredMovies = data.filter((hive) => hive.title.type === "MOVIE");
   const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
+  const currentlyWatching = data.filter((hive) => hive.status === "WATCHING");
 
   return (
     <>
@@ -46,6 +48,21 @@ export default function TableTabs({ data }: { data: HiveData }) {
           <CardContent>
             <TableContainer>
               <SeriesTableView data={filteredSeries} />
+            </TableContainer>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="currently-watching">
+        <Card>
+          <CardHeader>
+            <CardTitle>Currently Watching</CardTitle>
+            <CardDescription>
+              All the movies and series that you are currently watching.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TableContainer>
+              <WatchingTableView data={currentlyWatching} />
             </TableContainer>
           </CardContent>
         </Card>

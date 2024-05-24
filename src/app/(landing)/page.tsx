@@ -8,7 +8,7 @@ import { isUserSignedIn } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
-  title: "Watchlist Companion",
+  title: "Your Watchlist Companion",
 };
 
 export default async function Component() {

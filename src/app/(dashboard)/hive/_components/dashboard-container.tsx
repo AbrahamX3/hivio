@@ -61,6 +61,7 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
 
   const filteredMovies = data.filter((hive) => hive.title.type === "MOVIE");
   const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
+  const currentlyWatching = data.filter((hive) => hive.status === "WATCHING");
 
   return (
     <>
@@ -81,9 +82,15 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
           hive={JSON.parse(JSON.stringify(data)) as HiveData}
         />
         <div className="flex min-w-0 items-center">
-          <Tabs defaultValue="movies" className="w-full">
+          <Tabs defaultValue="currently-watching" className="w-full">
             <div className="flex items-center">
               <TabsList>
+                <TabsTrigger value="currently-watching" className="gap-2">
+                  Currently Watching{" "}
+                  <span className="rounded-md bg-background px-3 py-1 text-foreground">
+                    {currentlyWatching.length}
+                  </span>
+                </TabsTrigger>
                 <TabsTrigger value="movies" className="gap-2">
                   Movies{" "}
                   <span className="rounded-md bg-background px-3 py-1 text-foreground">

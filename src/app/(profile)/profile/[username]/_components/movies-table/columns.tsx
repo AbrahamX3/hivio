@@ -4,10 +4,11 @@ import { StarIcon } from "lucide-react";
 import { type HiveProfile } from "@/app/(profile)/actions";
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
 import { genreOptions, statusOptions } from "@/lib/options";
+import { type UserSession } from "@/types/auth";
 
 import { HiveMoviesTableActions } from "./actions";
 
-export function MovieColumns() {
+export function MovieColumns(currentUser: UserSession | null) {
   const columns: ColumnDef<HiveProfile[0]>[] = [
     {
       id: "Title Name",
@@ -156,7 +157,7 @@ export function MovieColumns() {
       id: "actions",
       header: () => <div className="sr-only hidden">Actions</div>,
       cell: ({ row }) => {
-        return <HiveMoviesTableActions row={row} />;
+        return <HiveMoviesTableActions currentUser={currentUser} row={row} />;
       },
     },
   ];

@@ -1,9 +1,9 @@
-import { type ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
-import { ClockIcon, InfoIcon, StarIcon } from "lucide-react";
+"use client";
 
-import { type HiveProfile } from "@/app/(profile)/actions";
+import { type ColumnDef } from "@tanstack/react-table";
+import { InfoIcon, StarIcon } from "lucide-react";
+import { Link } from "next-view-transitions";
+
 import {
   Accordion,
   AccordionContent,
@@ -18,14 +18,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { genreOptions, statusOptions } from "@/lib/options";
-import { type UserSession } from "@/types/auth";
+import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
 
-import { HiveSeriesTableActions } from "./actions";
+import { type HiveData } from "../../actions";
+import { HiveCurrentlyWatchingTableActions } from "./actions";
 
-export function SeriesColumns(currentUser: UserSession | null) {
-  const columns: ColumnDef<HiveProfile[0]>[] = [
+export function CurrentlyWatchingColumns() {
+  const columns: ColumnDef<HiveData[0]>[] = [
     {
       id: "Title Name",
       accessorFn: (row) => row.title.name,
@@ -34,14 +33,17 @@ export function SeriesColumns(currentUser: UserSession | null) {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex space-x-2">
+          <Link
+            className="flex space-x-2 hover:text-primary"
+            href={`/hive/${row.original.id}`}
+          >
             <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
               {row.original.isFavorite && (
                 <StarIcon className="size-4 text-primary" />
               )}
               <span>{row.getValue("Title Name")}</span>
             </span>
-          </div>
+          </Link>
         );
       },
     },
@@ -65,49 +67,31 @@ export function SeriesColumns(currentUser: UserSession | null) {
       },
     },
     {
-      id: "Personal Rating",
-      accessorFn: (row) => row.rating,
+      id: "Type",
+      accessorFn: (row) => row.title.type,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Personal Rating" />
+        <DataTableColumnHeader column={column} title="Type" />
       ),
+      cell: ({ row }) => {
+        const type = typeOptions.find(
+          (type) => type.value === row.getValue("Type"),
+        );
 
-      cell: ({ row }) => {
-        const rating = Number(row.getValue("Personal Rating")).toFixed(1);
+        if (!type) {
+          return null;
+        }
+
         return (
-          <div className="flex space-x-2">
-            <span
-              title={`${rating} / 10`}
-              className="max-w-[500px] truncate font-medium"
-            >
-              {rating} / 10
-            </span>
+          <div className="flex w-[100px] items-center">
+            {type.icon && (
+              <type.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+            )}
+            <span>{type.label}</span>
           </div>
         );
       },
-    },
-    {
-      id: "Rating",
-      accessorFn: (row) => row.title.rating,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Rating" />
-      ),
-      cell: ({ row }) => {
-        const rating = Number(row.getValue("Rating")).toFixed(1);
-        return (
-          <div className="flex space-x-2">
-            <span
-              title={`${rating} / 10`}
-              className="max-w-[500px] truncate font-medium"
-            >
-              {rating} / 10
-            </span>
-          </div>
-        );
-      },
-      filterFn: (row, id, value: string[]) => {
-        return value.every((val: string) =>
-          row.getValue<string[]>(id).includes(val),
-        );
+      filterFn: (row, id, value: string) => {
+        return value.includes(row.getValue(id));
       },
     },
     {
@@ -116,6 +100,10 @@ export function SeriesColumns(currentUser: UserSession | null) {
         <DataTableColumnHeader column={column} title="Season Details" />
       ),
       cell: ({ row }) => {
+        if (row.original.title.seasons.length === 0) {
+          return null;
+        }
+
         const orderedSeasons = row.original.title.seasons.sort(
           (a, b) => a.season - b.season,
         );
@@ -255,81 +243,10 @@ export function SeriesColumns(currentUser: UserSession | null) {
       },
     },
     {
-      id: "Start/Finished",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Start/Finished" />
-      ),
-      cell: ({ row }) => {
-        return row.original.startedAt ? (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <ClockIcon className="size-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full">
-              <Tabs defaultValue="local" className="w-full">
-                <TabsList>
-                  <TabsTrigger value="local">
-                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                  </TabsTrigger>
-                  <TabsTrigger value="utc">UTC</TabsTrigger>
-                </TabsList>
-                <TabsContent value="local">
-                  <div className="flex flex-col gap-y-2">
-                    <span className="font-medium">Started On:</span>
-                    <span>
-                      {format(
-                        toZonedTime(
-                          new Date(row.original.startedAt),
-                          Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        ),
-                        "PPPP",
-                      )}
-                    </span>
-                    {row.original.finishedAt && (
-                      <>
-                        <span className="font-medium">Finished On:</span>
-                        <span>
-                          {format(
-                            toZonedTime(
-                              new Date(row.original.finishedAt),
-                              Intl.DateTimeFormat().resolvedOptions().timeZone,
-                            ),
-                            "PPPP",
-                          )}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </TabsContent>
-                <TabsContent value="utc">
-                  <div className="flex flex-col gap-y-2">
-                    <span className="font-medium">Started On:</span>
-                    <span>{format(row.original.startedAt, "PPPP")}</span>
-                    {row.original.finishedAt && (
-                      <>
-                        <span className="font-medium">Finished On:</span>
-                        <span>{format(row.original.finishedAt, "PPPP")}</span>
-                      </>
-                    )}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </PopoverContent>
-          </Popover>
-        ) : (
-          <Button disabled variant="outline" className="w-max">
-            N/A
-          </Button>
-        );
-      },
-    },
-    {
       id: "actions",
       header: () => <div className="sr-only hidden">Actions</div>,
       cell: ({ row }) => {
-        return <HiveSeriesTableActions currentUser={currentUser} row={row} />;
+        return <HiveCurrentlyWatchingTableActions row={row} />;
       },
     },
   ];

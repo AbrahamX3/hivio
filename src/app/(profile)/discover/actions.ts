@@ -20,12 +20,6 @@ const HiveProfilesQuery = e.params(
       name: true,
       createdAt: true,
       avatar: true,
-      follows: e.select(e.Follow, (follow) => ({
-        follower: {
-          username: true,
-        },
-        filter: e.op(follow.followed.username, "=", user.username),
-      })),
       genres: e.select(e.Hive, (hive) => ({
         title: {
           genres: true,
@@ -33,6 +27,23 @@ const HiveProfilesQuery = e.params(
         filter: e.op(hive.addedBy.username, "=", user.username),
       })),
       total_followers: e.count(user.followers),
+      total_following: e.count(user.following),
+      followers: e.select(e.Follow, (follow) => ({
+        follower: {
+          username: true,
+          avatar: true,
+          name: true,
+        },
+        filter: e.op(follow.followed.username, "=", user.username),
+      })),
+      following: e.select(e.Follow, (follow) => ({
+        followed: {
+          username: true,
+          avatar: true,
+          name: true,
+        },
+        filter: e.op(follow.follower.username, "=", user.username),
+      })),
       order_by: [
         {
           expression: user.createdAt,

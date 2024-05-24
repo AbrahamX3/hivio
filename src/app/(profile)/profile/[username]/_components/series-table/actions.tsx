@@ -15,14 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTitleDetails } from "@/context/title-details-context";
+import { type UserSession } from "@/types/auth";
 
 import { TitleDetailsDrawer } from "../title-details-drawer";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
+  currentUser: UserSession | null;
 }
 export function HiveSeriesTableActions<TData>({
   row,
+  currentUser,
 }: DataTableRowActionsProps<TData>) {
   const data = row.original as HiveProfile[0];
 
@@ -67,6 +70,7 @@ export function HiveSeriesTableActions<TData>({
         {openDetails && (
           <TitleDetailsDrawer
             id={data.id}
+            currentUser={currentUser}
             data={data}
             open={openDetails}
             setOpen={setOpenDetails}

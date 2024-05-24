@@ -28,6 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
+import { getUserSession } from "@/lib/auth";
 import { convertMinutesToHrMin } from "@/lib/utils";
 
 import { hiveMetadataInfo, hiveProfile, type HiveProfile } from "../../actions";
@@ -92,6 +93,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicUserProfile({ params }: Props) {
   const result = await hiveProfile({ username: params.username });
+  const currentUser = await getUserSession();
 
   if (!result.data?.success) {
     notFound();
@@ -139,7 +141,9 @@ export default async function PublicUserProfile({ params }: Props) {
           username={user?.username}
           joinedDate={user?.createdAt}
         />
-        {user.username && <Follow hiveUserProfile={user} />}
+        {user.username && (
+          <Follow currentUser={currentUser} hiveUserProfile={user} />
+        )}
       </div>
       <StatsCards data={JSON.parse(JSON.stringify(hive)) as HiveProfile} />
       <h3 className="text-2xl font-semibold">Currently Watching</h3>
@@ -191,6 +195,7 @@ export default async function PublicUserProfile({ params }: Props) {
                               </Tooltip>
                               <div className="flex items-center gap-2">
                                 <ViewDetailsButton
+                                  currentUser={currentUser}
                                   data={
                                     JSON.parse(
                                       JSON.stringify(hive),
@@ -319,7 +324,10 @@ export default async function PublicUserProfile({ params }: Props) {
           </div>
         )}
       </Suspense>
-      <TableTabs data={JSON.parse(JSON.stringify(hive)) as HiveProfile} />
+      <TableTabs
+        currentUser={currentUser}
+        data={JSON.parse(JSON.stringify(hive)) as HiveProfile}
+      />
     </>
   );
 }

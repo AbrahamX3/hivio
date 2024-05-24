@@ -21,15 +21,20 @@ import {
   MultiSelectorTrigger,
 } from "@/components/ui/multi-select";
 import { genreOptions } from "@/lib/options";
+import { type UserSession } from "@/types/auth";
 
 import { type HiveProfiles } from "../actions";
 import UserCard, { getGenreCounts } from "./user-card";
 
 interface HiveProfileFilterProps {
   hive: HiveProfiles;
+  currentUser: UserSession | null;
 }
 
-export default function HiveProfileFilter({ hive }: HiveProfileFilterProps) {
+export default function HiveProfileFilter({
+  hive,
+  currentUser,
+}: HiveProfileFilterProps) {
   const [data, setData] = useState<HiveProfiles>(hive);
   const [genres, setGenres] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<
@@ -129,8 +134,18 @@ export default function HiveProfileFilter({ hive }: HiveProfileFilterProps) {
           </DropdownMenu>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-        {data?.map((user) => <UserCard key={user.id} user={user} />)}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+        {data.length > 0 ? (
+          data?.map((user) => (
+            <UserCard currentUser={currentUser} key={user.id} user={user} />
+          ))
+        ) : (
+          <div className="col-span-4 flex w-full items-center justify-center rounded-md border bg-background p-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              No profiles found
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

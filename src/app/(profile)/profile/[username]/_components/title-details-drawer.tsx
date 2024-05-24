@@ -7,12 +7,14 @@ import {
   CopyIcon,
   DotIcon,
   ExternalLinkIcon,
+  PlusIcon,
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
+import { addTitleHive } from "@/app/(dashboard)/hive/actions";
 import { type HiveProfile } from "@/app/(profile)/actions";
 import {
   getMovieCredits,
@@ -20,6 +22,7 @@ import {
   getSeriesCredits,
   getSeriesDetails,
 } from "@/app/actions";
+import { LogoIcon } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Carousel,
@@ -51,12 +54,14 @@ import {
 } from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
+import { type UserSession } from "@/types/auth";
 
 interface Props {
   id: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   data: HiveProfile[0];
+  currentUser: UserSession | null;
 }
 
 const USD = Intl.NumberFormat("en-US", {
@@ -65,7 +70,12 @@ const USD = Intl.NumberFormat("en-US", {
   maximumSignificantDigits: 3,
 });
 
-export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
+export function TitleDetailsDrawer({
+  setOpen,
+  open,
+  data,
+  currentUser,
+}: Props) {
   const { setSelectedTitle, selectedTitle } = useTitleDetails();
 
   const {
@@ -197,6 +207,33 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
       : seriesCreditsStatus === "hasSucceeded" &&
         seriesDetailsStatus === "hasSucceeded";
 
+  const { execute: AddTitleAction, status: AddTitleStatus } = useAction(
+    addTitleHive,
+    {
+      onSuccess: ({ success, error }) => {
+        if (success) {
+          toast.success("Title added to your Hive as PENDING", {
+            id: "add-title",
+          });
+        } else {
+          toast.error(error.reason, {
+            id: "add-title",
+          });
+        }
+      },
+      onExecute: () => {
+        toast.loading("Adding Title to your Hive", {
+          id: "add-title",
+        });
+      },
+      onError: () => {
+        toast.error("Error adding title to your hive", {
+          id: "add-title",
+        });
+      },
+    },
+  );
+
   if (!selectedTitle && isDone) return null;
 
   return (
@@ -241,6 +278,37 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
           )}
           <div className="flex items-center gap-1">
             <TooltipProvider>
+              {currentUser ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      disabled={AddTitleStatus === "executing"}
+                      onClick={() => {
+                        AddTitleAction({
+                          titleFormValues: {
+                            tmdbId: data?.title.tmdbId,
+                            type: data?.title.type === "MOVIE" ? "movie" : "tv",
+                          },
+                          hiveFormValues: {
+                            status: "PENDING",
+                          },
+                        });
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="relative size-8"
+                    >
+                      <span className="relative">
+                        <LogoIcon className="size-4" />
+                        <PlusIcon className="absolute left-[9px] top-[5px] size-3 stroke-[4px] text-primary group-hover:animate-pulse" />
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="w-fit">
+                    Add this title to your hive
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
               {data?.title.imdbId ?? data?.title.tmdbId ? (
                 <DropdownMenu>
                   <Tooltip>
@@ -292,7 +360,6 @@ export function TitleDetailsDrawer({ setOpen, open, data }: Props) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : null}
-
               <DotIcon className="size-4 text-muted-foreground" />
               <Tooltip>
                 <TooltipTrigger asChild>

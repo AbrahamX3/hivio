@@ -12,14 +12,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTitleDetails } from "@/context/title-details-context";
+import { type UserSession } from "@/types/auth";
 
 import { TitleDetailsDrawer } from "./title-details-drawer";
 
 interface Props {
   data: HiveProfile[0];
+  currentUser: UserSession | null;
 }
 
-export default function ViewDetailsButton({ data }: Props) {
+export default function ViewDetailsButton({ data, currentUser }: Props) {
   const { setSelectedTitle } = useTitleDetails();
   const [openDetails, setOpenDetails] = useState(false);
 
@@ -58,6 +60,7 @@ export default function ViewDetailsButton({ data }: Props) {
           data={data}
           open={openDetails}
           setOpen={setOpenDetails}
+          currentUser={currentUser}
         />
       )}
     </>

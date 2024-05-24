@@ -2,14 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  SettingsIcon,
-  UserIcon,
-  UserRoundSearchIcon,
-} from "lucide-react";
+import { SettingsIcon, UserIcon, UserRoundSearchIcon } from "lucide-react";
 
-import LogoFull from "@/components/icons";
+import LogoFull, { LogoIcon } from "@/components/icons";
 import {
   Card,
   CardContent,
@@ -38,7 +33,7 @@ export default function DashboardSiderbar({ user }: Props) {
         <div className="flex-1">
           <nav className="grid items-start gap-2 px-2 text-sm font-medium lg:px-4">
             <SidebarLink name="My Hive" href="/hive">
-              <Home className="size-4" />
+              <LogoIcon className="size-4" />
             </SidebarLink>
             {user?.username && (
               <SidebarLink name="My Profile" href={`/profile/${user.username}`}>

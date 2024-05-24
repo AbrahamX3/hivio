@@ -5,9 +5,11 @@ import { ViewTransitions } from "next-view-transitions";
 
 import { TailwindIndicator } from "@/components/providers/tailwind-indicator";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { QuickMenu } from "@/components/quick-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { Confetti } from "@/context/confetti";
 import { env } from "@/env";
+import { getUserSession } from "@/lib/auth";
 
 import "@/styles/globals.css";
 
@@ -34,11 +36,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUser = await getUserSession();
+
   return (
     <ViewTransitions>
       <html
@@ -64,6 +68,7 @@ export default function RootLayout({
             <Confetti />
             <Toaster richColors />
             <TailwindIndicator />
+            <QuickMenu currentUser={currentUser} />
           </ThemeProvider>
         </body>
       </html>

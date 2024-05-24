@@ -10,11 +10,18 @@ import {
 } from "@/components/ui/card";
 import TableContainer from "@/components/ui/datatable/data-table-container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type UserSession } from "@/types/auth";
 
 import MoviesTableView from "./movies-table/table-view";
 import SeriesTableView from "./series-table/table-view";
 
-export default function TableTabs({ data }: { data: HiveProfile }) {
+export default function TableTabs({
+  data,
+  currentUser,
+}: {
+  data: HiveProfile;
+  currentUser: UserSession | null;
+}) {
   const filteredMovies = data.filter((hive) => hive.title.type === "MOVIE");
   const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
 
@@ -46,7 +53,10 @@ export default function TableTabs({ data }: { data: HiveProfile }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <MoviesTableView data={filteredMovies} />
+              <MoviesTableView
+                currentUser={currentUser}
+                data={filteredMovies}
+              />
             </TableContainer>
           </CardContent>
         </Card>
@@ -61,7 +71,10 @@ export default function TableTabs({ data }: { data: HiveProfile }) {
           </CardHeader>
           <CardContent>
             <TableContainer>
-              <SeriesTableView data={filteredSeries} />
+              <SeriesTableView
+                currentUser={currentUser}
+                data={filteredSeries}
+              />
             </TableContainer>
           </CardContent>
         </Card>

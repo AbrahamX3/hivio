@@ -3,10 +3,17 @@
 import { type HiveProfile } from "@/app/(profile)/actions";
 import { DataTable } from "@/components/ui/datatable/data-table";
 import { genreOptions, statusOptions } from "@/lib/options";
+import { type UserSession } from "@/types/auth";
 
 import { MovieColumns } from "./columns";
 
-export default function MoviesTableView({ data }: { data: HiveProfile }) {
+export default function MoviesTableView({
+  data,
+  currentUser,
+}: {
+  data: HiveProfile;
+  currentUser: UserSession | null;
+}) {
   const filters = [
     {
       columnId: "Status",
@@ -23,7 +30,7 @@ export default function MoviesTableView({ data }: { data: HiveProfile }) {
   return (
     <DataTable
       name="public-hive-movies"
-      columns={MovieColumns()}
+      columns={MovieColumns(currentUser)}
       data={data}
       filters={filters}
     />
