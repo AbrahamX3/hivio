@@ -27,7 +27,7 @@ export default function TableTabs({ data }: { data: HiveData }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 align-middle">
               <span>Currently Watching</span>{" "}
-              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-foreground sm:hidden">
+              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-black text-foreground sm:hidden">
                 {currentlyWatching.length}
               </span>
             </CardTitle>
@@ -47,7 +47,7 @@ export default function TableTabs({ data }: { data: HiveData }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 align-middle">
               <span>Your Hive Movies</span>{" "}
-              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-foreground sm:hidden">
+              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-black text-foreground sm:hidden">
                 {filteredMovies.length}
               </span>
             </CardTitle>
@@ -67,7 +67,7 @@ export default function TableTabs({ data }: { data: HiveData }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 align-middle">
               <span>Your Hive Series</span>{" "}
-              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-foreground sm:hidden">
+              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-black text-foreground sm:hidden">
                 {filteredSeries.length}
               </span>
             </CardTitle>

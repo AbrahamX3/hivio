@@ -132,6 +132,7 @@ export const updateTitleFromHive = authAction(
             currentEpisode: form.currentEpisode ? form.currentEpisode : null,
             currentSeason: form.currentSeason ? form.currentSeason : null,
             startedAt: form.startedAt ? form.startedAt : null,
+            isFavorite: e.bool(form.isFavorite ?? false),
           },
           filter_single: e.op(
             e.op(hive.id, "=", e.uuid(id)),
@@ -154,6 +155,7 @@ export const updateTitleFromHive = authAction(
             currentEpisode: form.currentEpisode ? form.currentEpisode : null,
             currentSeason: form.currentSeason ? form.currentSeason : null,
             startedAt: form.startedAt ? form.startedAt : null,
+            isFavorite: e.bool(form.isFavorite ?? false),
           },
           filter_single: e.op(
             e.op(hive.id, "=", e.uuid(id)),

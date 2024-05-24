@@ -507,6 +507,25 @@ export const addTitleHive = authAction(
           status: hiveFormValues.status,
           data: insert.id,
         };
+      } else if (status === "PENDING") {
+        const insert = await e
+          .insert(e.Hive, {
+            addedBy: e.global.CurrentUser,
+            title: titleToAdd,
+            currentEpisode: hiveFormValues.currentEpisode,
+            startedAt: hiveFormValues.startedAt
+              ? hiveFormValues.startedAt
+              : null,
+            currentSeason: hiveFormValues.currentSeason,
+            status: hiveFormValues.status,
+          })
+          .run(client);
+
+        return {
+          success: true,
+          status: hiveFormValues.status,
+          data: insert.id,
+        };
       } else {
         const insert = await e
           .insert(e.Hive, {
@@ -518,6 +537,7 @@ export const addTitleHive = authAction(
               : null,
             currentSeason: hiveFormValues.currentSeason,
             status: hiveFormValues.status,
+            isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
           })
           .run(client);
 

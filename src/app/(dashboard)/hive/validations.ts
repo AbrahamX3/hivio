@@ -60,7 +60,13 @@ export const hiveFormSchema = z
       .merge(basehiveFormSchema),
     z
       .object({
-        status: z.enum(["PENDING", "WATCHING", "UNFINISHED"]),
+        isFavorite: z.boolean().optional(),
+        status: z.enum(["WATCHING", "UNFINISHED"]),
+      })
+      .merge(basehiveFormSchema),
+    z
+      .object({
+        status: z.enum(["PENDING"]),
       })
       .merge(basehiveFormSchema),
   ])

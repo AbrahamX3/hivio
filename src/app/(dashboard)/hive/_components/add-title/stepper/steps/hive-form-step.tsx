@@ -271,93 +271,116 @@ export function HiveFormStep({
         )}
 
         {hiveForm.watch("status") !== "PENDING" && (
-          <FormField
-            control={hiveForm.control}
-            name="startedAt"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Date Started</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
+          <>
+            <FormField
+              control={hiveForm.control}
+              name="startedAt"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Date Started</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick start date</span>
+                          )}
+                          <CalendarIcon className="ml-auto size-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    <p>The date you started watching this title.</p>
+                    <div className="flex w-full flex-wrap items-center gap-2 pt-2">
                       <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => field.onChange(new Date())}
                       >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick start date</span>
-                        )}
-                        <CalendarIcon className="ml-auto size-4 opacity-50" />
+                        Today <CalendarCheck2Icon className="ml-2 size-4" />
                       </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  <p>The date you started watching this title.</p>
-                  <div className="flex w-full flex-wrap items-center gap-2 pt-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => field.onChange(new Date())}
-                    >
-                      Today <CalendarCheck2Icon className="ml-2 size-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        field.onChange(
-                          new Date(Date.now() - 1000 * 60 * 60 * 24),
-                        )
-                      }
-                    >
-                      Yesterday <CalendarMinusIcon className="ml-2 size-4" />
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          field.onChange(
+                            new Date(Date.now() - 1000 * 60 * 60 * 24),
+                          )
+                        }
+                      >
+                        Yesterday <CalendarMinusIcon className="ml-2 size-4" />
+                      </Button>
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        field.onChange(
-                          new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-                        )
-                      }
-                    >
-                      2 days ago <CalendarMinusIcon className="ml-2 size-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => field.onChange(undefined)}
-                    >
-                      Clear <CalendarOffIcon className="ml-2 size-4" />
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          field.onChange(
+                            new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+                          )
+                        }
+                      >
+                        2 days ago <CalendarMinusIcon className="ml-2 size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => field.onChange(undefined)}
+                      >
+                        Clear <CalendarOffIcon className="ml-2 size-4" />
+                      </Button>
+                    </div>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={hiveForm.control}
+              name="isFavorite"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Is this a favorite?</FormLabel>
+                    <FormDescription>
+                      This will be visibile on your public profile with a star
+                      next to the title.
+                    </FormDescription>
                   </div>
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </>
         )}
 
         {isFinished && (
@@ -449,26 +472,7 @@ export function HiveFormStep({
                 </FormItem>
               )}
             />
-            <FormField
-              control={hiveForm.control}
-              name="isFavorite"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>Was this a favorite?</FormLabel>
-                    <FormDescription>
-                      This will be visibile on your public profile.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={hiveForm.control}
               name="rating"

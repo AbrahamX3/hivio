@@ -2,7 +2,11 @@ import { Suspense } from "react";
 import { type Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ExternalLinkIcon, SquareArrowOutUpRightIcon } from "lucide-react";
+import {
+  ExternalLinkIcon,
+  SquareArrowOutUpRightIcon,
+  StarIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -183,11 +187,16 @@ export default async function PublicUserProfile({ params }: Props) {
                             <div className="flex w-full items-center justify-between">
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <p className="line-clamp-1 w-2/3 text-sm font-medium">
-                                    {hive.title.name}
-                                  </p>
+                                  <div className="flex items-center gap-2 align-middle">
+                                    {hive.isFavorite && (
+                                      <StarIcon className="size-4 text-primary" />
+                                    )}
+                                    <p className="line-clamp-1 w-3/4 text-sm font-medium">
+                                      {hive.title.name}
+                                    </p>
+                                  </div>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="w-1/2">
                                   <p className="text-sm font-medium">
                                     {hive.title.name}
                                   </p>
