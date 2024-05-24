@@ -2,9 +2,10 @@ import { CircleUserIcon, RocketIcon, TelescopeIcon } from "lucide-react";
 import { Link } from "next-view-transitions";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { isUserSignedIn } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Your Watchlist Companion",
@@ -26,7 +27,7 @@ export default async function Component() {
                 with the help of the Hivio community
               </p>
             </div>
-            <div className="space-x-4">
+            <div className="flex flex-col items-center gap-2 space-x-4 align-middle md:flex-row">
               <Button asChild size="lg" variant="outline">
                 {isSignedIn ? (
                   <Link href="/hive">Get Started</Link>
@@ -34,6 +35,18 @@ export default async function Component() {
                   <Link href="/auth/signin">Get Started</Link>
                 )}
               </Button>
+              <Link
+                className={cn(
+                  buttonVariants({
+                    variant: "link",
+                    size: "lg",
+                  }),
+                  "text-black decoration-black",
+                )}
+                href="/discover"
+              >
+                Discover
+              </Link>
             </div>
           </div>
         </div>

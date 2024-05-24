@@ -86,7 +86,7 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
             <div className="flex items-center">
               <TabsList>
                 <TabsTrigger value="currently-watching" className="gap-2">
-                  Currently Watching{" "}
+                  Watching{" "}
                   <span className="rounded-md bg-background px-3 py-1 text-foreground">
                     {currentlyWatching.length}
                   </span>

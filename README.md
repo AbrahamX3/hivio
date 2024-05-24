@@ -87,7 +87,7 @@ http://localhost:3000/auth/signin
 bun install
 ```
 
-9. Run the prebuild command to generate the EdgeDB generator and interfaces.
+9. Run the prebuild command to generate the EdgeDB queries and interfaces.
 
 ```bash
 bun run prebuild
@@ -106,14 +106,17 @@ bun run dev
 
 ## Deploying to Production
 
-1. You'll need an [EdgeDB cloud instance](https://www.edgedb.com/cloud) to deploy to production. Generate a secret key and have your instance details on hand to then provide to the following enviorment variables: 
+1. You'll need an [EdgeDB cloud instance](https://www.edgedb.com/cloud) to
+   deploy to production. Generate a secret key and have your instance details on
+   hand to then provide to the following enviorment variables:
 
 ```
 EDGEDB_SECRET_KEY=""
 EDGEDB_INSTANCE=""
 ```
 
-2. Run the following command to authenticate and apply migrations to your cloud instance (this might take a while to do):
+2. Run the following command to authenticate and apply migrations to your cloud
+   instance (this might take a while to do):
 
 ```bash
 edgedb cloud login
@@ -123,7 +126,9 @@ edgedb cloud login
 edgedb migrate -I <username>/<instance_name>
 ```
 
-3. Then do the steps in `Getting Started Locally` from 6 to 8 with the only modification being replacing the URL's with your production url details. Example `http://localhost:3000/` to `https://hivio.vercel.app/`
+3. Then do the steps in `Getting Started Locally` from 6 to 8 with the only
+   modification being replacing the URL's with your production url details.
+   Example `http://localhost:3000/` to `https://hivio.vercel.app/`
 
 4. Deploy to Vercel or any other cloud provider
 

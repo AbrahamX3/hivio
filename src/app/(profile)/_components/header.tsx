@@ -12,8 +12,8 @@ export default async function Header() {
   const user = await getUserSession();
 
   return (
-    <header className="w-full bg-primary">
-      <nav className="container flex h-14 justify-between gap-4 bg-primary px-5 py-8 align-middle text-primary-foreground">
+    <header className="w-full bg-primary text-black">
+      <nav className="container flex h-14 justify-between gap-4 bg-primary px-5 py-8 align-middle">
         <Link className="flex items-center justify-start" href="/">
           <LogoFull className="h-6 w-auto sm:h-8" />
         </Link>
