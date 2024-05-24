@@ -10,8 +10,8 @@ export default async function Header() {
   const user = await getUserSession();
 
   return (
-    <header className="w-full bg-primary">
-      <nav className="container flex h-14 justify-between gap-4 bg-primary px-5 py-8 align-middle text-primary-foreground">
+    <header className="w-full bg-primary text-black">
+      <nav className="container flex h-14 justify-between gap-4 bg-primary px-5 py-8 align-middle">
         <Link className="flex items-center justify-start" href="/">
           <LogoFull />
         </Link>
@@ -27,6 +27,12 @@ export default async function Header() {
             href="/about"
           >
             About
+          </Link>
+          <Link
+            className="text-lg font-semibold underline-offset-4 hover:underline"
+            href="/discover"
+          >
+            Discover
           </Link>
           <Button variant="secondary" asChild>
             {user === null ? (

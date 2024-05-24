@@ -2,10 +2,9 @@ import { CircleUserIcon, RocketIcon, TelescopeIcon } from "lucide-react";
 import { Link } from "next-view-transitions";
 
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { isUserSignedIn } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Your Watchlist Companion",
@@ -19,8 +18,8 @@ export default async function Component() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2 text-secondary-foreground dark:text-secondary">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                Your watchlist, amplified with Hivio
+              <h1 className="text-balance bg-opacity-50 bg-gradient-to-b from-neutral-700 to-black bg-clip-text text-center text-4xl font-bold text-transparent md:text-7xl">
+                Your Watchlist, Amplified with Hivio
               </h1>
               <p className="mx-auto max-w-[700px] md:text-xl">
                 Manage your favorite shows and movies and discover new content
@@ -35,14 +34,6 @@ export default async function Component() {
                   <Link href="/auth/signin">Get Started</Link>
                 )}
               </Button>
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "secondary", size: "lg" }),
-                )}
-                href="/discover"
-              >
-                Discover Profiles
-              </Link>
             </div>
           </div>
         </div>
