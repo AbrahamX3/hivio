@@ -22,10 +22,35 @@ export default function TableTabs({ data }: { data: HiveData }) {
 
   return (
     <>
+      <TabsContent value="currently-watching">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 align-middle">
+              <span>Currently Watching</span>{" "}
+              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-foreground sm:hidden">
+                {currentlyWatching.length}
+              </span>
+            </CardTitle>
+            <CardDescription>
+              All the movies and series that you are currently watching.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TableContainer>
+              <WatchingTableView data={currentlyWatching} />
+            </TableContainer>
+          </CardContent>
+        </Card>
+      </TabsContent>
       <TabsContent value="movies">
         <Card>
           <CardHeader>
-            <CardTitle>Your Hive Movies</CardTitle>
+            <CardTitle className="flex items-center gap-2 align-middle">
+              <span>Your Hive Movies</span>{" "}
+              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-foreground sm:hidden">
+                {filteredMovies.length}
+              </span>
+            </CardTitle>
             <CardDescription>
               All your movies that are stored in your Hive.
             </CardDescription>
@@ -40,7 +65,12 @@ export default function TableTabs({ data }: { data: HiveData }) {
       <TabsContent value="series">
         <Card>
           <CardHeader>
-            <CardTitle>Your Hive Series</CardTitle>
+            <CardTitle className="flex items-center gap-2 align-middle">
+              <span>Your Hive Series</span>{" "}
+              <span className="block w-fit rounded-md bg-primary px-3 py-1 text-sm tabular-nums text-foreground sm:hidden">
+                {filteredSeries.length}
+              </span>
+            </CardTitle>
             <CardDescription>
               All your series that are stored in your Hive.
             </CardDescription>
@@ -48,21 +78,6 @@ export default function TableTabs({ data }: { data: HiveData }) {
           <CardContent>
             <TableContainer>
               <SeriesTableView data={filteredSeries} />
-            </TableContainer>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      <TabsContent value="currently-watching">
-        <Card>
-          <CardHeader>
-            <CardTitle>Currently Watching</CardTitle>
-            <CardDescription>
-              All the movies and series that you are currently watching.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <TableContainer>
-              <WatchingTableView data={currentlyWatching} />
             </TableContainer>
           </CardContent>
         </Card>

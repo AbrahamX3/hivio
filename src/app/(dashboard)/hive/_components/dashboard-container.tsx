@@ -83,23 +83,26 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
         />
         <div className="flex min-w-0 items-center">
           <Tabs defaultValue="currently-watching" className="w-full">
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <TabsList>
-                <TabsTrigger value="currently-watching" className="gap-2">
+                <TabsTrigger
+                  value="currently-watching"
+                  className="gap-2 text-sm"
+                >
                   Watching{" "}
-                  <span className="rounded-md bg-background px-3 py-1 text-foreground">
+                  <span className="hidden rounded-md bg-background px-3 py-1 text-foreground sm:block">
                     {currentlyWatching.length}
                   </span>
                 </TabsTrigger>
-                <TabsTrigger value="movies" className="gap-2">
+                <TabsTrigger value="movies" className="gap-2 text-sm">
                   Movies{" "}
-                  <span className="rounded-md bg-background px-3 py-1 text-foreground">
+                  <span className="hidden rounded-md bg-background px-3 py-1 text-foreground sm:block">
                     {filteredMovies.length}
                   </span>
                 </TabsTrigger>
-                <TabsTrigger value="series" className="gap-2">
+                <TabsTrigger value="series" className="gap-2 text-sm">
                   Series{" "}
-                  <span className="rounded-md bg-background px-3 py-1 text-foreground">
+                  <span className="hidden rounded-md bg-background px-3 py-1 text-foreground sm:block">
                     {filteredSeries.length}
                   </span>
                 </TabsTrigger>
