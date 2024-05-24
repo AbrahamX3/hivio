@@ -104,6 +104,31 @@ bun run dev
    the application. You can click on `Get Started` to login with your Google
    account.
 
+## Deploying to Production
+
+1. You'll need an [EdgeDB cloud instance](https://www.edgedb.com/cloud) to deploy to production. Generate a secret key and have your instance details on hand to then provide to the following enviorment variables: 
+
+```
+EDGEDB_SECRET_KEY=""
+EDGEDB_INSTANCE=""
+```
+
+2. Run the following command to authenticate and apply migrations to your cloud instance (this might take a while to do):
+
+```bash
+edgedb cloud login
+```
+
+```bash
+edgedb migrate -I <username>/<instance_name>
+```
+
+3. Then do the steps in `Getting Started Locally` from 6 to 8 with the only modification being replacing the URL's with your production url details. Example `http://localhost:3000/` to `https://hivio.vercel.app/`
+
+4. Deploy to Vercel or any other cloud provider
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAbrahamX3%2Fhivio&env=NEXT_PUBLIC_BASE_URL,TMDB_API_KEY,EDGEDB_SECRET_KEY,EDGEDB_INSTANCE&envDescription=EDGEDB_SECRET_KEY&envLink=https%3A%2F%2Fwww.edgedb.com%2Fcloud&project-name=hivio&repository-name=hivio&demo-title=Hivio&demo-description=A%20watchlist%20companion%20that%20helps%20you%20easily%20search%2C%20add%2C%20manage%20and%20organize%20your%20series%20and%20movies%20through%20a%20user-friendly%20interface&demo-url=https%3A%2F%2Fhivio.vercel.app)
+
 ## License
 
 Licensed under the
