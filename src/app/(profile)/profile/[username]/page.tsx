@@ -275,6 +275,7 @@ export default async function PublicUserProfile({ params }: Props) {
                                   </span>
                                 </div>
                                 <Progress
+                                  aria-label="Watching Progress"
                                   className="h-2"
                                   value={calculateProgress(
                                     JSON.parse(

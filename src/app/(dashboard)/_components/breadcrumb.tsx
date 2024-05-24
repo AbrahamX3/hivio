@@ -46,6 +46,7 @@ export default function DashboardBreadcrumb() {
               {path == crumb.href ? (
                 <BreadcrumbPage>
                   <BreadcrumbLink
+                    aria-label={`${isUuid(crumb.title) ? "Edit Title" : crumb.title} page`}
                     className={cn(
                       !isUuid(crumb.title) && "capitalize",
                       "font-medium text-primary hover:text-primary/80",

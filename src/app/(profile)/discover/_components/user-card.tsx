@@ -63,9 +63,9 @@ export default function UserCard({ user }: UserCardProps) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-lg font-semibold group-hover:underline group-hover:underline-offset-4">
+            <h2 className="text-lg font-semibold group-hover:underline group-hover:underline-offset-4">
               @{username}
-            </h3>
+            </h2>
             <p className="text-gray-500 dark:text-gray-400">{name}</p>
           </div>
         </div>

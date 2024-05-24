@@ -101,7 +101,10 @@ export default function DefaultStatusForm({ status }: Props) {
                   >
                     <FormControl>
                       <SelectTrigger className="w-full truncate">
-                        <SelectValue placeholder="Select the status..." />
+                        <SelectValue
+                          aria-label="Default Status"
+                          placeholder="Select the status..."
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

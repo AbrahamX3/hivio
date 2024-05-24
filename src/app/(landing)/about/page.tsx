@@ -63,7 +63,7 @@ export default function About() {
                 personal scale, this project can be seen{" "}
                 <ExternalLink
                   href="https://watchlist.abraham.lat/"
-                  label="here"
+                  label="Peronal Watchlist"
                 />{" "}
                 but, has quite a lot of limitations, flaws and very few features
                 where, only I can add titles through a dashboard that

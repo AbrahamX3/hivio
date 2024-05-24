@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export default function LogoFull({ className }: { className?: string }) {
   return (
     <svg
+      aria-label="Hivio Full Logo"
       className={cn("size-28", className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -23,6 +24,7 @@ export default function LogoFull({ className }: { className?: string }) {
 export function LogoText({ className }: { className?: string }) {
   return (
     <svg
+      aria-label="Hivio Logo Text"
       className={cn("size-8", className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -39,6 +41,7 @@ export function LogoText({ className }: { className?: string }) {
 export function LogoIcon({ className }: { className?: string }) {
   return (
     <svg
+      aria-label="Hivio Logo Icon"
       className={cn("size-8", className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -55,6 +58,7 @@ export function LogoIcon({ className }: { className?: string }) {
 export function TMDBIcon({ className }: { className?: string }) {
   return (
     <svg
+      aria-label="TMDB Logo"
       className={cn("size-8", className)}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 190.24 81.52"

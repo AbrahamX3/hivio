@@ -31,6 +31,7 @@ export default function ViewDetailsButton({ data, currentUser }: Props) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              aria-label="View Title Details"
               size="icon"
               className="size-8"
               variant="outline"

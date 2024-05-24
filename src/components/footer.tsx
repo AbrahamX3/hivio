@@ -18,6 +18,7 @@ export function Footer() {
               Source code available on
             </span>
             <a
+              aria-label="GitHub"
               rel="noopener noreferrer"
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
               target="_blank"
@@ -31,6 +32,7 @@ export function Footer() {
           <div className="flex items-center gap-2 align-middle">
             <span className="font-medium">Deployed on</span>
             <a
+              aria-label="Vercel"
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
               rel="noopener noreferrer"
               target="_blank"
@@ -43,6 +45,7 @@ export function Footer() {
           <div className="flex items-center gap-2 align-middle">
             <span className="font-medium">Powered by</span>
             <a
+              aria-label="EdgeDB"
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
               rel="noopener noreferrer"
               target="_blank"
@@ -52,6 +55,7 @@ export function Footer() {
             </a>
             <span className="font-medium">&</span>
             <a
+              aria-label="TMDB"
               className="transition-all duration-150 hover:scale-105 hover:opacity-90"
               rel="noopener noreferrer"
               target="_blank"

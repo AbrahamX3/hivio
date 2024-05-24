@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   },
   description: "Your Amplified Watchlist Companion",
   icons: [{ rel: "icon", url: "/icon.svg" }],
+  metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Hivio",
     description: "Your Amplified Watchlist Companion",
@@ -50,13 +54,6 @@ export default async function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable}`}
         suppressHydrationWarning
       >
-        <head>
-          <link
-            rel="canonical"
-            href={env.NEXT_PUBLIC_BASE_URL}
-            key="canonical"
-          />
-        </head>
         <body className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3">
           <ThemeProvider
             attribute="class"

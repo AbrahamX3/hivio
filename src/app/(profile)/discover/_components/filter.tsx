@@ -97,6 +97,7 @@ export default function HiveProfileFilter({
           >
             <MultiSelectorTrigger>
               <MultiSelectorInput
+                aria-label="Filter by Genres"
                 className="w-full"
                 placeholder="Filter by Genres"
               />

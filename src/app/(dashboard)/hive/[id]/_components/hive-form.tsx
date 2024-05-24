@@ -290,7 +290,10 @@ export function HiveForm({ hive }: HiveFormStepProps) {
                     >
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
-                          <SelectValue placeholder="Select the status..." />
+                          <SelectValue
+                            aria-label="Status"
+                            placeholder="Select the status..."
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -334,7 +337,10 @@ export function HiveForm({ hive }: HiveFormStepProps) {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select the season you are on" />
+                                <SelectValue
+                                  aria-label="Current Season"
+                                  placeholder="Select the season you are on"
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -368,7 +374,10 @@ export function HiveForm({ hive }: HiveFormStepProps) {
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select the episode you are on" />
+                                  <SelectValue
+                                    aria-label="Current Episode"
+                                    placeholder="Select the episode you are on"
+                                  />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
