@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description: `@${username}'s Hive Profile`,
     openGraph: {
-      title,
+      title: `Hivio - ${title}`,
       description: `@${username}'s Hive Profile`,
       url: `${env.NEXT_PUBLIC_BASE_URL}/${username}`,
       images: [
