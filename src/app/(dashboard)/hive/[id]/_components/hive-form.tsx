@@ -92,44 +92,44 @@ const createSeasonsMap = (titleSeasons: HiveData[0]["title"]["seasons"]) => {
   return seasonsMap;
 };
 
-function handleValues(hide: HiveData[0]): HiveFormValues {
-  if (hide.status === "WATCHING") {
+function handleValues(hive: HiveData[0]): HiveFormValues {
+  if (hive.status === "WATCHING") {
     return {
-      currentEpisode: hide.currentEpisode ?? undefined,
-      currentSeason: hide.currentSeason ?? undefined,
-      status: hide.status,
-      startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
+      currentEpisode: hive.currentEpisode ?? undefined,
+      currentSeason: hive.currentSeason ?? undefined,
+      status: hive.status,
+      startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
     };
-  } else if (hide.status === "UNFINISHED") {
+  } else if (hive.status === "UNFINISHED") {
     return {
-      currentEpisode: hide.currentEpisode ?? undefined,
-      currentSeason: hide.currentSeason ?? undefined,
-      startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
-      status: hide.status,
+      currentEpisode: hive.currentEpisode ?? undefined,
+      currentSeason: hive.currentSeason ?? undefined,
+      startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
+      status: hive.status,
     };
-  } else if (hide.status === "FINISHED") {
+  } else if (hive.status === "FINISHED") {
     return {
-      currentEpisode: hide.currentEpisode ?? undefined,
-      currentSeason: hide.currentSeason ?? undefined,
-      finishedAt: hide.finishedAt ? new Date(hide.finishedAt) : undefined,
-      status: hide.status,
-      isFavorite: hide.isFavorite,
-      rating: hide.rating ?? undefined,
-      startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
+      currentEpisode: hive.currentEpisode ?? undefined,
+      currentSeason: hive.currentSeason ?? undefined,
+      finishedAt: hive.finishedAt ? new Date(hive.finishedAt) : undefined,
+      status: hive.status,
+      isFavorite: hive.isFavorite,
+      rating: hive.rating ?? undefined,
+      startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
     };
-  } else if (hide.status === "PENDING") {
+  } else if (hive.status === "PENDING") {
     return {
-      currentEpisode: hide.currentEpisode ?? undefined,
-      currentSeason: hide.currentSeason ?? undefined,
-      startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
-      status: hide.status,
+      currentEpisode: hive.currentEpisode ?? undefined,
+      currentSeason: hive.currentSeason ?? undefined,
+      startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
+      status: hive.status,
     };
   } else {
     return {
-      currentEpisode: hide.currentEpisode ?? undefined,
-      currentSeason: hide.currentSeason ?? undefined,
-      startedAt: hide.startedAt ? new Date(hide.startedAt) : undefined,
-      status: hide.status,
+      currentEpisode: hive.currentEpisode ?? undefined,
+      currentSeason: hive.currentSeason ?? undefined,
+      startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
+      status: hive.status,
     };
   }
 }
@@ -139,9 +139,12 @@ export function HiveForm({ hive }: HiveFormStepProps) {
   const isTitleWatchable =
     new Date() >= new Date(hive.title.release_date.toString());
 
+  const router = useRouter();
   const hiveForm = useForm<HiveFormValues>({
+    reValidateMode: "onBlur",
+
     resolver: zodResolver(hiveFormSchema),
-    values: handleValues(hive),
+    defaultValues: useMemo(() => handleValues(hive), [hive]),
   });
 
   const { execute } = useAction(updateTitleFromHive, {
@@ -150,6 +153,7 @@ export function HiveForm({ hive }: HiveFormStepProps) {
         toast.success("Title updated successfully", {
           id: "update-title",
         });
+        router.push("/hive");
       } else {
         toast.error(error.reason, {
           id: "update-title",
@@ -218,9 +222,12 @@ export function HiveForm({ hive }: HiveFormStepProps) {
   }, [hiveForm, isTitleWatchable]);
 
   useEffect(() => {
-    hiveForm.reset();
+    hiveForm.reset(handleValues(hive));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hive]);
+
+  const startDate = hiveForm.watch("startedAt");
+  const finishDate = hiveForm.watch("finishedAt");
 
   return (
     <Form {...hiveForm}>
@@ -400,8 +407,8 @@ export function HiveForm({ hive }: HiveFormStepProps) {
                                 !field.value && "text-muted-foreground",
                               )}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
+                              {startDate ? (
+                                format(startDate, "PPP")
                               ) : (
                                 <span>Pick start date</span>
                               )}
@@ -493,10 +500,10 @@ export function HiveForm({ hive }: HiveFormStepProps) {
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
-                                {field.value ? (
-                                  format(field.value, "PPP")
+                                {finishDate ? (
+                                  format(finishDate, "PPP")
                                 ) : (
-                                  <span>Pick finished date</span>
+                                  <span>Pick finish date</span>
                                 )}
                                 <CalendarIcon className="ml-auto size-4 opacity-50" />
                               </Button>

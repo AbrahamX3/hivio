@@ -85,12 +85,12 @@ export const updateTitleFromHive = authAction(
         .update(e.Hive, (hive) => ({
           set: {
             status: form.status,
-            currentEpisode: form.currentEpisode,
-            currentSeason: form.currentSeason,
-            finishedAt: form.finishedAt,
-            rating: form.rating,
-            startedAt: form.startedAt,
-            isFavorite: form.isFavorite,
+            currentEpisode: form.currentEpisode ? form.currentEpisode : null,
+            currentSeason: form.currentSeason ? form.currentSeason : null,
+            finishedAt: form.finishedAt ? form.finishedAt : null,
+            rating: form.rating ? form.rating : null,
+            startedAt: form.startedAt ? form.startedAt : null,
+            isFavorite: form.isFavorite ?? false,
           },
           filter_single: e.op(
             e.op(hive.id, "=", e.uuid(id)),
@@ -101,7 +101,6 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
-      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,
@@ -121,7 +120,6 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
-      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,
@@ -131,9 +129,9 @@ export const updateTitleFromHive = authAction(
         .update(e.Hive, (hive) => ({
           set: {
             status: form.status,
-            currentEpisode: form.currentEpisode,
-            currentSeason: form.currentSeason,
-            startedAt: form.startedAt,
+            currentEpisode: form.currentEpisode ? form.currentEpisode : null,
+            currentSeason: form.currentSeason ? form.currentSeason : null,
+            startedAt: form.startedAt ? form.startedAt : null,
           },
           filter_single: e.op(
             e.op(hive.id, "=", e.uuid(id)),
@@ -144,7 +142,6 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
-      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,
@@ -154,9 +151,9 @@ export const updateTitleFromHive = authAction(
         .update(e.Hive, (hive) => ({
           set: {
             status: form.status,
-            currentEpisode: form.currentEpisode,
-            currentSeason: form.currentSeason,
-            startedAt: form.startedAt,
+            currentEpisode: form.currentEpisode ? form.currentEpisode : null,
+            currentSeason: form.currentSeason ? form.currentSeason : null,
+            startedAt: form.startedAt ? form.startedAt : null,
           },
           filter_single: e.op(
             e.op(hive.id, "=", e.uuid(id)),
@@ -167,7 +164,6 @@ export const updateTitleFromHive = authAction(
         .run(client);
 
       revalidatePath("/hive");
-      revalidatePath(`/hive/${id}`);
       return {
         success: true,
         data: result,

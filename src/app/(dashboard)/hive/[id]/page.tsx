@@ -26,16 +26,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EditHiveTitle({ params }: Props) {
-  const result = await getTitleFromHive({ id: params.id });
-  const data = result.data?.data;
+  const { data } = await getTitleFromHive({ id: params.id });
+  const hive = data?.data;
 
-  if (!result.data?.success || !data) {
+  if (!data?.success || !hive) {
     notFound();
   }
 
   return (
     <main className="grid w-full flex-1 items-start gap-4 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-      <HiveForm hive={JSON.parse(JSON.stringify(data)) as HiveData[0]} />
+      <HiveForm hive={JSON.parse(JSON.stringify(hive)) as HiveData[0]} />
     </main>
   );
 }

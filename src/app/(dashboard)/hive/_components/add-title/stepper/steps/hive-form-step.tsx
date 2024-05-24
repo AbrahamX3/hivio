@@ -93,6 +93,8 @@ export function HiveFormStep({
       currentSeason: 1,
       currentEpisode: 1,
       startedAt: undefined,
+      finishedAt: undefined,
+      isFavorite: false,
     },
   });
 
@@ -268,7 +270,7 @@ export function HiveFormStep({
           </>
         )}
 
-        {canSetSeason && (
+        {hiveForm.watch("status") !== "PENDING" && (
           <FormField
             control={hiveForm.control}
             name="startedAt"

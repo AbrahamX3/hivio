@@ -89,14 +89,14 @@ export default function AddTitleToHive({
   const { execute: AddTitleAction, status: AddTitleStatus } = useAction(
     addTitleHive,
     {
-      onSuccess: ({ success, error }) => {
+      onSuccess: ({ success, error, status }) => {
         if (success) {
           setIsSuccess(true);
           toast.success("Title added to your Hive", {
             id: "add-title",
           });
 
-          if (hiveFormValues && hiveFormValues.status === "FINISHED") {
+          if (status === "FINISHED") {
             tossConfetti();
           }
 

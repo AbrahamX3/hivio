@@ -488,10 +488,10 @@ export const addTitleHive = authAction(
             title: titleToAdd,
             status: hiveFormValues.status,
             finishedAt: hiveFormValues.finishedAt
-              ? e.datetime(hiveFormValues.finishedAt)
+              ? hiveFormValues.finishedAt
               : undefined,
             startedAt: hiveFormValues.startedAt
-              ? e.datetime(hiveFormValues.startedAt)
+              ? hiveFormValues.startedAt
               : undefined,
             currentEpisode: hiveFormValues.currentEpisode,
             currentSeason: hiveFormValues.currentSeason,
@@ -504,6 +504,7 @@ export const addTitleHive = authAction(
 
         return {
           success: true,
+          status: hiveFormValues.status,
           data: insert.id,
         };
       } else {
@@ -512,6 +513,9 @@ export const addTitleHive = authAction(
             addedBy: e.global.CurrentUser,
             title: titleToAdd,
             currentEpisode: hiveFormValues.currentEpisode,
+            startedAt: hiveFormValues.startedAt
+              ? hiveFormValues.startedAt
+              : null,
             currentSeason: hiveFormValues.currentSeason,
             status: hiveFormValues.status,
           })
@@ -519,6 +523,7 @@ export const addTitleHive = authAction(
 
         return {
           success: true,
+          status: hiveFormValues.status,
           data: insert.id,
         };
       }
