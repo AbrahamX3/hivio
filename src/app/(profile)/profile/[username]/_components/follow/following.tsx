@@ -1,4 +1,3 @@
-import { useRouter } from "next/navigation";
 import { useOptimisticAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
@@ -24,8 +23,6 @@ interface Props {
 }
 
 export function Following({ hiveUserProfile, currentUser }: Props) {
-  const router = useRouter();
-
   const isFollowingUser = hiveUserProfile?.following.some(
     (user) => user.followed.username === currentUser?.username,
   );

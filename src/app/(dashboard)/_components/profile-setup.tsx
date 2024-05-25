@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
@@ -44,8 +43,6 @@ import {
 } from "../hive/validations";
 
 export function ProfileSetup({ user }: { user: UserSession }) {
-  const router = useRouter();
-
   const ProfileSetupForm = useForm<ProfileSetupForm>({
     resolver: zodResolver(ProfileSetupFormSchema),
     defaultValues: {

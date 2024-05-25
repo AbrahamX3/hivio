@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, XIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
@@ -65,7 +64,6 @@ export default function AddTitleToHive({
     },
   });
   const { tossConfetti } = useConfetti();
-  const router = useRouter();
 
   const [hiveFormValues, setHiveFormValues] = useState<
     HiveFormValues | undefined
