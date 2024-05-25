@@ -9,6 +9,8 @@ shows. It also helps you discover new content that you might want to watch with
 the help of the Hivio community, a collection of public user profiles you can
 discover.
 
+[![wakatime](https://wakatime.com/badge/user/a1d0a4b7-5299-43e3-bfa9-723a4830894f/project/5aaeb9ef-4535-48a0-a308-ebfc05e1b01e.svg)](https://wakatime.com/badge/user/a1d0a4b7-5299-43e3-bfa9-723a4830894f/project/5aaeb9ef-4535-48a0-a308-ebfc05e1b01e)
+
 ## Tech Stack
 
 - [Next.js](https://nextjs.org)
