@@ -279,6 +279,34 @@ async function updateTitle({
       filter_single: e.op(title.id, "=", e.uuid(updatedTitle.id)),
     }));
 
+    const seasons = data.seasons
+      .filter(
+        (season) =>
+          season.season_number !== 0 &&
+          season.episode_count !== 0 &&
+          season.air_date !== null,
+      )
+      .map((details) => ({
+        season: details.season_number,
+        episodes: details.episode_count,
+        date: details.air_date,
+      }));
+
+    const seasonsAlreadyAdded = await e
+      .select(e.Season, (season) => ({
+        season: true,
+        filter: e.op(season.title, "=", titleId),
+      }))
+      .run(client);
+
+    const addedSeasonNumbers = seasonsAlreadyAdded.map(
+      (season) => season.season,
+    );
+
+    const SeasonsToAdd = seasons.filter(
+      (season) => !addedSeasonNumbers.includes(season.season),
+    );
+
     const query = e.params(
       {
         seasons: e.array(
@@ -301,21 +329,8 @@ async function updateTitle({
       },
     );
 
-    const seasons = data.seasons
-      .filter(
-        (season) =>
-          season.season_number !== 0 &&
-          season.episode_count !== 0 &&
-          season.air_date !== null,
-      )
-      .map((details) => ({
-        season: details.season_number,
-        episodes: details.episode_count,
-        date: details.air_date,
-      }));
-
     await query.run(client, {
-      seasons,
+      seasons: SeasonsToAdd,
     });
   }
 
@@ -502,6 +517,7 @@ export const addTitleHive = authAction(
           })
           .run(client);
 
+        revalidatePath("/hive");
         return {
           success: true,
           status: hiveFormValues.status,
@@ -521,6 +537,7 @@ export const addTitleHive = authAction(
           })
           .run(client);
 
+        revalidatePath("/hive");
         return {
           success: true,
           status: hiveFormValues.status,
@@ -541,6 +558,7 @@ export const addTitleHive = authAction(
           })
           .run(client);
 
+        revalidatePath("/hive");
         return {
           success: true,
           status: hiveFormValues.status,
