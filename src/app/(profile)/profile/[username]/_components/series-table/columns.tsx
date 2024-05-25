@@ -19,6 +19,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 import { type UserSession } from "@/types/auth";
 
@@ -27,6 +32,13 @@ import { HiveSeriesTableActions } from "./actions";
 export function SeriesColumns(currentUser: UserSession | null) {
   const columns: ColumnDef<HiveProfile[0]>[] = [
     {
+      id: "actions",
+      header: () => <div className="sr-only hidden">Actions</div>,
+      cell: ({ row }) => {
+        return <HiveSeriesTableActions currentUser={currentUser} row={row} />;
+      },
+    },
+    {
       id: "Title Name",
       accessorFn: (row) => row.title.name,
       header: ({ column }) => (
@@ -34,14 +46,23 @@ export function SeriesColumns(currentUser: UserSession | null) {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex space-x-2">
-            <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
-              {row.original.isFavorite && (
-                <StarIcon className="size-4 text-primary" />
-              )}
-              <span>{row.getValue("Title Name")}</span>
-            </span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="flex space-x-2">
+                <span className="flex max-w-[250px] items-center gap-2 truncate align-middle font-medium">
+                  {row.original.isFavorite && (
+                    <StarIcon className="size-4 text-primary" />
+                  )}
+                  <span className="w-[200px] truncate text-left">
+                    {row.getValue("Title Name")}
+                  </span>
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="w-1/2">
+              {row.getValue("Title Name")}
+            </TooltipContent>
+          </Tooltip>
         );
       },
     },
@@ -323,13 +344,6 @@ export function SeriesColumns(currentUser: UserSession | null) {
             N/A
           </Button>
         );
-      },
-    },
-    {
-      id: "actions",
-      header: () => <div className="sr-only hidden">Actions</div>,
-      cell: ({ row }) => {
-        return <HiveSeriesTableActions currentUser={currentUser} row={row} />;
       },
     },
   ];

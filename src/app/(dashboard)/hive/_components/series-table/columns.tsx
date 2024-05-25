@@ -21,6 +21,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 
 import { type HiveData } from "../../actions";
@@ -29,6 +34,13 @@ import { HiveSeriesTableActions } from "./actions";
 export function SeriesColumns() {
   const columns: ColumnDef<HiveData[0]>[] = [
     {
+      id: "actions",
+      header: () => <div className="sr-only hidden">Actions</div>,
+      cell: ({ row }) => {
+        return <HiveSeriesTableActions row={row} />;
+      },
+    },
+    {
       id: "Title Name",
       accessorFn: (row) => row.title.name,
       header: ({ column }) => (
@@ -36,17 +48,26 @@ export function SeriesColumns() {
       ),
       cell: ({ row }) => {
         return (
-          <Link
-            className="flex space-x-2 hover:text-primary"
-            href={`/hive/${row.original.id}`}
-          >
-            <span className="flex max-w-[500px] items-center gap-2 truncate align-middle font-medium">
-              {row.original.isFavorite && (
-                <StarIcon className="size-4 text-primary" />
-              )}
-              <span>{row.getValue("Title Name")}</span>
-            </span>
-          </Link>
+          <Tooltip>
+            <TooltipTrigger>
+              <Link
+                className="flex max-w-[250px] space-x-2 truncate hover:text-primary"
+                href={`/hive/${row.original.id}`}
+              >
+                <span className="flex justify-start gap-2 align-middle font-medium">
+                  {row.original.isFavorite && (
+                    <StarIcon className="size-4 text-primary" />
+                  )}
+                  <span className="w-[200px] truncate text-left">
+                    {row.getValue("Title Name")}
+                  </span>
+                </span>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent className="w-1/2">
+              {row.getValue("Title Name")}
+            </TooltipContent>
+          </Tooltip>
         );
       },
     },
@@ -328,13 +349,6 @@ export function SeriesColumns() {
       },
       filterFn: (row, id, value: string) => {
         return value.includes(row.getValue(id));
-      },
-    },
-    {
-      id: "actions",
-      header: () => <div className="sr-only hidden">Actions</div>,
-      cell: ({ row }) => {
-        return <HiveSeriesTableActions row={row} />;
       },
     },
   ];

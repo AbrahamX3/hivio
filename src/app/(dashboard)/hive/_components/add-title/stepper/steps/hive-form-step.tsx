@@ -367,8 +367,8 @@ export function HiveFormStep({
                   <div className="space-y-0.5">
                     <FormLabel>Is this a favorite?</FormLabel>
                     <FormDescription>
-                      This will be visibile on your public profile with a star
-                      next to the title.
+                      This will be visibile on your public profile marked with a
+                      star.
                     </FormDescription>
                   </div>
                   <FormControl>

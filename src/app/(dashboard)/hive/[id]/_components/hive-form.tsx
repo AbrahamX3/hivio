@@ -211,11 +211,30 @@ export function HiveForm({ hive }: HiveFormStepProps) {
           clearTimeout(timeout2);
         };
       } else {
-        hiveForm.setValue("currentSeason", 1);
-        hiveForm.setValue("currentEpisode", 1);
+        if (!hive.currentSeason || !hive.currentEpisode) {
+          const timeout1 = setTimeout(() => {
+            hiveForm.setValue("currentSeason", 1);
+          }, 100);
+          const timeout2 = setTimeout(() => {
+            hiveForm.setValue("currentEpisode", 1);
+          }, 200);
+
+          return () => {
+            clearTimeout(timeout1);
+            clearTimeout(timeout2);
+          };
+        }
       }
     }
-  }, [hive.title.type, hiveForm, isFinished, lastEpisode, lastSeason]);
+  }, [
+    hive.currentEpisode,
+    hive.currentSeason,
+    hive.title.type,
+    hiveForm,
+    isFinished,
+    lastEpisode,
+    lastSeason,
+  ]);
 
   useEffect(() => {
     if (!isTitleWatchable) {
@@ -504,8 +523,8 @@ export function HiveForm({ hive }: HiveFormStepProps) {
                         <div className="space-y-0.5">
                           <FormLabel>Is this a favorite?</FormLabel>
                           <FormDescription>
-                            This will be visibile on your public profile with a
-                            star next to the title.
+                            This will be visibile on your public profile marked
+                            with a star.
                           </FormDescription>
                         </div>
                         <FormControl>

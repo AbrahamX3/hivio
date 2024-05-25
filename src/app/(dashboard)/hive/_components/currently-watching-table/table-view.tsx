@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/ui/datatable/data-table";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
 
 import { type HiveData } from "../../actions";
@@ -26,11 +27,13 @@ export default function WatchingTableView({ data }: { data: HiveData }) {
   ];
 
   return (
-    <DataTable
-      name="private-hive-currently-watching"
-      columns={CurrentlyWatchingColumns()}
-      data={data}
-      filters={filters}
-    />
+    <TooltipProvider>
+      <DataTable
+        name="private-hive-currently-watching"
+        columns={CurrentlyWatchingColumns()}
+        data={data}
+        filters={filters}
+      />
+    </TooltipProvider>
   );
 }

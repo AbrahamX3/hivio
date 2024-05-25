@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/ui/datatable/data-table";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 
 import { type HiveData } from "../../actions";
@@ -21,11 +22,13 @@ export default function MoviesTableView({ data }: { data: HiveData }) {
   ];
 
   return (
-    <DataTable
-      name="private-hive-movies"
-      columns={MovieColumns()}
-      data={data}
-      filters={filters}
-    />
+    <TooltipProvider>
+      <DataTable
+        name="private-hive-movies"
+        columns={MovieColumns()}
+        data={data}
+        filters={filters}
+      />
+    </TooltipProvider>
   );
 }

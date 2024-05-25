@@ -2,6 +2,7 @@
 
 import { type HiveProfile } from "@/app/(profile)/actions";
 import { DataTable } from "@/components/ui/datatable/data-table";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 import { type UserSession } from "@/types/auth";
 
@@ -28,11 +29,13 @@ export default function MoviesTableView({
   ];
 
   return (
-    <DataTable
-      name="public-hive-movies"
-      columns={MovieColumns(currentUser)}
-      data={data}
-      filters={filters}
-    />
+    <TooltipProvider>
+      <DataTable
+        name="public-hive-movies"
+        columns={MovieColumns(currentUser)}
+        data={data}
+        filters={filters}
+      />
+    </TooltipProvider>
   );
 }
