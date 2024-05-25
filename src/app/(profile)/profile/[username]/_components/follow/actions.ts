@@ -38,7 +38,6 @@ export const followUser = authAction(
         }))
         .run(client);
       revalidatePath(`/profile/${username}`);
-      revalidatePath("/discover");
       return { following: false, totalFollowers: total - 1 };
     } else if (!isFollowing?.id) {
       const user = e.select(e.User, (user) => ({
@@ -53,7 +52,6 @@ export const followUser = authAction(
         .run(client);
 
       revalidatePath(`/profile/${username}`);
-      revalidatePath("/discover");
       return { following: true, totalFollowers: total + 1 };
     }
 

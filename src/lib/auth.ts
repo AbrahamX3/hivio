@@ -27,13 +27,31 @@ export async function getUser() {
   const session = auth.getSession();
 
   const user = await e
-    .select(e.global.CurrentUser, () => ({
+    .select(e.global.CurrentUser, (user) => ({
       id: true,
       username: true,
       avatar: true,
       email: true,
       status: true,
       name: true,
+      total_followers: e.count(user.followers),
+      total_following: e.count(user.following),
+      followers: e.select(e.Follow, (follow) => ({
+        follower: {
+          username: true,
+          avatar: true,
+          name: true,
+        },
+        filter: e.op(follow.followed.username, "=", user.username),
+      })),
+      following: e.select(e.Follow, (follow) => ({
+        followed: {
+          username: true,
+          avatar: true,
+          name: true,
+        },
+        filter: e.op(follow.follower.username, "=", user.username),
+      })),
     }))
     .run(session.client);
 
@@ -48,6 +66,10 @@ export async function getUser() {
     email: user.email,
     status: user.status,
     name: user.name,
+    total_followers: user.total_followers,
+    total_following: user.total_following,
+    followers: user.followers,
+    following: user.following,
   };
 }
 
@@ -55,13 +77,31 @@ export async function getUserSession() {
   const session = auth.getSession();
 
   const user = await e
-    .select(e.global.CurrentUser, () => ({
+    .select(e.global.CurrentUser, (user) => ({
       id: true,
       username: true,
       avatar: true,
       email: true,
       status: true,
       name: true,
+      total_followers: e.count(user.followers),
+      total_following: e.count(user.following),
+      followers: e.select(e.Follow, (follow) => ({
+        follower: {
+          username: true,
+          avatar: true,
+          name: true,
+        },
+        filter: e.op(follow.followed.username, "=", user.username),
+      })),
+      following: e.select(e.Follow, (follow) => ({
+        followed: {
+          username: true,
+          avatar: true,
+          name: true,
+        },
+        filter: e.op(follow.follower.username, "=", user.username),
+      })),
     }))
     .run(session.client);
 
@@ -76,6 +116,10 @@ export async function getUserSession() {
     email: user.email,
     status: user.status,
     name: user.name,
+    total_followers: user.total_followers,
+    total_following: user.total_following,
+    followers: user.followers,
+    following: user.following,
   };
 }
 

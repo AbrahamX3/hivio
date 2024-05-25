@@ -116,7 +116,7 @@ export function Following({ hiveUserProfile, currentUser }: Props) {
                             ? optimisticData.following
                               ? "Unfollowing"
                               : "Following"
-                            : hiveUserProfile?.following.find(
+                            : currentUser?.following.find(
                                   (following) =>
                                     following.followed.username === username,
                                 )
