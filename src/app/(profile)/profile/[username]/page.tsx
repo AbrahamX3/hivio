@@ -187,11 +187,11 @@ export default async function PublicUserProfile({ params }: Props) {
                             <div className="flex w-full items-center justify-between">
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="flex items-center gap-2 align-middle">
+                                  <div className="flex w-full items-center gap-2 align-middle">
                                     {hive.isFavorite && (
                                       <StarIcon className="size-4 text-primary" />
                                     )}
-                                    <p className="line-clamp-1 w-3/4 text-sm font-medium">
+                                    <p className="line-clamp-1 w-5/6 text-sm font-medium">
                                       {hive.title.name}
                                     </p>
                                   </div>

@@ -39,8 +39,14 @@ export function EmptyCard({
             <div className="h-5 w-14 rounded-full bg-muted px-2.5 py-0.5"></div>
           </div>
           <div className="flex w-full items-center justify-between gap-2">
-            <p className="line-clamp-1 h-8 w-2/3 rounded-md bg-muted text-sm font-medium"></p>
-            <div className="size-8 rounded-md bg-muted"></div>
+            <p className="h-8 w-2/3 rounded-md bg-muted"></p>
+            <div className="flex items-center gap-2 align-middle">
+              <div className="size-8 rounded-md bg-muted"></div>
+              <div className="size-8 rounded-md bg-muted"></div>
+            </div>
+          </div>
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="size-8 w-full rounded-md bg-muted"></div>
           </div>
         </CardFooter>
       </Card>
