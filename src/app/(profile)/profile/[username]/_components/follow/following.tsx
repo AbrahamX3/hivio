@@ -42,7 +42,6 @@ export function Following({ hiveUserProfile, currentUser }: Props) {
         following: state.following,
       };
     },
-    { onSuccess: () => router.refresh() },
   );
 
   return (

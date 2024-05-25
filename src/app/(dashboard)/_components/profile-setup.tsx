@@ -69,7 +69,6 @@ export function ProfileSetup({ user }: { user: UserSession }) {
           id: "profile-setup",
         });
         tossConfetti();
-        router.refresh();
       }
     },
     onError: ({ serverError }) => {

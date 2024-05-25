@@ -103,8 +103,6 @@ export default function AddTitleToHive({
           setHiveFormValues(undefined);
           setTitleFormValues(undefined);
           setSelectedTitleData(undefined);
-
-          router.refresh();
         } else {
           setIsSuccess(false);
           toast.error(error.reason, {
