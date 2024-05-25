@@ -43,7 +43,7 @@ export default function DashboardAvatar({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           className="overflow-hidden rounded-full"
         >
