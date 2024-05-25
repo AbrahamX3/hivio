@@ -109,7 +109,7 @@ export default function DefaultStatusForm({ status }: Props) {
                     </FormControl>
                     <SelectContent>
                       <SelectSeparator />
-                      <ScrollArea className="h-40 w-full">
+                      <ScrollArea className="h-30 w-full">
                         {statusOptions.map((item) => (
                           <SelectItem
                             key={item.value}
