@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOptimisticAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
@@ -27,6 +28,8 @@ export function Following({ hiveUserProfile, currentUser }: Props) {
     (user) => user.followed.username === currentUser?.username,
   );
 
+  const [userLoading, setUserLoading] = useState("");
+
   const { execute, optimisticData, status } = useOptimisticAction(
     followUser,
     {
@@ -38,6 +41,14 @@ export function Following({ hiveUserProfile, currentUser }: Props) {
         totalFollowers: total ?? 0,
         following: state.following,
       };
+    },
+    {
+      onExecute: (data) => {
+        setUserLoading(data.username);
+      },
+      onSettled: () => {
+        setUserLoading("");
+      },
     },
   );
 
@@ -97,18 +108,23 @@ export function Following({ hiveUserProfile, currentUser }: Props) {
                     {currentUser ? (
                       username !== currentUser.username ? (
                         <Button
-                          disabled={status === "executing"}
+                          disabled={
+                            status === "executing" && userLoading === username
+                          }
                           className={cn(
-                            status === "executing" && "animate-pulse",
+                            status === "executing" &&
+                              userLoading === username &&
+                              "animate-pulse",
                           )}
                           onClick={async () =>
+                            username &&
                             execute({
-                              username: username ?? "",
+                              username: username,
                               total: hiveUserProfile?.total_following,
                             })
                           }
                         >
-                          {status === "executing"
+                          {status === "executing" && userLoading === username
                             ? optimisticData.following
                               ? "Unfollowing"
                               : "Following"
