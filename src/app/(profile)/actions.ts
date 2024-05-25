@@ -24,6 +24,10 @@ const HiveProfile = e.params(
       },
       order_by: [
         {
+          expression: hive.updatedAt,
+          direction: e.DESC,
+        },
+        {
           expression: hive.createdAt,
           direction: e.DESC,
         },

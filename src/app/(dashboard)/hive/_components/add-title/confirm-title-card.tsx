@@ -194,6 +194,11 @@ function FormValuesDisplay({
           <Badge>{formValues.startedAt?.toLocaleDateString()}</Badge>
         </span>
       )}
+      {formValues.status !== "PENDING" && (
+        <span>
+          Favorite: <Badge>{formValues.isFavorite ? "Yes" : "No"}</Badge>
+        </span>
+      )}
       {isFinished && (
         <>
           {formValues.finishedAt && (
@@ -202,15 +207,10 @@ function FormValuesDisplay({
               <Badge>{formValues.finishedAt?.toLocaleDateString()}</Badge>
             </span>
           )}
-          <span>
-            Favorite: <Badge>{formValues.isFavorite ? "Yes" : "No"}</Badge>
-          </span>
-          {formValues?.rating && (
-            <>
-              <span>
-                My Rating: <Badge>{formValues.rating}</Badge>
-              </span>
-            </>
+          {formValues?.rating !== 0 && (
+            <span>
+              My Rating: <Badge>{formValues.rating}</Badge>
+            </span>
           )}
         </>
       )}

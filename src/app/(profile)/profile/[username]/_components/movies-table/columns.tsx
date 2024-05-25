@@ -71,20 +71,28 @@ export function MovieColumns(currentUser: UserSession | null) {
     },
     {
       id: "Personal Rating",
-      accessorFn: (row) => row.rating,
+      accessorFn: (row) =>
+        row.rating === 0 || row.rating === null ? "N/A" : row.rating,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Personal Rating" />
       ),
 
       cell: ({ row }) => {
-        const rating = Number(row.getValue("Personal Rating")).toFixed(1);
+        const rating = row.original.rating;
+
+        if (rating === 0 || rating === null) {
+          return "N/A";
+        }
+
+        const ratingText = rating.toFixed(1);
+
         return (
           <div className="flex space-x-2">
             <span
-              title={`${rating} / 10`}
+              title={`${ratingText} / 10`}
               className="max-w-[500px] truncate font-medium"
             >
-              {rating} / 10
+              {ratingText} / 10
             </span>
           </div>
         );
@@ -92,19 +100,29 @@ export function MovieColumns(currentUser: UserSession | null) {
     },
     {
       id: "Rating",
-      accessorFn: (row) => row.title.rating,
+      accessorFn: (row) =>
+        row.title.rating === 0 || row.title.rating === null
+          ? "N/A"
+          : row.title.rating,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Rating" />
       ),
       cell: ({ row }) => {
-        const rating = Number(row.getValue("Rating")).toFixed(1);
+        const rating = row.original.title.rating;
+
+        if (rating === 0 || rating === null) {
+          return "N/A";
+        }
+
+        const ratingText = rating.toFixed(1);
+
         return (
           <div className="flex space-x-2">
             <span
-              title={`${rating} / 10`}
+              title={`${ratingText} / 10`}
               className="max-w-[500px] truncate font-medium"
             >
-              {rating} / 10
+              {ratingText} / 10
             </span>
           </div>
         );
