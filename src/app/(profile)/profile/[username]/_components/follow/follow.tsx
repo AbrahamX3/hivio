@@ -29,9 +29,9 @@ export default function Follow({ currentUser, hiveUserProfile }: Props) {
       totalFollowers: hiveUserProfile?.total_followers,
       following: isFollowingUser,
     },
-    (state, { total }) => {
+    (state, { total = 0 }) => {
       return {
-        totalFollowers: total ?? 0,
+        totalFollowers: total,
         following: state.following,
       };
     },

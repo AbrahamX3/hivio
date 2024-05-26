@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useOptimisticAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
 
 import { followUser } from "./actions";
@@ -24,39 +23,11 @@ interface Props {
 }
 
 export function Followers({ currentUser, hiveUserProfile }: Props) {
-  const isFollowingUser = hiveUserProfile?.following.some(
-    (user) => user.followed.username === currentUser?.username,
-  );
-
-  const [userLoading, setUserLoading] = useState("");
-
-  const { execute, optimisticData, status } = useOptimisticAction(
-    followUser,
-    {
-      totalFollowers: hiveUserProfile?.total_following,
-      following: isFollowingUser,
-    },
-    (state, { total }) => {
-      return {
-        totalFollowers: total ?? 0,
-        following: state.following,
-      };
-    },
-    {
-      onExecute: (data) => {
-        setUserLoading(data.username);
-      },
-      onSettled: () => {
-        setUserLoading("");
-      },
-    },
-  );
-
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="link" className="text-black dark:text-primary">
-          {hiveUserProfile?.total_followers} Followers
+          {hiveUserProfile?.total_followers ?? 0} Followers
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -79,89 +50,122 @@ export function Followers({ currentUser, hiveUserProfile }: Props) {
                 </div>
               )
             ) : (
-              hiveUserProfile?.followers.map(
-                ({ follower: { username, avatar, name } }) => (
-                  <div
-                    key={`follower_${username}`}
-                    className="flex w-full items-center justify-between gap-4 align-middle"
-                  >
-                    <Link
-                      href={`/profile/${username}`}
-                      className="h-18 flex w-64 items-center space-x-3 rounded-md border p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
-                    >
-                      <Avatar className="h-10 w-10">
-                        {avatar && (
-                          <AvatarImage alt={`@${username}`} src={avatar} />
-                        )}
-                        <AvatarFallback className="uppercase">
-                          {username?.slice(0, 1)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="relative">
-                        <div className="max-w-44 truncate font-medium">
-                          {name}
-                        </div>
-                        <div className="max-w-44 truncate text-sm">
-                          @{username}
-                        </div>
-                      </div>
-                    </Link>
-                    {currentUser ? (
-                      username !== currentUser.username ? (
-                        <Button
-                          disabled={
-                            status === "executing" && userLoading === username
-                          }
-                          className={cn(
-                            status === "executing" &&
-                              userLoading === username &&
-                              "animate-pulse",
-                          )}
-                          onClick={async () =>
-                            username &&
-                            execute({
-                              username: username,
-                              total: hiveUserProfile?.total_following,
-                            })
-                          }
-                        >
-                          {status === "executing" && userLoading === username
-                            ? optimisticData.following
-                              ? "Unfollowing"
-                              : "Following"
-                            : currentUser?.following.find(
-                                  (following) =>
-                                    following.followed.username === username,
-                                )
-                              ? "Unfollow"
-                              : "Follow"}
-                        </Button>
-                      ) : (
-                        <Button disabled>Follow</Button>
-                      )
-                    ) : (
-                      <Button
-                        onClick={() => {
-                          toast.error("You are not signed in!", {
-                            description: "Please sign in to follow a user.",
-                            action: {
-                              label: "Sign in",
-                              onClick: () =>
-                                (window.location.href = "/auth/signin"),
-                            },
-                          });
-                        }}
-                      >
-                        Follow
-                      </Button>
-                    )}
-                  </div>
-                ),
-              )
+              <AnimatePresence mode="sync">
+                {hiveUserProfile?.followers.map(
+                  ({ follower: { username, avatar, name } }) => (
+                    <UserCard
+                      key={`follower_${username}`}
+                      username={username}
+                      avatar={avatar}
+                      name={name}
+                      currentUser={currentUser}
+                      hiveUserProfile={hiveUserProfile}
+                    />
+                  ),
+                )}
+              </AnimatePresence>
             )}
           </div>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function UserCard({
+  username,
+  avatar,
+  name,
+  currentUser,
+  hiveUserProfile,
+}: {
+  username: string | null;
+  avatar: string | null;
+  name: string;
+  currentUser: UserSession | null;
+  hiveUserProfile: HiveUser;
+}) {
+  const isCurrentUserFollowing =
+    currentUser?.following.find(
+      (following) => following.followed.username === username,
+    )?.followed.username === username;
+
+  const { execute, optimisticData } = useOptimisticAction(
+    followUser,
+    {
+      totalFollowers: hiveUserProfile?.total_following,
+      following: isCurrentUserFollowing,
+    },
+    (state, { total = 0 }) => {
+      return {
+        totalFollowers: total,
+        following: !state.following,
+      };
+    },
+  );
+
+  if (!username) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: { duration: 0.3, ease: "easeIn" },
+      }}
+      exit={{
+        opacity: 0,
+        transition: { duration: 0.2, ease: "easeOut", velocity: 5 },
+      }}
+      key={`follower_${username}`}
+      className="flex w-full items-center justify-between gap-4 align-middle"
+    >
+      <Link
+        href={`/profile/${username}`}
+        className="h-18 flex w-64 items-center space-x-3 rounded-md border p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
+      >
+        <Avatar className="h-10 w-10">
+          {avatar && <AvatarImage alt={`@${username}`} src={avatar} />}
+          <AvatarFallback className="uppercase">
+            {username?.slice(0, 1)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="relative">
+          <div className="max-w-44 truncate font-medium">{name}</div>
+          <div className="max-w-44 truncate text-sm">@{username}</div>
+        </div>
+      </Link>
+      {currentUser ? (
+        username !== currentUser.username ? (
+          <Button
+            onClick={async () =>
+              username &&
+              execute({
+                username: username,
+                total: hiveUserProfile?.total_following,
+              })
+            }
+          >
+            {optimisticData.following ? "Unfollow" : "Follow"}
+          </Button>
+        ) : (
+          <Button disabled>Follow</Button>
+        )
+      ) : (
+        <Button
+          onClick={() => {
+            toast.error("You are not signed in!", {
+              description: "Please sign in to follow a user.",
+              action: {
+                label: "Sign in",
+                onClick: () => (window.location.href = "/auth/signin"),
+              },
+            });
+          }}
+        >
+          Follow
+        </Button>
+      )}
+    </motion.div>
   );
 }
