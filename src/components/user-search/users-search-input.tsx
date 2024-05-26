@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { SearchIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
@@ -48,42 +49,90 @@ export default function UsersSearchInput() {
       {open && query.length > 0 && (
         <div className="absolute mt-2 w-full rounded-md border-2 bg-background shadow-sm md:w-[200px] lg:w-[320px]">
           <div className="max-h-[300px] overflow-y-auto">
-            <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
-              {status === "executing" || status === "idle" ? (
-                <div className="flex animate-pulse items-center space-x-3 rounded-md p-2">
-                  Searching users...
-                </div>
-              ) : status === "hasSucceeded" && results.length === 0 ? (
-                <div className="flex items-center space-x-3 rounded-md p-2">
-                  No users found with that username or name
-                </div>
-              ) : (
-                results.map(({ avatar, name, username }) => (
-                  <Link
-                    onClick={() => {
-                      setOpen(false);
-                      setQuery("");
+            <AnimatePresence mode="sync">
+              <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+                {status === "executing" || status === "idle" ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      transition: { duration: 0.3, ease: "easeIn" },
                     }}
-                    href={`/profile/${username}`}
-                    key={username}
-                    className="flex items-center space-x-3 rounded-md p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
+                    exit={{
+                      opacity: 0,
+                      transition: {
+                        duration: 0.2,
+                        ease: "easeOut",
+                        velocity: 5,
+                      },
+                    }}
+                    className="flex animate-pulse items-center space-x-3 rounded-md p-2"
                   >
-                    <Avatar className="h-10 w-10">
-                      {avatar && (
-                        <AvatarImage alt={`@${username}`} src={avatar} />
-                      )}
-                      <AvatarFallback className="uppercase">
-                        {username?.slice(0, 1)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="truncate font-medium">{name}</div>
-                      <div className="text-sm">@{username}</div>
-                    </div>
-                  </Link>
-                ))
-              )}
-            </div>
+                    Searching users...
+                  </motion.div>
+                ) : status === "hasSucceeded" && results.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      transition: { duration: 0.3, ease: "easeIn" },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: {
+                        duration: 0.2,
+                        ease: "easeOut",
+                        velocity: 5,
+                      },
+                    }}
+                    className="flex items-center space-x-3 rounded-md p-2"
+                  >
+                    No users found with that username or name
+                  </motion.div>
+                ) : (
+                  results.map(({ avatar, name, username }) => (
+                    <motion.div
+                      key={username}
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        transition: { duration: 0.3, ease: "easeIn" },
+                      }}
+                      exit={{
+                        opacity: 0,
+                        transition: {
+                          duration: 0.2,
+                          ease: "easeOut",
+                          velocity: 5,
+                        },
+                      }}
+                    >
+                      <Link
+                        onClick={() => {
+                          setOpen(false);
+                          setQuery("");
+                        }}
+                        href={`/profile/${username}`}
+                        className="flex items-center space-x-3 rounded-md p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Avatar className="h-10 w-10">
+                          {avatar && (
+                            <AvatarImage alt={`@${username}`} src={avatar} />
+                          )}
+                          <AvatarFallback className="uppercase">
+                            {username?.slice(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="truncate font-medium">{name}</div>
+                          <div className="text-sm">@{username}</div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </AnimatePresence>
           </div>
         </div>
       )}
