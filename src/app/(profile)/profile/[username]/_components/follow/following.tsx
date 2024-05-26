@@ -96,10 +96,8 @@ function UserCard({
       following: isCurrentUserFollowing,
     },
     (state, { total = 0 }) => {
-      const finalTotal = state.following ? total - 1 : total + 1;
-
       return {
-        totalFollowers: finalTotal,
+        totalFollowers: total,
         following: !state.following,
       };
     },

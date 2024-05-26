@@ -6,7 +6,6 @@ import { toast } from "sonner";
 
 import { type HiveUser } from "@/app/(profile)/actions";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { type UserSession } from "@/types/auth";
 
 import { followUser } from "./actions";
@@ -19,20 +18,20 @@ interface Props {
 }
 
 export default function Follow({ currentUser, hiveUserProfile }: Props) {
-  const isFollowingUser = hiveUserProfile?.followers.some(
+  const isFollowingHiveUserProfile = hiveUserProfile?.followers.some(
     (user) => user.follower.username === currentUser?.username,
   );
 
-  const { execute, optimisticData, status } = useOptimisticAction(
+  const { execute, optimisticData } = useOptimisticAction(
     followUser,
     {
       totalFollowers: hiveUserProfile?.total_followers,
-      following: isFollowingUser,
+      following: isFollowingHiveUserProfile,
     },
     (state, { total = 0 }) => {
       return {
         totalFollowers: total,
-        following: state.following,
+        following: !state.following,
       };
     },
   );
@@ -43,22 +42,15 @@ export default function Follow({ currentUser, hiveUserProfile }: Props) {
         currentUser?.username !== hiveUserProfile?.username && (
           <Button
             variant="outline"
-            disabled={status === "executing"}
-            className={cn(status === "executing" && "animate-pulse")}
-            onClick={() =>
+            onClick={() => {
+              if (!hiveUserProfile?.username) return;
               execute({
-                username: hiveUserProfile?.username ?? "",
+                username: hiveUserProfile?.username,
                 total: hiveUserProfile?.total_followers ?? 0,
-              })
-            }
+              });
+            }}
           >
-            {status === "executing"
-              ? optimisticData.following
-                ? "Unfollowing"
-                : "Following"
-              : optimisticData.following
-                ? "Unfollow"
-                : "Follow"}
+            {optimisticData.following ? "Unfollow" : "Follow"}
           </Button>
         )
       ) : (
