@@ -86,7 +86,7 @@ export default function DashboardAvatar({
           <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light <SunIcon className="ml-2 size-4 " />
+              Light <SunIcon className="ml-2 size-4" />
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setTheme("dark")}>
               Dark <MoonIcon className="ml-2 size-4" />

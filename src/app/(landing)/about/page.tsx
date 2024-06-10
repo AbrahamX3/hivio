@@ -20,7 +20,7 @@ export const metadata = {
 export default function About() {
   return (
     <main className="flex-1 bg-primary pt-14 text-secondary-foreground dark:text-secondary">
-      <section className="w-full py-12 ">
+      <section className="w-full py-12">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4">
             <h1 className="text-center text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
@@ -136,7 +136,7 @@ export default function About() {
                 deployed this fast without Vercel, which I use mainly for all my
                 projects.
               </Paragraph>
-              <div className="mt-8 flex flex-col items-center  gap-2 align-middle sm:flex-row">
+              <div className="mt-8 flex flex-col items-center gap-2 align-middle sm:flex-row">
                 <p className="w-fit rounded-md border-2 border-dashed border-secondary-foreground px-4 py-2 text-2xl tracking-tight dark:border-secondary">
                   Built by Abraham{" "}
                   <span className="text-sm text-muted-foreground dark:text-muted">

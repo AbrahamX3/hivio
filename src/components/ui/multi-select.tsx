@@ -179,7 +179,7 @@ const MultiSelectorTrigger = forwardRef<
           key={item}
           className={cn(
             "flex items-center gap-1 rounded-xl px-2",
-            activeIndex === index && "ring-2 ring-muted-foreground ",
+            activeIndex === index && "ring-2 ring-muted-foreground",
           )}
           variant={"secondary"}
         >
@@ -288,7 +288,7 @@ const MultiSelectorItem = forwardRef<
         setInputValue("");
       }}
       className={cn(
-        "flex cursor-pointer justify-between rounded-md px-2 py-1 transition-colors ",
+        "flex cursor-pointer justify-between rounded-md px-2 py-1 transition-colors",
         className,
         isIncluded && "cursor-default opacity-50",
         props.disabled && "cursor-not-allowed opacity-50",

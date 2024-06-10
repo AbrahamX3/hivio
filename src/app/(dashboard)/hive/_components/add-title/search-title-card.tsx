@@ -75,7 +75,7 @@ export default function SearchTitleCard({
         <Badge className="absolute left-3 top-3 z-20">{mediaType}</Badge>
         <MousePointerClickIcon
           className={cn(
-            "absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-150 ease-in-out ",
+            "absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-150 ease-in-out",
             selectedTitleId !== result.id &&
               "group-hover/card:animate-pulse group-hover/card:opacity-100",
           )}
