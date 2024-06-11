@@ -27,7 +27,7 @@ export default async function Component() {
                 with the help of the Hivio community
               </p>
             </div>
-            <div className="flex flex-col items-center gap-2 space-x-4 align-middle md:flex-row">
+            <div className="flex flex-col items-center gap-4 align-middle md:flex-row">
               <Button asChild size="lg" variant="outline">
                 {isSignedIn ? (
                   <Link href="/hive">Get Started</Link>

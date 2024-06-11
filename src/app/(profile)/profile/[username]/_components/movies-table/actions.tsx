@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { type Row } from "@tanstack/react-table";
-import { Info, MoreHorizontal } from "lucide-react";
+import { EllipsisVerticalIcon, Info } from "lucide-react";
 
 import { type HiveProfile } from "@/app/(profile)/actions";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ export function HiveMoviesTableActions<TData>({
               variant="ghost"
               className="flex size-8 p-0 data-[state=open]:bg-muted"
             >
-              <MoreHorizontal className="size-4" />
+              <EllipsisVerticalIcon className="size-4" />
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>

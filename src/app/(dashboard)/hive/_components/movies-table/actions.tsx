@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { type Row } from "@tanstack/react-table";
-import { EditIcon, Info, MoreHorizontal, TrashIcon } from "lucide-react";
+import { EditIcon, EllipsisVerticalIcon, Info, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { Link } from "next-view-transitions";
 import { toast } from "sonner";
@@ -50,7 +50,7 @@ export function HiveMoviesTableActions<TData>({
               variant="ghost"
               className="flex size-8 p-0 data-[state=open]:bg-muted"
             >
-              <MoreHorizontal className="size-4" />
+              <EllipsisVerticalIcon className="size-4" />
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>

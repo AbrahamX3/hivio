@@ -2,11 +2,12 @@ import { Link } from "next-view-transitions";
 
 import DashboardAvatar from "@/components/avatar";
 import LogoFull from "@/components/icons";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import UsersSearchInput from "@/components/user-search/users-search-input";
 import { getUserSession } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
-import { cn } from "@/lib/utils";
+
+import HeaderButton from "./header-button";
 
 export default async function Header() {
   const user = await getUserSession();
@@ -18,18 +19,7 @@ export default async function Header() {
           <LogoFull className="h-6 w-auto sm:h-8" />
         </Link>
         <div className="flex items-center gap-2 align-middle sm:gap-4">
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: "secondary",
-                size: "sm",
-              }),
-              "text-sm font-medium",
-            )}
-            href="/discover"
-          >
-            Discover
-          </Link>
+          <HeaderButton user={user} />
           <UsersSearchInput />
           <Button variant="secondary" asChild>
             {user === null ? (

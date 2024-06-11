@@ -32,18 +32,18 @@ export function MovieColumns(currentUser: UserSession | null) {
         return (
           <Tooltip>
             <TooltipTrigger>
-              <div className="flex space-x-2">
-                <span className="flex max-w-[350px] items-center gap-2 truncate align-middle font-medium">
+              <div className="flex max-w-[250px] gap-2 truncate">
+                <span className="flex justify-start gap-2 align-middle font-medium">
                   {row.original.isFavorite && (
                     <StarIcon className="size-4 text-primary" />
                   )}
-                  <span className="w-[300px] truncate text-left">
+                  <span className="w-[200px] truncate text-left">
                     {row.getValue("Title Name")}
                   </span>
                 </span>
               </div>
             </TooltipTrigger>
-            <TooltipContent className="w-1/2">
+            <TooltipContent className="w-fit max-w-[250px] text-pretty">
               {row.getValue("Title Name")}
             </TooltipContent>
           </Tooltip>

@@ -48,20 +48,20 @@ export function CurrentlyWatchingColumns() {
           <Tooltip>
             <TooltipTrigger>
               <Link
-                className="flex max-w-[350px] space-x-2 truncate hover:text-primary"
+                className="flex max-w-[250px] gap-2 truncate"
                 href={`/hive/${row.original.id}`}
               >
                 <span className="flex justify-start gap-2 align-middle font-medium">
                   {row.original.isFavorite && (
                     <StarIcon className="size-4 text-primary" />
                   )}
-                  <span className="w-[300px] truncate text-left">
+                  <span className="w-[200px] truncate text-left duration-150 ease-in-out hover:text-primary">
                     {row.getValue("Title Name")}
                   </span>
                 </span>
               </Link>
             </TooltipTrigger>
-            <TooltipContent className="w-1/2">
+            <TooltipContent className="w-fit max-w-[250px] text-pretty">
               {row.getValue("Title Name")}
             </TooltipContent>
           </Tooltip>
