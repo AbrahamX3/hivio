@@ -1,4 +1,4 @@
-CREATE MIGRATION m1onpv7bio2tqxydb76s2i6phachied3wi3wen632k4etgzwaw64va
+CREATE MIGRATION m1njnx46uty7ek344kwba66mmb2rlimnlvoflausq4tpjkesolkzfq
     ONTO initial
 {
   CREATE EXTENSION pgcrypto VERSION '1.3';
@@ -61,20 +61,27 @@ CREATE MIGRATION m1onpv7bio2tqxydb76s2i6phachied3wi3wen632k4etgzwaw64va
       CREATE INDEX ON (.username);
   };
   CREATE TYPE default::Follow {
-      CREATE REQUIRED LINK followed: default::User;
-      CREATE REQUIRED LINK follower: default::User;
+      CREATE REQUIRED LINK followed: default::User {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE REQUIRED LINK follower: default::User {
+          ON TARGET DELETE DELETE SOURCE;
+      };
       CREATE CONSTRAINT std::exclusive ON ((.follower, .followed));
       CREATE REQUIRED PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_current());
       };
   };
   CREATE TYPE default::Hive {
-      CREATE REQUIRED LINK addedBy: default::User;
+      CREATE REQUIRED LINK addedBy: default::User {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE REQUIRED LINK title: default::Title {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE CONSTRAINT std::exclusive ON ((.title, .addedBy));
       CREATE REQUIRED PROPERTY status: default::TitleStatus;
       CREATE INDEX ON (.status);
-      CREATE REQUIRED LINK title: default::Title {
-          CREATE CONSTRAINT std::exclusive;
-      };
       CREATE REQUIRED PROPERTY createdAt: std::datetime {
           SET default := (std::datetime_current());
       };
@@ -106,7 +113,9 @@ CREATE MIGRATION m1onpv7bio2tqxydb76s2i6phachied3wi3wen632k4etgzwaw64va
       (.identity = GLOBAL ext::auth::ClientTokenIdentity)
   )));
   CREATE TYPE default::Season {
-      CREATE REQUIRED LINK title: default::Title;
+      CREATE REQUIRED LINK title: default::Title {
+          ON TARGET DELETE DELETE SOURCE;
+      };
       CREATE REQUIRED PROPERTY season: std::int32;
       CREATE CONSTRAINT std::exclusive ON ((.title, .season));
       CREATE REQUIRED PROPERTY air_date: cal::local_date;
