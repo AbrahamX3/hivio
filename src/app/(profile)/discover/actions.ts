@@ -44,6 +44,7 @@ const HiveProfilesQuery = e.params(
         },
         filter: e.op(follow.follower.username, "=", user.username),
       })),
+      filter: e.op("exists", user.username),
       order_by: [
         {
           expression: user.createdAt,
