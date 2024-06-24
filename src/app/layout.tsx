@@ -13,6 +13,8 @@ import { getUserSession } from "@/lib/auth";
 
 import "@/styles/globals.css";
 
+import Script from "next/script";
+
 export const metadata: Metadata = {
   title: {
     default: "Hivio",
@@ -54,6 +56,11 @@ export default async function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable}`}
         suppressHydrationWarning
       >
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+        />
         <body className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3">
           <ThemeProvider
             attribute="class"
