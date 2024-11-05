@@ -101,7 +101,7 @@ export default function DashboardAvatar({
 					asChild
 					className="flex items-center justify-between gap-2"
 				>
-					<NextLink href={signOutUrl}>
+					<NextLink prefetch={false} href={signOutUrl}>
 						Sign Out <LogInIcon className="ml-2 size-4" />
 					</NextLink>
 				</DropdownMenuItem>

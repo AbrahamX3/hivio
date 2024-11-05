@@ -35,6 +35,7 @@ export function MovieColumns() {
 					<Tooltip>
 						<TooltipTrigger>
 							<Link
+								prefetch={false}
 								className="flex max-w-[250px] gap-2 truncate"
 								href={`/hive/${row.original.id}`}
 							>

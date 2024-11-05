@@ -55,7 +55,7 @@ export default function UserCard({ user }: UserCardProps) {
 
 	return (
 		<Card className="group p-4">
-			<Link className="block" href={`/profile/${username}`}>
+			<Link prefetch={false} className="block" href={`/profile/${username}`}>
 				<div className="flex items-center gap-4">
 					<Avatar className="size-12">
 						{avatar && <AvatarImage alt={`@${username}`} src={avatar} />}
