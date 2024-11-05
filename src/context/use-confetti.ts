@@ -11,67 +11,69 @@ const listeners = new Set<(state: State) => void>();
 const TOAST_REMOVE_DELAY = 60_000;
 
 type Action =
-  | {
-      type: ActionType["ADD_CONFETTI"];
-      confettiId: string;
-    }
-  | {
-      type: ActionType["REMOVE_CONFETTI"];
-      confettiId?: string;
-    };
+	| {
+			type: ActionType["ADD_CONFETTI"];
+			confettiId: string;
+	  }
+	| {
+			type: ActionType["REMOVE_CONFETTI"];
+			confettiId?: string;
+	  };
 
 type ActionType = typeof actionTypes;
 
-const actionTypes = {
-  ADD_CONFETTI: "ADD_CONFETTI",
-  REMOVE_CONFETTI: "REMOVE_CONFETTI",
+export const actionTypes = {
+	ADD_CONFETTI: "ADD_CONFETTI",
+	REMOVE_CONFETTI: "REMOVE_CONFETTI",
 } as const;
 
 export const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "ADD_CONFETTI":
-      return [...state, action.confettiId];
+	switch (action.type) {
+		case "ADD_CONFETTI":
+			return [...state, action.confettiId];
 
-    case "REMOVE_CONFETTI":
-      if (!action.confettiId) return [];
-      return state.filter((id) => id !== action.confettiId);
-  }
+		case "REMOVE_CONFETTI":
+			if (!action.confettiId) return [];
+			return state.filter((id) => id !== action.confettiId);
+	}
 };
 
 function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action);
-  listeners.forEach((listener) => {
-    listener(memoryState);
-  });
+	memoryState = reducer(memoryState, action);
+	for (const listener of listeners) {
+		listener(memoryState);
+	}
 }
 
 function tossConfetti(confettiId?: string) {
-  if (!confettiId) {
-    confettiId = (Math.random() + 1).toString(36).substring(2);
-  }
+	let id = confettiId;
 
-  dispatch({ type: "ADD_CONFETTI", confettiId });
+	if (!id) {
+		id = (Math.random() + 1).toString(36).substring(2);
+	}
 
-  setTimeout(() => {
-    dispatch({ type: "REMOVE_CONFETTI", confettiId });
-  }, TOAST_REMOVE_DELAY);
+	dispatch({ type: "ADD_CONFETTI", confettiId: id });
+
+	setTimeout(() => {
+		dispatch({ type: "REMOVE_CONFETTI", confettiId: id });
+	}, TOAST_REMOVE_DELAY);
 }
 
 function useConfetti() {
-  const [state, setState] = useState<State>(memoryState);
+	const [state, setState] = useState<State>(memoryState);
 
-  useEffect(() => {
-    listeners.add(setState);
+	useEffect(() => {
+		listeners.add(setState);
 
-    return () => {
-      listeners.delete(setState);
-    };
-  }, []);
+		return () => {
+			listeners.delete(setState);
+		};
+	}, []);
 
-  return {
-    confetti: state,
-    tossConfetti,
-  };
+	return {
+		confetti: state,
+		tossConfetti,
+	};
 }
 
 export { tossConfetti, useConfetti };

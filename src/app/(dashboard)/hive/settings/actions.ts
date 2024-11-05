@@ -1,168 +1,185 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import e from "@edgedb/edgeql-js";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { auth, db } from "@/lib/edgedb";
 import { authAction } from "@/lib/safe-action";
 
 import {
-  GeneralSettingsDisplayNameFormSchema,
-  GeneralSettingsStatusFormSchema,
-  GeneralSettingsUsernameFormSchema,
+	GeneralSettingsAvatarFormSchema,
+	GeneralSettingsDisplayNameFormSchema,
+	GeneralSettingsStatusFormSchema,
+	GeneralSettingsUsernameFormSchema,
 } from "./validations";
 
-export const saveUsername = authAction(
-  GeneralSettingsUsernameFormSchema,
-  async ({ username }) => {
-    const client = auth.getSession().client;
+export const saveUsername = authAction
+	.schema(GeneralSettingsUsernameFormSchema)
+	.action(async ({ parsedInput: { username } }) => {
+		const client = auth.getSession().client;
 
-    const user = await e
-      .select(e.User, (user) => ({
-        username: true,
-        filter: e.op(user.username, "=", username),
-      }))
-      .run(client);
+		const user = await e
+			.select(e.User, (user) => ({
+				username: true,
+				filter: e.op(user.username, "=", username),
+			}))
+			.run(client);
 
-    if (user.length > 0) {
-      return {
-        success: false,
-        error: {
-          reason: "Username already taken, please try another one!",
-        },
-      };
-    }
+		if (user.length > 0) {
+			return {
+				success: false,
+				error: {
+					reason: "Username already taken, please try another one!",
+				},
+			};
+		}
 
-    await e
-      .update(e.User, (user) => ({
-        filter: e.op(user.id, "=", e.global.CurrentUser.id),
-        set: {
-          username: e.str_trim(username.toLocaleLowerCase()),
-        },
-      }))
-      .run(client);
+		await e
+			.update(e.User, (user) => ({
+				filter: e.op(user.id, "=", e.global.CurrentUser.id),
+				set: {
+					username: e.str_trim(username.toLocaleLowerCase()),
+				},
+			}))
+			.run(client);
 
-    revalidatePath("/hive/settings");
-    return { success: true, data: { username } };
-  },
-);
+		revalidatePath("/hive/settings");
+		return { success: true, data: { username } };
+	});
 
-export const saveDisplayName = authAction(
-  GeneralSettingsDisplayNameFormSchema,
-  async ({ name }) => {
-    const client = auth.getSession().client;
+export const saveAvatar = authAction
+	.schema(GeneralSettingsAvatarFormSchema)
+	.action(async ({ parsedInput: { avatar } }) => {
+		const client = auth.getSession().client;
 
-    try {
-      await e
-        .update(e.User, (user) => ({
-          filter: e.op(user.id, "=", e.global.CurrentUser.id),
-          set: {
-            name: e.str(name),
-          },
-        }))
-        .run(client);
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          reason: JSON.stringify(error),
-        },
-      };
-    }
+		await e
+			.update(e.User, (user) => ({
+				filter: e.op(user.id, "=", e.global.CurrentUser.id),
+				set: {
+					avatar: avatar,
+				},
+			}))
+			.run(client);
 
-    revalidatePath("/hive/settings");
+		revalidatePath("/hive/settings");
+		return { success: true, data: { avatar } };
+	});
 
-    return { success: true, data: { name } };
-  },
-);
+export const saveDisplayName = authAction
+	.schema(GeneralSettingsDisplayNameFormSchema)
+	.action(async ({ parsedInput: { name } }) => {
+		const client = auth.getSession().client;
 
-export const saveStatus = authAction(
-  GeneralSettingsStatusFormSchema,
-  async ({ status }) => {
-    const client = auth.getSession().client;
+		try {
+			await e
+				.update(e.User, (user) => ({
+					filter: e.op(user.id, "=", e.global.CurrentUser.id),
+					set: {
+						name: e.str(name),
+					},
+				}))
+				.run(client);
+		} catch (error) {
+			return {
+				success: false,
+				error: {
+					reason: JSON.stringify(error),
+				},
+			};
+		}
 
-    try {
-      await e
-        .update(e.User, (user) => ({
-          filter: e.op(user.id, "=", e.global.CurrentUser.id),
-          set: {
-            status,
-          },
-        }))
-        .run(client);
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          reason: JSON.stringify(error),
-        },
-      };
-    }
+		revalidatePath("/hive/settings");
 
-    revalidatePath("/hive/settings");
+		return { success: true, data: { name } };
+	});
 
-    return { success: true, data: { status } };
-  },
-);
+export const saveStatus = authAction
+	.schema(GeneralSettingsStatusFormSchema)
+	.action(async ({ parsedInput: { status } }) => {
+		const client = auth.getSession().client;
 
-export const deleteAccount = authAction(
-  z.object({
-    confirm: z.boolean(),
-  }),
-  async ({ confirm }) => {
-    if (!confirm)
-      return { success: false, error: { reason: "Confirmation required!" } };
-    const client = auth.getSession().client;
-    await e
-      .delete(e.Hive, (hive) => ({
-        filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
-      }))
-      .run(client)
-      .catch((error) => {
-        console.error(error);
-      });
+		try {
+			await e
+				.update(e.User, (user) => ({
+					filter: e.op(user.id, "=", e.global.CurrentUser.id),
+					set: {
+						status,
+					},
+				}))
+				.run(client);
+		} catch (error) {
+			return {
+				success: false,
+				error: {
+					reason: JSON.stringify(error),
+				},
+			};
+		}
 
-    const userData = await e
-      .select(e.User, (user) => ({
-        identity: true,
-        id: true,
-        filter_single: e.op(user.id, "=", e.global.CurrentUser.id),
-      }))
-      .run(client)
-      .catch((error) => {
-        console.error(error);
-      });
+		revalidatePath("/hive/settings");
 
-    if (!userData?.identity.id) {
-      return {
-        success: false,
-        error: {
-          reason: "Session not found!",
-        },
-      };
-    }
+		return { success: true, data: { status } };
+	});
 
-    await e
-      .delete(e.User, (user) => ({
-        filter: e.op(user.id, "=", e.uuid(userData.id)),
-      }))
-      .run(db)
-      .catch((error) => {
-        console.error(error);
-      });
+export const deleteAccount = authAction
+	.schema(
+		z.object({
+			confirm: z.boolean(),
+		}),
+	)
+	.action(async ({ parsedInput: { confirm } }) => {
+		if (!confirm)
+			return { success: false, error: { reason: "Confirmation required!" } };
+		const client = auth.getSession().client;
+		await e
+			.delete(e.Hive, (hive) => ({
+				filter: e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+			}))
+			.run(client)
+			.catch((error) => {
+				console.error(error);
+			});
 
-    await e
-      .delete(e.ext.auth.Identity, (identity) => ({
-        filter: e.op(identity.id, "=", e.uuid(userData.identity.id)),
-      }))
-      .run(db)
-      .catch((error) => {
-        console.error(error);
-      });
+		const userData = await e
+			.select(e.User, (user) => ({
+				identity: true,
+				id: true,
+				filter_single: e.op(user.id, "=", e.global.CurrentUser.id),
+			}))
+			.run(client)
+			.catch((error) => {
+				console.error(error);
+			});
 
-    revalidatePath("/hive/settings/danger");
+		if (!userData?.identity.id) {
+			return {
+				success: false,
+				error: {
+					reason: "Session not found!",
+				},
+			};
+		}
 
-    return { success: true, data: { confirm: true } };
-  },
-);
+		await e
+			.delete(e.User, (user) => ({
+				filter: e.op(user.id, "=", e.uuid(userData.id)),
+			}))
+			.run(db)
+			.catch((error) => {
+				console.error(error);
+			});
+
+		await e
+			.delete(e.ext.auth.Identity, (identity) => ({
+				filter: e.op(identity.id, "=", e.uuid(userData.identity.id)),
+			}))
+			.run(db)
+			.catch((error) => {
+				console.error(error);
+			});
+
+		revalidatePath("/hive/settings/danger");
+
+		return { success: true, data: { confirm: true } };
+	});

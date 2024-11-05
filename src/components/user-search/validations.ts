@@ -1,5 +1,5 @@
 import { z } from "zod";
 
 export const SearchProfile = z.object({
-  search: z.string(),
+	search: z.string(),
 });

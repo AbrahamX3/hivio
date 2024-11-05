@@ -1,7 +1,7 @@
 export default function TableContainer({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  return <div className="w-full">{children}</div>;
+	return <div className="w-full">{children}</div>;
 }

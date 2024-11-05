@@ -86,20 +86,20 @@ http://localhost:3000/auth/signin
 8. Install your dependencies with the following command
 
 ```bash
-bun install
+pnpm install
 ```
 
 9. Run the prebuild command to generate the EdgeDB queries and interfaces.
 
 ```bash
-bun run prebuild
+pnpm run prebuild
 ```
 
 8. Finally, run the following command to start the development server with the
    following command
 
 ```bash
-bun run dev
+pnpm run dev
 ```
 
 9. Open [http://localhost:3000](http://localhost:3000) with your browser to see

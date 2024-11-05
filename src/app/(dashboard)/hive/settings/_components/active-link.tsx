@@ -1,35 +1,35 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { Link } from "next-view-transitions";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
 export function ActiveLink({
-  href,
-  name,
-  children,
+	href,
+	name,
+	children,
 }: {
-  href: string;
-  name: string;
-  children: React.ReactNode;
+	href: string;
+	name: string;
+	children: React.ReactNode;
 }) {
-  const path = usePathname();
+	const path = usePathname();
 
-  const isActive = path === href;
+	const isActive = path === href;
 
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-        isActive
-          ? "bg-muted text-primary hover:text-primary/80"
-          : "text-muted-foreground hover:text-primary",
-      )}
-    >
-      <span>{children}</span>
-      <span>{name}</span>
-    </Link>
-  );
+	return (
+		<Link
+			href={href}
+			className={cn(
+				"flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+				isActive
+					? "bg-muted text-primary hover:text-primary/80"
+					: "text-muted-foreground hover:text-primary",
+			)}
+		>
+			<span>{children}</span>
+			<span>{name}</span>
+		</Link>
+	);
 }

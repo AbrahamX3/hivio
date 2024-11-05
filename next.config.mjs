@@ -1,9 +1,4 @@
-import { fileURLToPath } from "node:url";
-import withPlaiceholder from "@plaiceholder/next";
-import createJiti from "jiti";
-
-const jiti = createJiti(fileURLToPath(import.meta.url));
-jiti("./src/env");
+import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -19,4 +14,4 @@ const config = {
   },
 };
 
-export default withPlaiceholder(config);
+export default config;
