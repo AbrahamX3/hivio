@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { auth, db } from "@/lib/edgedb";
-import { authAction } from "@/lib/safe-action";
+import { withAuthActionClient } from "@/lib/safe-action";
 
 import {
 	GeneralSettingsAvatarFormSchema,
@@ -14,7 +14,7 @@ import {
 	GeneralSettingsUsernameFormSchema,
 } from "./validations";
 
-export const saveUsername = authAction
+export const saveUsername = withAuthActionClient
 	.schema(GeneralSettingsUsernameFormSchema)
 	.action(async ({ parsedInput: { username } }) => {
 		const client = auth.getSession().client;
@@ -48,7 +48,7 @@ export const saveUsername = authAction
 		return { success: true, data: { username } };
 	});
 
-export const saveAvatar = authAction
+export const saveAvatar = withAuthActionClient
 	.schema(GeneralSettingsAvatarFormSchema)
 	.action(async ({ parsedInput: { avatar } }) => {
 		const client = auth.getSession().client;
@@ -66,7 +66,7 @@ export const saveAvatar = authAction
 		return { success: true, data: { avatar } };
 	});
 
-export const saveDisplayName = authAction
+export const saveDisplayName = withAuthActionClient
 	.schema(GeneralSettingsDisplayNameFormSchema)
 	.action(async ({ parsedInput: { name } }) => {
 		const client = auth.getSession().client;
@@ -94,7 +94,7 @@ export const saveDisplayName = authAction
 		return { success: true, data: { name } };
 	});
 
-export const saveStatus = authAction
+export const saveStatus = withAuthActionClient
 	.schema(GeneralSettingsStatusFormSchema)
 	.action(async ({ parsedInput: { status } }) => {
 		const client = auth.getSession().client;
@@ -122,7 +122,7 @@ export const saveStatus = authAction
 		return { success: true, data: { status } };
 	});
 
-export const deleteAccount = authAction
+export const deleteAccount = withAuthActionClient
 	.schema(
 		z.object({
 			confirm: z.boolean(),

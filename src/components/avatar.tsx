@@ -9,8 +9,7 @@ import {
 	UserIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Link } from "next-view-transitions";
-import NextLink from "next/link";
+import { default as Link, default as NextLink } from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

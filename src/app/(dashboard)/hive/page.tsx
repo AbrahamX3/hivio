@@ -1,6 +1,6 @@
 import { getUser, verifyUser } from "@/lib/auth";
 
-import { DashboardContainer } from "./_components/dashboard-container";
+import { DashboardContainer } from "../../../components/dashboard/dashboard-container";
 import { type HiveData, getHiveData } from "./actions";
 
 export const metadata = {

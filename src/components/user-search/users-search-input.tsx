@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { SearchIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -8,9 +8,14 @@ import { revalidatePath } from "next/cache";
 
 import { env } from "@/env";
 import { auth } from "@/lib/edgedb";
-import { actionClient, authAction } from "@/lib/safe-action";
+import {
+	withAuthActionClient,
+	withoutAuthActionClient,
+} from "@/lib/safe-action";
 import type { MovieDetails, MultiSearch, SeriesDetails } from "@/types/tmdb";
 
+import { redis } from "@/lib/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 import {
 	AddTitleToHiveSchema,
 	DeleteTitleFromHiveSchema,
@@ -20,7 +25,13 @@ import {
 	RefreshTitleDataSchema,
 } from "./validations";
 
-export const profileOnboarding = authAction
+const ratelimit = new Ratelimit({
+	redis: redis,
+	limiter: Ratelimit.slidingWindow(2, "60 s"),
+	prefix: "hivio",
+});
+
+export const profileOnboarding = withAuthActionClient
 	.schema(ProfileSetupFormSchema)
 	.action(
 		async ({ parsedInput: { username, name, status } }) => {
@@ -63,9 +74,9 @@ export const profileOnboarding = authAction
 		},
 	);
 
-export const refreshTitleData = authAction
+export const refreshTitleData = withAuthActionClient
 	.schema(RefreshTitleDataSchema)
-	.action(async ({ parsedInput: { id } }) => {
+	.action(async ({ parsedInput: { id }, ctx: { session } }) => {
 		const client = auth.getSession().client;
 
 		const titleData = await e
@@ -87,6 +98,7 @@ export const refreshTitleData = authAction
 		await updateTitle({
 			tmdbId: titleData?.title.tmdbId,
 			type: titleData?.title.type,
+			userId: session?.id,
 		});
 
 		revalidatePath(`/hive/${id}`);
@@ -94,31 +106,33 @@ export const refreshTitleData = authAction
 		return { success: true };
 	});
 
-export const deleteTitle = authAction.schema(DeleteTitleFromHiveSchema).action(
-	async ({ parsedInput: { id } }) => {
-		const client = auth.getSession().client;
+export const deleteTitle = withAuthActionClient
+	.schema(DeleteTitleFromHiveSchema)
+	.action(
+		async ({ parsedInput: { id } }) => {
+			const client = auth.getSession().client;
 
-		const deleteTitle = await e
-			.delete(e.Hive, (hive) => ({
-				filter_single: e.op(
-					e.op(hive.id, "=", e.uuid(id)),
-					"and",
-					e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
-				),
-			}))
-			.run(client);
+			const deleteTitle = await e
+				.delete(e.Hive, (hive) => ({
+					filter_single: e.op(
+						e.op(hive.id, "=", e.uuid(id)),
+						"and",
+						e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+					),
+				}))
+				.run(client);
 
-		revalidatePath("/hive");
-		return { success: true, data: { id: deleteTitle?.id } };
-	},
-	{
-		onSuccess: () => {
-			console.log("Successfully updated user profile");
+			revalidatePath("/hive");
+			return { success: true, data: { id: deleteTitle?.id } };
 		},
-	},
-);
+		{
+			onSuccess: () => {
+				console.log("Successfully updated user profile");
+			},
+		},
+	);
 
-export const findTitleSeasons = authAction
+export const findTitleSeasons = withAuthActionClient
 	.schema(FindTitleSeasonsSchema)
 	.action(async ({ parsedInput: { tmdbId } }) => {
 		const response = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}`, {
@@ -272,7 +286,7 @@ export async function fetchMovieDetails(tmdbId: number): Promise<MovieDetails> {
 	return data;
 }
 
-export const findTitleDetails = actionClient
+export const findTitleDetails = withoutAuthActionClient
 	.schema(FindTitleDetails)
 	.action(async ({ parsedInput: { tmdbId, type } }) => {
 		const result = await fetch(
@@ -309,10 +323,20 @@ export const findTitleDetails = actionClient
 async function updateTitle({
 	tmdbId,
 	type,
+	userId,
 }: {
 	tmdbId: number;
 	type: "MOVIE" | "SERIES";
+	userId: string;
 }) {
+	const { success, remaining } = await ratelimit.limit(userId);
+
+	if (!success) {
+		throw new Error(
+			`You have reached your rate limit. Please try again in ${remaining} seconds.`,
+		);
+	}
+
 	const titleDetails = await findTitleDetails({
 		tmdbId,
 		type: type === "MOVIE" ? "movie" : "tv",
@@ -361,7 +385,7 @@ async function updateTitle({
 			filter_single: e.op(title.id, "=", e.uuid(updatedTitle.id)),
 		}));
 
-		const seasons = data.seasons
+		const validSeasons = data.seasons
 			.filter(
 				(season) =>
 					season.season_number !== 0 &&
@@ -374,22 +398,56 @@ async function updateTitle({
 				date: details.air_date,
 			}));
 
-		const seasonsAlreadyAdded = await e
+		const currentSeasons = await e
 			.select(e.Season, (season) => ({
 				season: true,
-				filter: e.op(season.title, "=", titleId),
+				episodes: true,
+				filter: e.op(season.title.id, "=", e.uuid(updatedTitle.id)),
 			}))
 			.run(client);
 
-		const addedSeasonNumbers = seasonsAlreadyAdded.map(
-			(season) => season.season,
-		);
+		const episodeCountToUpdate: {
+			season: number;
+			episodes: number;
+			date: string;
+		}[] = [];
 
-		const SeasonsToAdd = seasons.filter(
-			(season) => !addedSeasonNumbers.includes(season.season),
-		);
+		const seasonsToAdd: { season: number; episodes: number; date: string }[] =
+			[];
 
-		const query = e.params(
+		if (!currentSeasons) return;
+
+		for (const validSeason of validSeasons) {
+			const isSeasonAdded = currentSeasons.some(
+				(s) => s.season === validSeason.season,
+			);
+
+			const isEpisodeCorrect = currentSeasons.some(
+				(s) =>
+					s.season === validSeason.season &&
+					s.episodes === validSeason.episodes,
+			);
+
+			if (!isSeasonAdded) {
+				seasonsToAdd.push({
+					season: validSeason?.season,
+					episodes: validSeason?.episodes,
+					date: validSeason?.date,
+				});
+
+				continue;
+			}
+
+			if (!isEpisodeCorrect) {
+				episodeCountToUpdate.push({
+					season: validSeason?.season,
+					episodes: validSeason?.episodes,
+					date: validSeason?.date,
+				});
+			}
+		}
+
+		const insertQuery = e.params(
 			{
 				seasons: e.array(
 					e.tuple({
@@ -411,177 +469,255 @@ async function updateTitle({
 			},
 		);
 
-		await query.run(client, {
-			seasons: SeasonsToAdd,
+		const updateQuery = e.params(
+			{
+				seasons: e.array(
+					e.tuple({
+						season: e.int32,
+						episodes: e.int32,
+						date: e.str,
+					}),
+				),
+			},
+			({ seasons }) => {
+				return e.for(e.array_unpack(seasons), ({ date, season, episodes }) => {
+					return e.update(e.Season, (s) => ({
+						filter_single: e.op(
+							e.op(s.season, "=", season),
+							"and",
+							e.op(s.title.id, "=", e.uuid(updatedTitle.id)),
+						),
+						set: {
+							air_date: e.cast(e.cal.local_date, date),
+							episodes: episodes,
+						},
+					}));
+				});
+			},
+		);
+
+		await insertQuery.run(client, {
+			seasons: seasonsToAdd,
+		});
+
+		await updateQuery.run(client, {
+			seasons: episodeCountToUpdate,
 		});
 	}
 
 	return { success: true, data: updatedTitle?.id };
 }
 
-export const addTitleHive = authAction
+export const addTitleHive = withAuthActionClient
 	.schema(AddTitleToHiveSchema)
-	.action(async ({ parsedInput: { hiveFormValues, titleFormValues } }) => {
-		const client = auth.getSession().client;
-		const tmdbId = titleFormValues.tmdbId;
-		const TypeEnum =
-			titleFormValues.type === "movie" ? TitleType.MOVIE : TitleType.SERIES;
-		const isTitleAdded = await e
-			.select(e.Title, (title) => ({
-				tmdbId: true,
-				type: true,
-				updatedAt: true,
+	.action(
+		async ({
+			parsedInput: { hiveFormValues, titleFormValues },
+			ctx: { session },
+		}) => {
+			const client = auth.getSession().client;
+			const tmdbId = titleFormValues.tmdbId;
+			const TypeEnum =
+				titleFormValues.type === "movie" ? TitleType.MOVIE : TitleType.SERIES;
+			const isTitleAdded = await e
+				.select(e.Title, (title) => ({
+					tmdbId: true,
+					type: true,
+					updatedAt: true,
+					filter_single: e.op(
+						e.op(title.tmdbId, "=", e.int32(tmdbId)),
+						"and",
+						e.op(title.type, "=", TypeEnum),
+					),
+				}))
+				.run(client);
+
+			if (!isTitleAdded?.tmdbId) {
+				const titleDetails = await findTitleDetails({
+					tmdbId: titleFormValues.tmdbId,
+					type: titleFormValues.type,
+				});
+
+				const data = titleDetails?.data;
+
+				if (!data) {
+					throw new Error("Failed to fetch title details");
+				}
+
+				const name = data?.mediaType === "movie" ? data.title : data.name;
+				const date =
+					data.mediaType === "movie" ? data.release_date : data.first_air_date;
+				const type = data.mediaType === "movie" ? "MOVIE" : "SERIES";
+				const { overview, id, poster_path } = data;
+				const genre_ids = data.genres.map((genre) => genre.id);
+				const imdbId = await getIMDBId(id, type);
+				const posterBlurhash = await fetchPosterBlur(
+					`https://image.tmdb.org/t/p/original${poster_path}`,
+				);
+
+				const insertTitle = await e
+					.insert(e.Title, {
+						tmdbId: e.int32(id),
+						name: e.str(name),
+						description: e.str(overview),
+						release_date: e.cal.local_date(date),
+						poster: e.str(poster_path),
+						posterBlur: posterBlurhash,
+						type: TypeEnum,
+						runtime:
+							data.mediaType === "movie" ? e.int32(data.runtime) : undefined,
+						rating: data.vote_average
+							? e.float32(data.vote_average)
+							: undefined,
+						genres: genre_ids,
+						imdbId: imdbId ?? undefined,
+					})
+					.run(client);
+
+				if (data.mediaType === "series") {
+					const titleId = e.select(e.Title, (title) => ({
+						filter_single: e.op(title.id, "=", e.uuid(insertTitle.id)),
+					}));
+
+					const query = e.params(
+						{
+							seasons: e.array(
+								e.tuple({
+									season: e.int32,
+									episodes: e.int32,
+									date: e.str,
+								}),
+							),
+						},
+						({ seasons }) => {
+							return e.for(
+								e.array_unpack(seasons),
+								({ date, season, episodes }) => {
+									return e.insert(e.Season, {
+										title: e.set(titleId),
+										season: season,
+										episodes: episodes,
+										air_date: e.cast(e.cal.local_date, date),
+									});
+								},
+							);
+						},
+					);
+
+					const seasons = data.seasons
+						.filter(
+							(season) =>
+								season.season_number !== 0 &&
+								season.episode_count !== 0 &&
+								season.air_date !== null,
+						)
+						.map((details) => ({
+							season: details.season_number,
+							episodes: details.episode_count,
+							date: details.air_date,
+						}));
+
+					await query.run(client, {
+						seasons,
+					});
+				}
+			} else {
+				await updateTitle({
+					tmdbId: isTitleAdded.tmdbId,
+					type: isTitleAdded.type,
+					userId: session?.id,
+				});
+			}
+
+			const isTitleInHive = await e
+				.select(e.Hive, (hive) => ({
+					filter_single: e.op(
+						e.op(
+							e.op(hive.title.tmdbId, "=", tmdbId),
+							"and",
+							e.op(hive.title.type, "=", TypeEnum),
+						),
+						"and",
+						e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
+					),
+				}))
+				.run(client);
+
+			if (isTitleInHive) {
+				return {
+					success: false,
+					error: {
+						reason: "Title is already added to your hive!",
+					},
+				};
+			}
+			const titleToAdd = e.select(e.Title, (title) => ({
 				filter_single: e.op(
-					e.op(title.tmdbId, "=", e.int32(tmdbId)),
+					e.op(title.tmdbId, "=", tmdbId),
 					"and",
 					e.op(title.type, "=", TypeEnum),
 				),
-			}))
-			.run(client);
+			}));
 
-		if (!isTitleAdded?.tmdbId) {
-			const titleDetails = await findTitleDetails({
-				tmdbId: titleFormValues.tmdbId,
-				type: titleFormValues.type,
-			});
+			const status = hiveFormValues.status;
 
-			const data = titleDetails?.data;
+			if (status === "FINISHED") {
+				const insert = await e
+					.insert(e.Hive, {
+						addedBy: e.global.CurrentUser,
+						title: titleToAdd,
+						status: hiveFormValues.status,
+						finishedAt: hiveFormValues.finishedAt
+							? hiveFormValues.finishedAt
+							: undefined,
+						startedAt: hiveFormValues.startedAt
+							? hiveFormValues.startedAt
+							: undefined,
+						currentEpisode: hiveFormValues.currentEpisode,
+						currentSeason: hiveFormValues.currentSeason,
+						rating: hiveFormValues.rating
+							? e.float32(hiveFormValues.rating)
+							: undefined,
+						isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
+					})
+					.run(client);
 
-			if (!data) {
-				throw new Error("Failed to fetch title details");
+				revalidatePath("/hive");
+				return {
+					success: true,
+					status: hiveFormValues.status,
+					data: insert.id,
+				};
 			}
+			if (status === "PENDING") {
+				const insert = await e
+					.insert(e.Hive, {
+						addedBy: e.global.CurrentUser,
+						title: titleToAdd,
+						currentEpisode: hiveFormValues.currentEpisode,
+						startedAt: hiveFormValues.startedAt
+							? hiveFormValues.startedAt
+							: null,
+						currentSeason: hiveFormValues.currentSeason,
+						status: hiveFormValues.status,
+					})
+					.run(client);
 
-			const name = data?.mediaType === "movie" ? data.title : data.name;
-			const date =
-				data.mediaType === "movie" ? data.release_date : data.first_air_date;
-			const type = data.mediaType === "movie" ? "MOVIE" : "SERIES";
-			const { overview, id, poster_path } = data;
-			const genre_ids = data.genres.map((genre) => genre.id);
-			const imdbId = await getIMDBId(id, type);
-			const posterBlurhash = await fetchPosterBlur(
-				`https://image.tmdb.org/t/p/original${poster_path}`,
-			);
-
-			const insertTitle = await e
-				.insert(e.Title, {
-					tmdbId: e.int32(id),
-					name: e.str(name),
-					description: e.str(overview),
-					release_date: e.cal.local_date(date),
-					poster: e.str(poster_path),
-					posterBlur: posterBlurhash,
-					type: TypeEnum,
-					runtime:
-						data.mediaType === "movie" ? e.int32(data.runtime) : undefined,
-					rating: data.vote_average ? e.float32(data.vote_average) : undefined,
-					genres: genre_ids,
-					imdbId: imdbId ?? undefined,
-				})
-				.run(client);
-
-			if (data.mediaType === "series") {
-				const titleId = e.select(e.Title, (title) => ({
-					filter_single: e.op(title.id, "=", e.uuid(insertTitle.id)),
-				}));
-
-				const query = e.params(
-					{
-						seasons: e.array(
-							e.tuple({
-								season: e.int32,
-								episodes: e.int32,
-								date: e.str,
-							}),
-						),
-					},
-					({ seasons }) => {
-						return e.for(
-							e.array_unpack(seasons),
-							({ date, season, episodes }) => {
-								return e.insert(e.Season, {
-									title: e.set(titleId),
-									season: season,
-									episodes: episodes,
-									air_date: e.cast(e.cal.local_date, date),
-								});
-							},
-						);
-					},
-				);
-
-				const seasons = data.seasons
-					.filter(
-						(season) =>
-							season.season_number !== 0 &&
-							season.episode_count !== 0 &&
-							season.air_date !== null,
-					)
-					.map((details) => ({
-						season: details.season_number,
-						episodes: details.episode_count,
-						date: details.air_date,
-					}));
-
-				await query.run(client, {
-					seasons,
-				});
+				revalidatePath("/hive");
+				return {
+					success: true,
+					status: hiveFormValues.status,
+					data: insert.id,
+				};
 			}
-		} else {
-			await updateTitle({
-				tmdbId: isTitleAdded.tmdbId,
-				type: isTitleAdded.type,
-			});
-		}
-
-		const isTitleInHive = await e
-			.select(e.Hive, (hive) => ({
-				filter_single: e.op(
-					e.op(
-						e.op(hive.title.tmdbId, "=", tmdbId),
-						"and",
-						e.op(hive.title.type, "=", TypeEnum),
-					),
-					"and",
-					e.op(hive.addedBy.id, "=", e.global.CurrentUser.id),
-				),
-			}))
-			.run(client);
-
-		if (isTitleInHive) {
-			return {
-				success: false,
-				error: {
-					reason: "Title is already added to your hive!",
-				},
-			};
-		}
-		const titleToAdd = e.select(e.Title, (title) => ({
-			filter_single: e.op(
-				e.op(title.tmdbId, "=", tmdbId),
-				"and",
-				e.op(title.type, "=", TypeEnum),
-			),
-		}));
-
-		const status = hiveFormValues.status;
-
-		if (status === "FINISHED") {
 			const insert = await e
 				.insert(e.Hive, {
 					addedBy: e.global.CurrentUser,
 					title: titleToAdd,
-					status: hiveFormValues.status,
-					finishedAt: hiveFormValues.finishedAt
-						? hiveFormValues.finishedAt
-						: undefined,
-					startedAt: hiveFormValues.startedAt
-						? hiveFormValues.startedAt
-						: undefined,
 					currentEpisode: hiveFormValues.currentEpisode,
+					startedAt: hiveFormValues.startedAt ? hiveFormValues.startedAt : null,
 					currentSeason: hiveFormValues.currentSeason,
-					rating: hiveFormValues.rating
-						? e.float32(hiveFormValues.rating)
-						: undefined,
+					status: hiveFormValues.status,
 					isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
 				})
 				.run(client);
@@ -592,45 +728,8 @@ export const addTitleHive = authAction
 				status: hiveFormValues.status,
 				data: insert.id,
 			};
-		}
-		if (status === "PENDING") {
-			const insert = await e
-				.insert(e.Hive, {
-					addedBy: e.global.CurrentUser,
-					title: titleToAdd,
-					currentEpisode: hiveFormValues.currentEpisode,
-					startedAt: hiveFormValues.startedAt ? hiveFormValues.startedAt : null,
-					currentSeason: hiveFormValues.currentSeason,
-					status: hiveFormValues.status,
-				})
-				.run(client);
-
-			revalidatePath("/hive");
-			return {
-				success: true,
-				status: hiveFormValues.status,
-				data: insert.id,
-			};
-		}
-		const insert = await e
-			.insert(e.Hive, {
-				addedBy: e.global.CurrentUser,
-				title: titleToAdd,
-				currentEpisode: hiveFormValues.currentEpisode,
-				startedAt: hiveFormValues.startedAt ? hiveFormValues.startedAt : null,
-				currentSeason: hiveFormValues.currentSeason,
-				status: hiveFormValues.status,
-				isFavorite: e.bool(hiveFormValues.isFavorite ?? false),
-			})
-			.run(client);
-
-		revalidatePath("/hive");
-		return {
-			success: true,
-			status: hiveFormValues.status,
-			data: insert.id,
-		};
-	});
+		},
+	);
 
 async function getIMDBId(tmdbId: number, type: "MOVIE" | "SERIES") {
 	const media_type = type === "MOVIE" ? "movie" : "tv";

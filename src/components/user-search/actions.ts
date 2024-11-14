@@ -3,7 +3,7 @@
 import e from "@edgedb/edgeql-js";
 
 import { auth } from "@/lib/edgedb";
-import { actionClient } from "@/lib/safe-action";
+import { withoutAuthActionClient } from "@/lib/safe-action";
 
 import { SearchProfile } from "./validations";
 
@@ -13,7 +13,7 @@ export interface UserSearch {
 	name: string;
 }
 
-export const searchUsers = actionClient
+export const searchUsers = withoutAuthActionClient
 	.schema(SearchProfile)
 	.action(async ({ parsedInput: { search } }) => {
 		const client = auth.getSession().client;

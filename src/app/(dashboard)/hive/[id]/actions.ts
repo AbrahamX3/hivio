@@ -4,11 +4,11 @@ import e from "@edgedb/edgeql-js";
 import { revalidatePath } from "next/cache";
 
 import { auth } from "@/lib/edgedb";
-import { authAction } from "@/lib/safe-action";
+import { withAuthActionClient } from "@/lib/safe-action";
 
 import { GetTitleFromHiveSchema, saveTitleFormSchema } from "./validations";
 
-export const getTitleFromHive = authAction
+export const getTitleFromHive = withAuthActionClient
 	.schema(GetTitleFromHiveSchema)
 	.action(async ({ parsedInput: { id } }) => {
 		const client = auth.getSession().client;
@@ -40,7 +40,7 @@ export const getTitleFromHive = authAction
 		};
 	});
 
-export const getTitleFromHiveMetadata = authAction
+export const getTitleFromHiveMetadata = withAuthActionClient
 	.schema(GetTitleFromHiveSchema)
 	.action(async ({ parsedInput: { id } }) => {
 		const client = auth.getSession().client;
@@ -72,7 +72,7 @@ export const getTitleFromHiveMetadata = authAction
 		};
 	});
 
-export const updateTitleFromHive = authAction
+export const updateTitleFromHive = withAuthActionClient
 	.schema(saveTitleFormSchema)
 	.action(async ({ parsedInput: { form, id } }) => {
 		const client = auth.getSession().client;

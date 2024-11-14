@@ -1,7 +1,6 @@
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
-import { ViewTransitions } from "next-view-transitions";
 
 import { TailwindIndicator } from "@/components/providers/tailwind-indicator";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -50,32 +49,30 @@ export default async function RootLayout({
 	const currentUser = await getUserSession();
 
 	return (
-		<ViewTransitions>
-			<html
-				lang="en"
-				className={`${GeistSans.variable} ${GeistMono.variable}`}
-				suppressHydrationWarning
-			>
-				<Script
-					defer
-					src="https://cloud.umami.is/script.js"
-					data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-				/>
-				<body className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3">
-					<ThemeProvider
-						attribute="class"
-						defaultTheme="system"
-						enableSystem
-						disableTransitionOnChange
-					>
-						{children}
-						<Confetti />
-						<Toaster richColors />
-						<TailwindIndicator />
-						<QuickMenu currentUser={currentUser} />
-					</ThemeProvider>
-				</body>
-			</html>
-		</ViewTransitions>
+		<html
+			lang="en"
+			className={`${GeistSans.variable} ${GeistMono.variable}`}
+			suppressHydrationWarning
+		>
+			<body className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3">
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					{children}
+					<Confetti />
+					<Toaster richColors />
+					<TailwindIndicator />
+					<QuickMenu currentUser={currentUser} />
+				</ThemeProvider>
+			</body>
+			<Script
+				defer
+				src="https://cloud.umami.is/script.js"
+				data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+			/>
+		</html>
 	);
 }

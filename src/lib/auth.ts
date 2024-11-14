@@ -122,8 +122,3 @@ export async function getUserSession() {
 		following: user.following,
 	};
 }
-
-export async function signOutUser() {
-	const url = auth.getSignoutUrl();
-	await fetch(url);
-}

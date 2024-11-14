@@ -13,7 +13,7 @@ import {
 	TrashIcon,
 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";

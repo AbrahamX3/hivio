@@ -1,5 +1,5 @@
 import { CircleUserIcon, RocketIcon, TelescopeIcon } from "lucide-react";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";

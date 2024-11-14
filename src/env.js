@@ -6,6 +6,8 @@ export const env = createEnv({
 	extends: [vercel()],
 	server: {
 		TMDB_API_KEY: z.string().min(1),
+		UPSTASH_REDIS_REST_URL: z.string().url(),
+		UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
 	},
 	client: {
 		NEXT_PUBLIC_BASE_URL: z.string().min(1),

@@ -1,15 +1,24 @@
 import { createSafeActionClient } from "next-safe-action";
 
+import { getUserSession } from "./auth";
 import { auth } from "./edgedb";
 
-export const actionClient = createSafeActionClient();
+export const withoutAuthActionClient = createSafeActionClient();
 
-export const authAction = createSafeActionClient().use(async ({ next }) => {
-	const isSignedIn = await auth.getSession().isSignedIn();
+export const withAuthActionClient = createSafeActionClient().use(
+	async ({ next }) => {
+		const isSignedIn = await auth.getSession().isSignedIn();
 
-	if (!isSignedIn) {
-		throw new Error("Session not found!");
-	}
+		if (!isSignedIn) {
+			throw new Error("Session not found!");
+		}
 
-	return next();
-});
+		const session = await getUserSession();
+
+		if (!session) {
+			throw new Error("Session not found!");
+		}
+
+		return next({ ctx: { session } });
+	},
+);
