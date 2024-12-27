@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, XIcon } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -33,12 +32,8 @@ import { cn } from "@/lib/utils";
 import type { UserSession } from "@/types/auth";
 import type { SearchResult } from "@/types/tmdb";
 
-import {
-	type SeasonData,
-	addTitleHive,
-	findTitleSeasons,
-	searchTitle,
-} from "../../actions";
+import { api } from "@/trpc/react";
+import { type SeasonData, searchTitle } from "../../actions";
 import {
 	type HiveFormValues,
 	type TitleFormValues,
@@ -57,6 +52,7 @@ export default function AddTitleToHive({
 	user: UserSession;
 	className?: string;
 }) {
+	const utils = api.useUtils();
 	const searchForm = useForm<z.infer<typeof searchFormSchema>>({
 		resolver: zodResolver(searchFormSchema),
 		defaultValues: {
@@ -80,46 +76,25 @@ export default function AddTitleToHive({
 		useServerAction(searchTitle);
 	const [titleSeasons, setTitleSeasons] = useState<SeasonData[]>([]);
 	const [isSuccess, setIsSuccess] = useState(false);
-	const { execute: findTitleSeasonsAction } = useAction(findTitleSeasons, {
-		onSuccess: (data) => setTitleSeasons(data.data?.data ?? []),
+
+	const search = api.title.search.useMutation({
+		onSuccess: ({ data }) => setTitleSeasons(data),
 	});
 
-	const { execute: AddTitleAction, status: AddTitleStatus } = useAction(
-		addTitleHive,
-		{
-			onSuccess: ({ data }) => {
-				if (data?.success) {
-					setIsSuccess(true);
-					toast.success("Title added to your Hive", {
-						id: "add-title",
-					});
+	const create = api.hive.create.useMutation({
+		onSuccess: async ({ status }) => {
+			setIsSuccess(true);
+			await utils.hive.getAll.invalidate();
 
-					if (data?.status === "FINISHED") {
-						tossConfetti();
-					}
+			if (status === "FINISHED") {
+				tossConfetti();
+			}
 
-					setHiveFormValues(undefined);
-					setTitleFormValues(undefined);
-					setSelectedTitleData(undefined);
-				} else {
-					setIsSuccess(false);
-					toast.error(data?.error?.reason, {
-						id: "add-title",
-					});
-				}
-			},
-			onExecute: () => {
-				toast.loading("Adding Title to your Hive", {
-					id: "add-title",
-				});
-			},
-			onError: () => {
-				toast.error("Error adding title to your hive", {
-					id: "add-title",
-				});
-			},
+			setHiveFormValues(undefined);
+			setTitleFormValues(undefined);
+			setSelectedTitleData(undefined);
 		},
-	);
+	});
 
 	async function handleSearch(values: z.infer<typeof searchFormSchema>) {
 		const searchResult = await getTitleSearchAction({
@@ -149,7 +124,11 @@ export default function AddTitleToHive({
 	function handleSubmit() {
 		if (!hiveFormValues || !titleFormValues) return false;
 
-		AddTitleAction({ hiveFormValues, titleFormValues });
+		toast.promise(create.mutateAsync({ hiveFormValues, titleFormValues }), {
+			loading: "Adding Title to your Hive",
+			success: "Title added to your Hive",
+			error: "Error adding title to your hive",
+		});
 
 		return true;
 	}
@@ -168,14 +147,14 @@ export default function AddTitleToHive({
 				>
 					<span>Add Title</span>
 					<LogoIcon className="size-4" />
-					<PlusIcon className="absolute right-[25px] top-[22px] size-2 stroke-[4px] group-hover:animate-pulse" />
+					<PlusIcon className="absolute top-[20px] right-[25px] h-[10px] w-[10px] stroke-[4px] text-foreground group-hover:animate-pulse dark:text-background" />
 				</Button>
 			</DrawerTrigger>
 			<DrawerContent
 				direction="right"
-				className="left-auto right-0 top-0 mt-0 h-screen w-full rounded-none pb-4 md:w-[90vw]"
+				className="top-0 right-0 left-auto mt-0 h-screen w-full rounded-none pb-4 md:w-[90vw]"
 			>
-				<div className="mx-auto h-full w-full overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+				<div className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 mx-auto h-full w-full overflow-y-auto p-1">
 					<DrawerHeader>
 						<DrawerTitle>Add Title to Your Hive</DrawerTitle>
 						<DrawerDescription>
@@ -257,9 +236,7 @@ export default function AddTitleToHive({
 									</form>
 								</Form>
 								<TitleFormStep
-									handleSeasons={(tmdbId: number) =>
-										findTitleSeasonsAction({ tmdbId })
-									}
+									handleSeasons={(tmdbId: number) => search.mutate({ tmdbId })}
 									setSelectedTitleData={setSelectedTitleData}
 									handleSearchClear={handleSearchClear}
 									setFormValues={(values) => setTitleFormValues(values)}
@@ -288,7 +265,7 @@ export default function AddTitleToHive({
 								<StepperFormActions
 									isSubmitSuccessful={isSuccess}
 									setIsSubmitSuccessful={setIsSuccess}
-									isSubmitFnPending={AddTitleStatus === "executing"}
+									isSubmitFnPending={create.status === "pending"}
 									submitFn={handleSubmit}
 								/>
 							</Step>

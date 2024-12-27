@@ -32,7 +32,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { convertMinutesToHrMin } from "@/lib/utils";
 
 import {
@@ -106,7 +106,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicUserProfile({ params }: Props) {
 	const result = await getProfileAction({ username: params.username });
-	const currentUser = await getUserSession();
+	const currentUser = await getSession();
 
 	if (!result?.data?.success) {
 		notFound();
@@ -160,11 +160,11 @@ export default async function PublicUserProfile({ params }: Props) {
 				)}
 			</div>
 			<StatsCards data={JSON.parse(JSON.stringify(hive)) as UserHiveProfiles} />
-			<h3 className="text-2xl font-semibold">Currently Watching</h3>
+			<h3 className="font-semibold text-2xl">Currently Watching</h3>
 			<Suspense fallback={<div>Loading...</div>}>
 				{currentlyWatching && currentlyWatching?.length > 0 ? (
 					<div className="w-full rounded-md border border-dashed p-4">
-						<div className="lg:min-w-5xl mx-auto max-w-lg md:max-w-2xl lg:max-w-[83rem]">
+						<div className="mx-auto max-w-lg md:max-w-2xl lg:min-w-5xl lg:max-w-[83rem]">
 							<Carousel>
 								<CarouselContent>
 									{currentlyWatching?.map((hive) => (
@@ -201,13 +201,13 @@ export default async function PublicUserProfile({ params }: Props) {
 																		{hive.isFavorite && (
 																			<StarIcon className="size-4 text-primary" />
 																		)}
-																		<p className="line-clamp-1 w-5/6 text-sm font-medium">
+																		<p className="line-clamp-1 w-5/6 font-medium text-sm">
 																			{hive.title.name}
 																		</p>
 																	</div>
 																</TooltipTrigger>
 																<TooltipContent className="w-1/2">
-																	<p className="text-sm font-medium">
+																	<p className="font-medium text-sm">
 																		{hive.title.name}
 																	</p>
 																</TooltipContent>
@@ -342,7 +342,7 @@ export default async function PublicUserProfile({ params }: Props) {
 					</div>
 				) : (
 					<div className="flex w-full items-center justify-center rounded-md border p-4">
-						<div className="text-sm text-gray-500 dark:text-gray-400">
+						<div className="text-gray-500 text-sm dark:text-gray-400">
 							<span> @{user.username}</span> is currently not watching anything
 						</div>
 					</div>

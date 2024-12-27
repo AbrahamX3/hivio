@@ -10,10 +10,10 @@ export default function Background({
 	useMouseMove();
 	return (
 		<>
-			<div className="fixed left-0 top-0 -z-50">
-				<div className="sticky left-0 top-0 h-screen w-screen overflow-hidden">
+			<div className="-z-50 fixed top-0 left-0">
+				<div className="sticky top-0 left-0 h-screen w-screen overflow-hidden">
 					<div className="absolute inset-0 z-[-1] bg-muted-foreground/20" />
-					<div className="absolute left-[--x] top-[--y] z-[-1] h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-radial from-muted-foreground/50 from-0% to-transparent to-90% blur-md" />
+					<div className="-translate-x-1/2 -translate-y-1/2 absolute top-[--y] left-[--x] z-[-1] h-56 w-56 rounded-full bg-gradient-radial from-0% from-muted-foreground/50 to-90% to-transparent blur-md" />
 					<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
 						<title>Dotted Pattern</title>
 						<defs>

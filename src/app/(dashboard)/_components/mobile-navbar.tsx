@@ -39,7 +39,7 @@ export default function MobileNavbar({ user }: Props) {
 				</Button>
 			</SheetTrigger>
 			<SheetContent side="left" className="flex flex-col">
-				<nav className="grid gap-2 text-lg font-medium">
+				<nav className="grid gap-2 font-medium text-lg">
 					<Link href="/" className="mb-4 flex items-center gap-2 font-semibold">
 						<LogoFull className="h-7 w-auto text-primary" />
 					</Link>

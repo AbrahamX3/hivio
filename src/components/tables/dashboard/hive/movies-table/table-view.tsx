@@ -7,7 +7,10 @@ import { genreOptions, statusOptions } from "@/lib/options";
 import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
 import { MovieColumns } from "./columns";
 
-export default function MoviesTableView({ data }: { data: HiveData }) {
+export default function MoviesTableView({
+	data,
+	isLoading,
+}: { data: HiveData; isLoading: boolean }) {
 	const filters = [
 		{
 			columnId: "Status",
@@ -25,6 +28,7 @@ export default function MoviesTableView({ data }: { data: HiveData }) {
 		<TooltipProvider>
 			<DataTable
 				name="private-hive-movies"
+				isLoading={isLoading}
 				columns={MovieColumns()}
 				data={data}
 				filters={filters}

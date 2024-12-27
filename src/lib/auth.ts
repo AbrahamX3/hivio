@@ -26,6 +26,10 @@ export async function verifyUser() {
 export async function getUser() {
 	const session = auth.getSession();
 
+	if (!session.isSignedIn()) {
+		return null;
+	}
+
 	const user = await e
 		.select(e.global.CurrentUser, (user) => ({
 			id: true,
@@ -56,7 +60,7 @@ export async function getUser() {
 		.run(session.client);
 
 	if (!user) {
-		redirect("/auth/signin");
+		return null;
 	}
 
 	return {
@@ -73,7 +77,7 @@ export async function getUser() {
 	};
 }
 
-export async function getUserSession() {
+export async function getSession() {
 	const session = auth.getSession();
 
 	const user = await e

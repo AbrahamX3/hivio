@@ -51,7 +51,7 @@ export default function ViewDetailsButton({ data, currentUser }: Props) {
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-						<p className="text-sm font-medium">View Title Details</p>
+						<p className="font-medium text-sm">View Title Details</p>
 					</TooltipContent>
 				</Tooltip>
 			</TooltipProvider>

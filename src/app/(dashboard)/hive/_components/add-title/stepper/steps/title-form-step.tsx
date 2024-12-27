@@ -65,7 +65,7 @@ export function TitleFormStep({
 				searchResults.length > 0 ? (
 					<form
 						onSubmit={titleForm.handleSubmit(handleSubmit)}
-						className="mx-auto min-w-0 max-w-[78%] md:w-full md:lg:max-w-[90%] lg:max-w-[93%]"
+						className="mx-auto min-w-0 max-w-[78%] md:w-full lg:max-w-[93%] md:lg:max-w-[90%]"
 					>
 						<Carousel data-vaul-no-drag>
 							<CarouselContent className="w-full max-w-[380px] xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]">
@@ -102,7 +102,7 @@ export function TitleFormStep({
 				) : (
 					<div
 						data-vaul-no-drag
-						className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50"
+						className="fade-in-50 flex w-full animate-in flex-col items-center justify-center rounded-md border border-dashed p-8"
 					>
 						No results found using your search.
 					</div>
@@ -110,7 +110,7 @@ export function TitleFormStep({
 			) : (
 				<div
 					data-vaul-no-drag
-					className="flex h-[50%] w-full flex-1 flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50"
+					className="fade-in-50 flex h-[50%] w-full flex-1 animate-in flex-col items-center justify-center rounded-md border border-dashed p-8"
 				>
 					Search for a movie or series to add to your list.
 				</div>

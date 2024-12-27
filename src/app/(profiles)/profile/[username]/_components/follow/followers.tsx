@@ -8,7 +8,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import type { UserSession } from "@/types/auth";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useOptimisticAction } from "next-safe-action/hooks";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -36,7 +36,7 @@ export function Followers({ currentUser, hiveUserProfile }: Props) {
 					</DialogTitle>
 				</DialogHeader>
 				<div className="max-h-[300px] overflow-y-auto">
-					<div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+					<div className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1">
 						{hiveUserProfile?.total_followers === 0 ? (
 							currentUser === hiveUserProfile?.username ? (
 								<div className="flex flex-col items-center rounded-md border border-dashed p-2 text-center">
@@ -120,7 +120,7 @@ function UserCard({
 		>
 			<Link
 				href={`/profile/${username}`}
-				className="h-18 flex w-64 items-center space-x-3 rounded-md border p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
+				className="flex h-18 w-64 items-center space-x-3 rounded-md border p-2 transition duration-150 ease-in-out hover:bg-primary hover:text-primary-foreground"
 			>
 				<Avatar className="h-10 w-10">
 					{avatar && <AvatarImage alt={`@${username}`} src={avatar} />}

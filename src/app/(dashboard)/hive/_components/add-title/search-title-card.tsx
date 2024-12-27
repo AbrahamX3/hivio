@@ -46,7 +46,7 @@ export default function SearchTitleCard({
 		>
 			{selectedTitleId === result.id && (
 				<>
-					<div className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 rounded-md bg-background/80 backdrop-blur-sm">
+					<div className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 z-50 rounded-md bg-background/80 backdrop-blur-sm">
 						<Button
 							onClick={(e) => {
 								e.stopPropagation();
@@ -72,10 +72,10 @@ export default function SearchTitleCard({
 					width={154}
 				/>
 				<ViewPosterButton poster={result.poster_path} alt={titleName} />
-				<Badge className="absolute left-3 top-3 z-20">{mediaType}</Badge>
+				<Badge className="absolute top-3 left-3 z-20">{mediaType}</Badge>
 				<MousePointerClickIcon
 					className={cn(
-						"absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-150 ease-in-out",
+						"-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 z-20 opacity-0 transition-opacity duration-150 ease-in-out",
 						selectedTitleId !== result.id &&
 							"group-hover/card:animate-pulse group-hover/card:opacity-100",
 					)}
@@ -83,7 +83,7 @@ export default function SearchTitleCard({
 				<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
 					<div className="flex flex-col justify-start gap-2">
 						<div className="flex flex-col items-start gap-[4px]">
-							<h3 className="flex items-center gap-2 text-balance align-middle text-xl font-bold text-white">
+							<h3 className="flex items-center gap-2 text-balance align-middle font-bold text-white text-xl">
 								{titleName}{" "}
 								<ViewExternalPlatformsButton
 									type={result.media_type}
@@ -129,7 +129,7 @@ export function ViewPosterButton({
 					}}
 					variant="ghost"
 					size="icon"
-					className="group absolute right-1 top-1 z-20 hover:bg-transparent"
+					className="group absolute top-1 right-1 z-20 hover:bg-transparent"
 				>
 					<MaximizeIcon className="block size-4 group-hover:hidden" />
 					<ExpandIcon className="hidden size-4 group-hover:block" />
@@ -173,7 +173,7 @@ export function ViewDescriptionButton({
 			</DialogTrigger>
 			<DialogContent className="h-screen max-h-[90dvh] sm:h-auto">
 				<DialogHeader>
-					<DialogTitle className="text-2xl font-semibold">
+					<DialogTitle className="font-semibold text-2xl">
 						Description
 					</DialogTitle>
 				</DialogHeader>

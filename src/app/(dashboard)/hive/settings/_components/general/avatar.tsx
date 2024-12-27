@@ -82,12 +82,12 @@ export default function AvatarForm({ avatar }: Props) {
 			<Form {...AvatarForm}>
 				<form onSubmit={AvatarForm.handleSubmit((values) => execute(values))}>
 					<CardContent className="space-y-8">
-						<div className="flex w-full items-center align-middle gap-2 justify-between">
+						<div className="flex w-full items-center justify-between gap-2 align-middle">
 							<FormField
 								control={AvatarForm.control}
 								name="avatar"
 								render={({ field }) => (
-									<FormItem className="col-span-4 md:col-span-8 w-full">
+									<FormItem className="col-span-4 w-full md:col-span-8">
 										<FormControl>
 											<Input
 												type="text"
@@ -112,7 +112,7 @@ export default function AvatarForm({ avatar }: Props) {
 									target="_blank"
 									rel="noreferrer"
 								>
-									<ExternalLinkIcon className="w-4 h-4" />
+									<ExternalLinkIcon className="h-4 w-4" />
 								</a>
 							)}
 						</div>

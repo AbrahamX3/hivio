@@ -127,3 +127,10 @@ export const searchFormSchema = z.object({
 		message: "Search query is required",
 	}),
 });
+
+export const saveTitleFormSchema = z.object({
+	form: hiveFormSchema,
+	id: z.string().min(1, {
+		message: "Title ID is required",
+	}),
+});

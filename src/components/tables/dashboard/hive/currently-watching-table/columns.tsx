@@ -1,8 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { InfoIcon, StarIcon } from "lucide-react";
-import Link from "next/link";
+import { DramaIcon, InfoIcon, MinusIcon, StarIcon } from "lucide-react";
 
 import {
 	Accordion,
@@ -18,18 +17,16 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { genreOptions, statusOptions, typeOptions } from "@/lib/options";
+import { genreOptions, typeOptions } from "@/lib/options";
 
-import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
+import { FloatingDrawer } from "@/components/floating-panel";
+import { HiveForm } from "@/components/hive-form";
+import type { GetAll } from "@/types/hive";
+import { useState } from "react";
 import { HiveCurrentlyWatchingTableActions } from "./actions";
 
 export function CurrentlyWatchingColumns() {
-	const columns: ColumnDef<HiveData[0]>[] = [
+	const columns: ColumnDef<GetAll[number]>[] = [
 		{
 			id: "actions",
 			header: () => <div className="sr-only hidden">Actions</div>,
@@ -44,28 +41,35 @@ export function CurrentlyWatchingColumns() {
 				<DataTableColumnHeader column={column} title="Title Name" />
 			),
 			cell: ({ row }) => {
+				const [isPanelOpen, setIsPanelOpen] = useState(false);
+				const [isScrolled, setIsScrolled] = useState(false);
+
 				return (
-					<Tooltip>
-						<TooltipTrigger>
-							<Link
-								prefetch={false}
-								className="flex max-w-[250px] gap-2 truncate"
-								href={`/hive/${row.original.id}`}
-							>
-								<span className="flex justify-start gap-2 align-middle font-medium">
-									{row.original.isFavorite && (
-										<StarIcon className="size-4 text-primary" />
-									)}
-									<span className="w-[200px] truncate text-left duration-150 ease-in-out hover:text-primary">
-										{row.getValue("Title Name")}
-									</span>
+					<>
+						<Button variant="link" onClick={() => setIsPanelOpen(true)}>
+							<span className="flex justify-start gap-2 align-middle font-medium">
+								{row.original.isFavorite && (
+									<StarIcon className="size-4 text-primary" />
+								)}
+								<span className="truncate text-left duration-150 ease-in-out hover:text-primary">
+									{row.getValue("Title Name")}
 								</span>
-							</Link>
-						</TooltipTrigger>
-						<TooltipContent className="w-fit max-w-[250px] text-pretty">
-							{row.getValue("Title Name")}
-						</TooltipContent>
-					</Tooltip>
+							</span>
+						</Button>
+						{isPanelOpen && (
+							<FloatingDrawer
+								isOpen={isPanelOpen}
+								onClose={() => setIsPanelOpen(false)}
+								title={row.original.title.name}
+								status={row.original.status}
+								side="right"
+								isScrolled={isScrolled}
+								setIsScrolled={setIsScrolled}
+							>
+								<HiveForm id={row.original.id} isScrolled={isScrolled} />
+							</FloatingDrawer>
+						)}
+					</>
 				);
 			},
 		},
@@ -100,16 +104,16 @@ export function CurrentlyWatchingColumns() {
 				);
 
 				if (!type) {
-					return null;
+					return <MinusIcon className="size-4 text-muted-foreground" />;
 				}
 
 				return (
-					<div className="flex w-[100px] items-center">
+					<Badge variant="secondary">
 						{type.icon && (
-							<type.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+							<type.icon className="mr-2 size-4 text-muted-foreground" />
 						)}
 						<span>{type.label}</span>
-					</div>
+					</Badge>
 				);
 			},
 			filterFn: (row, id, value: string) => {
@@ -123,7 +127,7 @@ export function CurrentlyWatchingColumns() {
 			),
 			cell: ({ row }) => {
 				if (row.original.title.seasons.length === 0) {
-					return null;
+					return <MinusIcon className="mx-auto size-4 text-muted-foreground" />;
 				}
 
 				const orderedSeasons = row.original.title.seasons.sort(
@@ -144,7 +148,7 @@ export function CurrentlyWatchingColumns() {
 								</div>
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+						<PopoverContent className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto">
 							<div className="flex flex-col gap-2 align-middle text-sm">
 								{row.original.currentSeason && row.original.currentSeason && (
 									<div>
@@ -224,44 +228,22 @@ export function CurrentlyWatchingColumns() {
 				}
 
 				return (
-					<div className="flex w-[100px] items-center">
-						<span>{genres.join(", ")}</span>
-					</div>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button>
+								<DramaIcon className="size-4" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-fit" align="end">
+							{genres.join(", ")}
+						</PopoverContent>
+					</Popover>
 				);
 			},
 			filterFn: (row, id, value: string[]) => {
 				return value.every((val: string) =>
 					row.getValue<string[]>(id).includes(val),
 				);
-			},
-		},
-		{
-			id: "Status",
-			accessorFn: (row) => row.status,
-			accessorKey: "status",
-			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Status" />
-			),
-			cell: ({ row }) => {
-				const status = statusOptions.find(
-					(status) => status.value === row.getValue("Status"),
-				);
-
-				if (!status) {
-					return null;
-				}
-
-				return (
-					<div className="flex w-[100px] items-center">
-						{status.icon && (
-							<status.icon className="mr-2 size-4 text-muted-foreground" />
-						)}
-						<span>{status.label}</span>
-					</div>
-				);
-			},
-			filterFn: (row, id, value: string) => {
-				return value.includes(row.getValue(id));
 			},
 		},
 	];

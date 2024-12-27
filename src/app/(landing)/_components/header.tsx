@@ -1,13 +1,13 @@
 import Link from "next/link";
 
-import DashboardAvatar from "@/components/avatar";
+import HiveAvatar from "@/components/avatar";
 import LogoFull from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
 
 export default async function Header() {
-	const user = await getUserSession();
+	const user = await getSession();
 
 	return (
 		<header className="w-full bg-primary text-black">
@@ -17,13 +17,13 @@ export default async function Header() {
 				</Link>
 				<div className="flex items-center gap-4 align-middle">
 					<Link
-						className="text-lg font-semibold underline-offset-4 hover:underline"
+						className="font-semibold text-lg underline-offset-4 hover:underline"
 						href="/#features"
 					>
 						Features
 					</Link>
 					<Link
-						className="text-lg font-semibold underline-offset-4 hover:underline"
+						className="font-semibold text-lg underline-offset-4 hover:underline"
 						href="/about"
 					>
 						About
@@ -32,7 +32,7 @@ export default async function Header() {
 						{user === null ? (
 							<Link href="/auth/signin">Sign In</Link>
 						) : (
-							<DashboardAvatar user={user} signOutUrl={auth.getSignoutUrl()} />
+							<HiveAvatar user={user} signOutUrl={auth.getSignoutUrl()} />
 						)}
 					</Button>
 				</div>

@@ -28,11 +28,11 @@ import {
 } from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 
-import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
+import type { GetAll } from "@/types/hive";
 import { HiveSeriesTableActions } from "./actions";
 
 export function SeriesColumns() {
-	const columns: ColumnDef<HiveData[0]>[] = [
+	const columns: ColumnDef<GetAll[number]>[] = [
 		{
 			id: "actions",
 			header: () => <div className="sr-only hidden">Actions</div>,
@@ -179,7 +179,7 @@ export function SeriesColumns() {
 								</div>
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+						<PopoverContent className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto">
 							<div className="flex flex-col gap-2 align-middle text-sm">
 								{row.original.currentSeason && row.original.currentSeason && (
 									<div>

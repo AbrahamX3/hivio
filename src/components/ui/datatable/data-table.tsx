@@ -26,6 +26,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 
+import { LoaderIcon } from "lucide-react";
 import { DataTableToolbar, type Filter } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
@@ -84,14 +85,23 @@ export function DataTable<TData, TValue>({
 					name={name}
 				/>
 			)}
-			<div className="rounded-md border border-border">
+			<div className="rounded-md border border-border bg-background">
 				<Table>
-					<TableHeader>
+					<TableHeader className="bg-primary">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
+								{headerGroup.headers.map((header, index) => {
 									return (
-										<TableHead key={header.id}>
+										<TableHead
+											key={header.id}
+											className={`text-primary-foreground ${
+												index === 0
+													? "rounded-tl-md"
+													: index === headerGroup.headers.length - 1
+														? "rounded-tr-md"
+														: ""
+											}`}
+										>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -107,13 +117,8 @@ export function DataTable<TData, TValue>({
 					<TableBody>
 						{isLoading ? (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 animate-pulse text-center font-bold"
-								>
-									<span className="animate-pulse font-bold">
-										Loading data...
-									</span>
+								<TableCell colSpan={columns.length} className="h-24">
+									<LoaderIcon className="mx-auto size-5 animate-spin" />
 								</TableCell>
 							</TableRow>
 						) : table.getRowModel().rows?.length ? (

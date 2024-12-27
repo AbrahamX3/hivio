@@ -31,7 +31,7 @@ export default function DashboardSiderbar({ user }: Props) {
 					</Link>
 				</div>
 				<div className="flex-1">
-					<nav className="grid items-start gap-2 px-2 text-sm font-medium lg:px-4">
+					<nav className="grid items-start gap-2 px-2 font-medium text-sm lg:px-4">
 						<SidebarLink name="My Hive" href="/hive">
 							<LogoIcon className="size-4" />
 						</SidebarLink>

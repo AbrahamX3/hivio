@@ -30,9 +30,9 @@ export default function ConfirmTitleCard({
 		return (
 			<div
 				data-vaul-no-drag
-				className="flex w-full flex-col items-center justify-center rounded-md border border-dashed p-8 animate-in fade-in-50"
+				className="fade-in-50 flex w-full animate-in flex-col items-center justify-center rounded-md border border-dashed p-8"
 			>
-				<h2 className="text-2xl font-bold">No Title Selected</h2>
+				<h2 className="font-bold text-2xl">No Title Selected</h2>
 				<div className="mt-4 flex items-center justify-center gap-2 rounded-md border px-4 py-2">
 					<InfoIcon className="size-4 opacity-50" />
 					<p>
@@ -52,7 +52,7 @@ export default function ConfirmTitleCard({
 			<>
 				<div
 					data-vaul-no-drag
-					className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50"
+					className="fade-in-50 flex h-full max-h-56 w-full animate-in gap-4 overflow-hidden rounded-md border border-dashed p-8"
 				>
 					{selectedTitle.poster_path && (
 						<Dialog>
@@ -98,7 +98,7 @@ export default function ConfirmTitleCard({
 								/ 10
 							</Badge>
 						</div>
-						<p className="hidden h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 xs:flex">
+						<p className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 xs:flex hidden h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide">
 							{selectedTitle.overview}
 						</p>
 						<ViewDescriptionButton description={selectedTitle.overview} />
@@ -111,7 +111,7 @@ export default function ConfirmTitleCard({
 
 	return (
 		<>
-			<div className="flex h-full max-h-56 w-full gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
+			<div className="fade-in-50 flex h-full max-h-56 w-full animate-in gap-4 overflow-hidden rounded-md border border-dashed p-8">
 				{selectedTitle.poster_path && (
 					<Dialog>
 						<DialogTrigger asChild>
@@ -158,7 +158,7 @@ export default function ConfirmTitleCard({
 							</Badge>
 						</div>
 					</div>
-					<p className="hidden h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 xs:flex">
+					<p className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 xs:flex hidden h-full overflow-auto text-pretty rounded-md border p-4 text-sm leading-relaxed tracking-wide">
 						{selectedTitle.overview}
 					</p>
 					<ViewDescriptionButton description={selectedTitle.overview} />
@@ -184,7 +184,7 @@ function FormValuesDisplay({
 		type === "SERIES";
 
 	return (
-		<div className="flex h-full max-h-56 w-full flex-wrap gap-4 overflow-hidden rounded-md border border-dashed p-8 animate-in fade-in-50">
+		<div className="fade-in-50 flex h-full max-h-56 w-full animate-in flex-wrap gap-4 overflow-hidden rounded-md border border-dashed p-8">
 			<span>
 				Status: <Badge>{formValues.status}</Badge>
 			</span>
@@ -240,7 +240,7 @@ export function ViewDescriptionButton({
 					}}
 					variant="outline"
 					size="icon"
-					className="group flex py-2 hover:bg-transparent xs:hidden"
+					className="group flex xs:hidden py-2 hover:bg-transparent"
 				>
 					<BookTextIcon className="size-4 group-hover:hidden" />
 					<BookOpenTextIcon className="hidden size-4 group-hover:block" />
@@ -248,7 +248,7 @@ export function ViewDescriptionButton({
 			</DialogTrigger>
 			<DialogContent className="h-screen max-h-[90dvh] sm:h-auto">
 				<DialogHeader>
-					<DialogTitle className="text-2xl font-semibold">
+					<DialogTitle className="font-semibold text-2xl">
 						Description
 					</DialogTitle>
 				</DialogHeader>

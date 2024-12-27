@@ -85,12 +85,12 @@ export default function StatsCards({ data }: Props) {
 		<div className="grid w-full gap-4 pt-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Finished Titles</CardTitle>
+					<CardTitle className="font-medium text-sm">Finished Titles</CardTitle>
 					<CheckCircleIcon className="size-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-2xl font-bold">{finishedTitles.length}</div>
-					<p className="text-xs text-muted-foreground">
+					<div className="font-bold text-2xl">{finishedTitles.length}</div>
+					<p className="text-muted-foreground text-xs">
 						{finishedTitlesThisYearText} finished in {new Date().getFullYear()}
 					</p>
 				</CardContent>
@@ -98,12 +98,12 @@ export default function StatsCards({ data }: Props) {
 
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Finished Movies</CardTitle>
+					<CardTitle className="font-medium text-sm">Finished Movies</CardTitle>
 					<FilmIcon className="size-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-2xl font-bold">{finishedMovies.length}</div>
-					<p className="text-xs text-muted-foreground">
+					<div className="font-bold text-2xl">{finishedMovies.length}</div>
+					<p className="text-muted-foreground text-xs">
 						{finishedMoviesThisMonthText} finished this month
 					</p>
 				</CardContent>
@@ -111,12 +111,12 @@ export default function StatsCards({ data }: Props) {
 
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Finished Series</CardTitle>
+					<CardTitle className="font-medium text-sm">Finished Series</CardTitle>
 					<ClapperboardIcon className="size-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-2xl font-bold">{finishedSeries.length}</div>
-					<p className="text-xs text-muted-foreground">
+					<div className="font-bold text-2xl">{finishedSeries.length}</div>
+					<p className="text-muted-foreground text-xs">
 						{finishedSeriesThisMonthText} finished this month
 					</p>
 				</CardContent>
@@ -124,14 +124,14 @@ export default function StatsCards({ data }: Props) {
 
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">
+					<CardTitle className="font-medium text-sm">
 						Currently Watching
 					</CardTitle>
 					<PlayCircleIcon className="size-4 text-muted-foreground" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-2xl font-bold">{currentlyWatching.length}</div>
-					<p className="text-xs text-muted-foreground">
+					<div className="font-bold text-2xl">{currentlyWatching.length}</div>
+					<p className="text-muted-foreground text-xs">
 						{currentWatchingMoviesText} and {currentWatchingSeriesText} in total
 					</p>
 				</CardContent>

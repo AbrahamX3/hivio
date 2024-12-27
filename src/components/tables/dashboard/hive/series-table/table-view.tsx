@@ -7,7 +7,10 @@ import { genreOptions, statusOptions } from "@/lib/options";
 import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
 import { SeriesColumns } from "./columns";
 
-export default function SeriesTableView({ data }: { data: HiveData }) {
+export default function SeriesTableView({
+	data,
+	isLoading,
+}: { data: HiveData; isLoading: boolean }) {
 	const filters = [
 		{
 			columnId: "Status",
@@ -27,6 +30,7 @@ export default function SeriesTableView({ data }: { data: HiveData }) {
 				name="private-hive-series"
 				columns={SeriesColumns()}
 				data={data}
+				isLoading={isLoading}
 				filters={filters}
 			/>
 		</TooltipProvider>

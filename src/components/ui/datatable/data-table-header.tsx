@@ -9,8 +9,8 @@ export default function DataTableHeader({
 }) {
 	return (
 		<div className="my-4 flex w-full flex-col justify-between gap-4 rounded-md align-middle md:flex-row">
-			<p className="text-center text-2xl font-bold sm:hidden">{mobileTitle}</p>
-			<p className="hidden text-2xl font-bold sm:flex">{desktopTitle}</p>
+			<p className="text-center font-bold text-2xl sm:hidden">{mobileTitle}</p>
+			<p className="hidden font-bold text-2xl sm:flex">{desktopTitle}</p>
 			{children}
 		</div>
 	);

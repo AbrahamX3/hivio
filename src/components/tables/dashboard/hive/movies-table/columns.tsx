@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 
-import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
+import type { GetAll } from "@/types/hive";
 import { HiveMoviesTableActions } from "./actions";
 
 export function MovieColumns() {
-	const columns: ColumnDef<HiveData[0]>[] = [
+	const columns: ColumnDef<GetAll[number]>[] = [
 		{
 			id: "actions",
 			header: () => <div className="sr-only hidden">Actions</div>,

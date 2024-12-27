@@ -32,10 +32,7 @@ interface AvatarDropDownProps {
 	user: UserSession;
 	signOutUrl: string;
 }
-export default function DashboardAvatar({
-	user,
-	signOutUrl,
-}: AvatarDropDownProps) {
+export default function HiveAvatar({ user, signOutUrl }: AvatarDropDownProps) {
 	const { name, avatar, username } = user;
 	const { setTheme } = useTheme();
 	return (

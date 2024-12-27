@@ -19,7 +19,7 @@ export function StepperFooter() {
 			data-vaul-no-drag
 			className="flex w-full flex-col items-center justify-center gap-2"
 		>
-			<div className="flex flex-col items-center justify-center gap-4 rounded-md border border-dashed p-8 align-middle text-2xl font-bold">
+			<div className="flex flex-col items-center justify-center gap-4 rounded-md border border-dashed p-8 align-middle font-bold text-2xl">
 				<h2 className="text-2xl leading-relaxed">
 					Successfully added title to your hive!
 				</h2>

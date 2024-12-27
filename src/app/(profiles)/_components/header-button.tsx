@@ -19,7 +19,7 @@ export default function HeaderButton({ user }: { user: UserSession | null }) {
 						variant: "secondary",
 						size: "sm",
 					}),
-					"text-sm font-medium",
+					"font-medium text-sm",
 				)}
 				href={`/profile/${user?.username}`}
 			>
@@ -33,7 +33,7 @@ export default function HeaderButton({ user }: { user: UserSession | null }) {
 					variant: "secondary",
 					size: "sm",
 				}),
-				"text-sm font-medium",
+				"font-medium text-sm",
 			)}
 			href="/discover"
 		>

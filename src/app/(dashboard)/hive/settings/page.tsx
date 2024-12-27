@@ -1,4 +1,4 @@
-import { getUser, verifyUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 
 import AvatarForm from "./_components/general/avatar";
 import DefaultStatusForm from "./_components/general/default-status";
@@ -10,16 +10,18 @@ export const metadata = {
 };
 
 export default async function Settings() {
-	await verifyUser();
-
 	const user = await getUser();
 
+	if (!user) {
+		return null;
+	}
+
 	return (
-		<>
+		<main className="flex w-full flex-1 flex-col gap-4">
 			<UsernameForm username={user?.username} />
 			<DisplayNameForm name={user?.name} />
 			<DefaultStatusForm status={user?.status} />
 			<AvatarForm avatar={user?.avatar} />
-		</>
+		</main>
 	);
 }

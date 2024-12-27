@@ -1,6 +1,6 @@
 import { createSafeActionClient } from "next-safe-action";
 
-import { getUserSession } from "./auth";
+import { getSession } from "./auth";
 import { auth } from "./edgedb";
 
 export const withoutAuthActionClient = createSafeActionClient();
@@ -13,7 +13,7 @@ export const withAuthActionClient = createSafeActionClient().use(
 			throw new Error("Session not found!");
 		}
 
-		const session = await getUserSession();
+		const session = await getSession();
 
 		if (!session) {
 			throw new Error("Session not found!");

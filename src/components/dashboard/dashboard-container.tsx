@@ -1,12 +1,12 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import {
 	ClapperboardIcon,
 	FileJson2,
 	FilmIcon,
 	GalleryHorizontalEndIcon,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -29,22 +29,23 @@ import { useTitleDetails } from "@/context/title-details-context";
 import { cn } from "@/lib/utils";
 import type { UserSession } from "@/types/auth";
 
-import type { HiveData } from "../../app/(dashboard)/hive/actions";
+import { api } from "@/trpc/react";
 import DashboardHeader from "./dashboard-header";
 import TableTabs from "./table-tabs";
 import TitleDetails from "./title-details";
 
 interface DashboardContainerProps {
 	user: UserSession;
-	data: HiveData;
 }
 
-export function DashboardContainer({ user, data }: DashboardContainerProps) {
+export function DashboardContainer({ user }: DashboardContainerProps) {
 	const { selectedTitle } = useTitleDetails();
+
+	const { data, status } = api.hive.getAll.useQuery();
 
 	const exportData = ({ type }: { type: "ALL" | "MOVIE" | "SERIES" }) => {
 		const exportData =
-			type === "ALL" ? data : data.filter((hive) => hive.title.type === type);
+			type === "ALL" ? data : data?.filter((hive) => hive.title.type === type);
 		const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
 			JSON.stringify(exportData),
 		)}`;
@@ -55,13 +56,13 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
 		link.click();
 	};
 
-	const selectedTitleData = data.find(
+	const selectedTitleData = data?.find(
 		(hive) => hive.title.id === selectedTitle?.id,
 	);
 
-	const filteredMovies = data.filter((hive) => hive.title.type === "MOVIE");
-	const filteredSeries = data.filter((hive) => hive.title.type === "SERIES");
-	const currentlyWatching = data.filter((hive) => hive.status === "WATCHING");
+	const filteredMovies = data?.filter((hive) => hive.title.type === "MOVIE");
+	const filteredSeries = data?.filter((hive) => hive.title.type === "SERIES");
+	const currentlyWatching = data?.filter((hive) => hive.status === "WATCHING");
 
 	return (
 		<>
@@ -71,16 +72,7 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
 					selectedTitle ? "lg:col-span-2" : "lg:col-span-3",
 				)}
 			>
-				<div className="mx-auto grid w-full gap-2 rounded-md border px-4 py-4 lg:px-6">
-					<h1 className="text-3xl font-semibold">Settings</h1>
-					<p className="text-muted-foreground">
-						Manage your general account settings and other options.
-					</p>
-				</div>
-				<DashboardHeader
-					user={user}
-					hive={JSON.parse(JSON.stringify(data)) as HiveData}
-				/>
+				<DashboardHeader user={user} hive={data ?? []} />
 				<div className="flex min-w-0 items-center">
 					<Tabs defaultValue="currently-watching" className="w-full">
 						<div className="flex items-center gap-2">
@@ -90,20 +82,20 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
 									className="gap-2 text-sm"
 								>
 									Watching{" "}
-									<span className="hidden rounded-md bg-background px-3 py-1 text-foreground sm:block">
-										{currentlyWatching.length}
+									<span className="hidden rounded-md bg-background px-3 py-1 text-foreground tabular-nums sm:block">
+										{currentlyWatching?.length ?? 0}
 									</span>
 								</TabsTrigger>
 								<TabsTrigger value="movies" className="gap-2 text-sm">
 									Movies{" "}
-									<span className="hidden rounded-md bg-background px-3 py-1 text-foreground sm:block">
-										{filteredMovies.length}
+									<span className="hidden rounded-md bg-background px-3 py-1 text-foreground tabular-nums sm:block">
+										{filteredMovies?.length ?? 0}
 									</span>
 								</TabsTrigger>
 								<TabsTrigger value="series" className="gap-2 text-sm">
 									Series{" "}
-									<span className="hidden rounded-md bg-background px-3 py-1 text-foreground sm:block">
-										{filteredSeries.length}
+									<span className="hidden rounded-md bg-background px-3 py-1 text-foreground tabular-nums sm:block">
+										{filteredSeries?.length ?? 0}
 									</span>
 								</TabsTrigger>
 							</TabsList>
@@ -155,7 +147,7 @@ export function DashboardContainer({ user, data }: DashboardContainerProps) {
 							</div>
 						</div>
 						<Suspense fallback={<div>Loading...</div>}>
-							<TableTabs data={data} />
+							<TableTabs data={data ?? []} isLoading={status === "pending"} />
 						</Suspense>
 					</Tabs>
 				</div>
