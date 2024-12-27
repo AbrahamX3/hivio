@@ -16,8 +16,6 @@ interface FloatingDrawerProps {
 	children: React.ReactNode;
 	side?: "right" | "bottom";
 	status?: string;
-	isScrolled: boolean;
-	setIsScrolled: (value: boolean) => void;
 }
 
 export function FloatingDrawer({
@@ -27,27 +25,12 @@ export function FloatingDrawer({
 	children,
 	side = "right",
 	status,
-	isScrolled,
-	setIsScrolled,
 }: FloatingDrawerProps) {
 	const [isMounted, setIsMounted] = React.useState(false);
 
 	React.useEffect(() => {
 		setIsMounted(true);
 	}, []);
-
-	const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-
-	const handleScroll = () => {
-		if (
-			scrollContainerRef.current?.scrollTop &&
-			scrollContainerRef.current?.scrollTop > 80
-		) {
-			setIsScrolled(true);
-		} else {
-			setIsScrolled(false);
-		}
-	};
 
 	if (!isMounted) {
 		return null;
@@ -70,7 +53,7 @@ export function FloatingDrawer({
 							],
 				)}
 			>
-				<DialogHeader className="sticky top-0 z-10 border-b bg-background/80 p-4 backdrop-blur-sm">
+				<DialogHeader className="sticky top-0 z-10 border-b p-4 backdrop-blur-sm">
 					<DialogTitle className="flex items-center gap-4 align-middle">
 						<span>{title}</span>
 						<Badge>{status}</Badge>
@@ -84,11 +67,7 @@ export function FloatingDrawer({
 						<span className="sr-only">Close</span>
 					</button>
 				</DialogHeader>
-				<div
-					onScroll={handleScroll}
-					ref={scrollContainerRef}
-					className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3 h-[calc(100%-4rem)] overflow-y-auto p-4"
-				>
+				<div className="scrollbar scrollbar-track-muted-foreground scrollbar-thumb-foreground scrollbar-w-3 h-[calc(100%-4rem)] overflow-y-auto p-4">
 					{children}
 				</div>
 			</DialogContent>

@@ -23,17 +23,9 @@ import { FloatingDrawer } from "@/components/floating-panel";
 import { HiveForm } from "@/components/hive-form";
 import type { GetAll } from "@/types/hive";
 import { useState } from "react";
-import { HiveCurrentlyWatchingTableActions } from "./actions";
 
 export function CurrentlyWatchingColumns() {
 	const columns: ColumnDef<GetAll[number]>[] = [
-		{
-			id: "actions",
-			header: () => <div className="sr-only hidden">Actions</div>,
-			cell: ({ row }) => {
-				return <HiveCurrentlyWatchingTableActions row={row} />;
-			},
-		},
 		{
 			id: "Title Name",
 			accessorFn: (row) => row.title.name,
@@ -42,16 +34,19 @@ export function CurrentlyWatchingColumns() {
 			),
 			cell: ({ row }) => {
 				const [isPanelOpen, setIsPanelOpen] = useState(false);
-				const [isScrolled, setIsScrolled] = useState(false);
 
 				return (
 					<>
-						<Button variant="link" onClick={() => setIsPanelOpen(true)}>
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setIsPanelOpen(true)}
+						>
 							<span className="flex justify-start gap-2 align-middle font-medium">
 								{row.original.isFavorite && (
 									<StarIcon className="size-4 text-primary" />
 								)}
-								<span className="truncate text-left duration-150 ease-in-out hover:text-primary">
+								<span className="truncate text-left duration-150 ease-in-out">
 									{row.getValue("Title Name")}
 								</span>
 							</span>
@@ -63,10 +58,8 @@ export function CurrentlyWatchingColumns() {
 								title={row.original.title.name}
 								status={row.original.status}
 								side="right"
-								isScrolled={isScrolled}
-								setIsScrolled={setIsScrolled}
 							>
-								<HiveForm id={row.original.id} isScrolled={isScrolled} />
+								<HiveForm id={row.original.id} />
 							</FloatingDrawer>
 						)}
 					</>

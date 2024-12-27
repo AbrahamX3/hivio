@@ -139,7 +139,7 @@ export default function AddTitleToHive({
 				<Button
 					type="button"
 					onClick={handleSearchFocus}
-					size="lg"
+					size="default"
 					className={cn(
 						"group relative flex items-center justify-between gap-4 align-middle font-bold",
 						className,
@@ -147,7 +147,7 @@ export default function AddTitleToHive({
 				>
 					<span>Add Title</span>
 					<LogoIcon className="size-4" />
-					<PlusIcon className="absolute top-[20px] right-[25px] h-[10px] w-[10px] stroke-[4px] text-foreground group-hover:animate-pulse dark:text-background" />
+					<PlusIcon className="absolute top-[17px] right-[24px] h-[10px] w-[10px] stroke-[4px] text-foreground text-white group-hover:animate-pulse" />
 				</Button>
 			</DrawerTrigger>
 			<DrawerContent
