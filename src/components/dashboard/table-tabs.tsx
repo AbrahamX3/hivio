@@ -11,9 +11,9 @@ import TableContainer from "@/components/ui/datatable/data-table-container";
 import { TabsContent } from "@/components/ui/tabs";
 
 import type { GetAll } from "@/types/hive";
-import WatchingTableView from "../tables/dashboard/hive/currently-watching-table/table-view";
-import MoviesTableView from "../tables/dashboard/hive/movies-table/table-view";
-import SeriesTableView from "../tables/dashboard/hive/series-table/table-view";
+import WatchingTableView from "../tables/dashboard/currently-watching-table/table-view";
+import MoviesTableView from "../tables/dashboard/movies-table/table-view";
+import SeriesTableView from "../tables/dashboard/series-table/table-view";
 
 export default function TableTabs({
 	data,

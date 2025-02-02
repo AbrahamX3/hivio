@@ -8,5 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 export function convertMinutesToHrMin(minutes: number): string {
 	const hours = Math.floor(minutes / 60);
 	const remainingMinutes = minutes % 60;
-	return `${hours}hr${remainingMinutes}min`;
+
+	if (hours === 0) {
+		return `${remainingMinutes}min`;
+	}
+
+	return `${hours}h ${remainingMinutes}min`;
 }

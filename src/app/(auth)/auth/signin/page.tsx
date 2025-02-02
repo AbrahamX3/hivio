@@ -28,7 +28,7 @@ export default async function SignInPage({
 	const isSignedIn = await isUserSignedIn();
 
 	if (isSignedIn) {
-		return redirect("/hive");
+		return redirect("/app");
 	}
 
 	return (

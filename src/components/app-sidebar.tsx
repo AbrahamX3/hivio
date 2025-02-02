@@ -36,7 +36,7 @@ export function AppSidebar({
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" variant="default" asChild>
-							<Link href="/hive">
+							<Link href="/app">
 								{state === "expanded" ? (
 									<div className="flex items-center justify-center text-center align-middle">
 										<LogoFull className="h-6 w-auto text-primary" />

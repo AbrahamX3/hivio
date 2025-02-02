@@ -55,10 +55,7 @@ export default function HiveAvatar({ user, signOutUrl }: AvatarDropDownProps) {
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem asChild>
-					<Link
-						className="flex items-center justify-between gap-2"
-						href="/hive"
-					>
+					<Link className="flex items-center justify-between gap-2" href="/app">
 						My Hive <LogoIcon className="ml-2 size-4" />
 					</Link>
 				</DropdownMenuItem>
@@ -73,7 +70,7 @@ export default function HiveAvatar({ user, signOutUrl }: AvatarDropDownProps) {
 				<DropdownMenuItem asChild>
 					<Link
 						className="flex items-center justify-between gap-2"
-						href="/hive/settings"
+						href="/app/settings"
 					>
 						Settings <CogIcon className="ml-2 size-4" />
 					</Link>

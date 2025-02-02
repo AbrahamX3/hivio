@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -28,7 +27,8 @@ import {
 import { useTitleDetails } from "@/context/title-details-context";
 
 import type { UserHiveProfile } from "@/actions/profiles/user/types";
-import { deleteTitle } from "../../../../../app/(dashboard)/hive/actions";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { deleteTitle } from "../../../../app/(dashboard)/app/actions";
 
 interface DataTableRowActionsProps<TData> {
 	row: Row<TData>;
@@ -75,7 +75,7 @@ export function HiveSeriesTableActions<TData>({
 						<DropdownMenuItem asChild>
 							<Link
 								className="flex justify-between gap-4"
-								href={`/hive/${data.id}`}
+								href={`/app/${data.id}`}
 							>
 								Edit Hive Title
 								<EditIcon className="mr-2 size-4" />

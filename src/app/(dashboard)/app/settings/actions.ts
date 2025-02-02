@@ -44,7 +44,7 @@ export const saveUsername = withAuthActionClient
 			}))
 			.run(client);
 
-		revalidatePath("/hive/settings");
+		revalidatePath("/app/settings");
 		return { success: true, data: { username } };
 	});
 
@@ -62,7 +62,7 @@ export const saveAvatar = withAuthActionClient
 			}))
 			.run(client);
 
-		revalidatePath("/hive/settings");
+		revalidatePath("/app/settings");
 		return { success: true, data: { avatar } };
 	});
 
@@ -89,7 +89,7 @@ export const saveDisplayName = withAuthActionClient
 			};
 		}
 
-		revalidatePath("/hive/settings");
+		revalidatePath("/app/settings");
 
 		return { success: true, data: { name } };
 	});
@@ -117,7 +117,7 @@ export const saveStatus = withAuthActionClient
 			};
 		}
 
-		revalidatePath("/hive/settings");
+		revalidatePath("/app/settings");
 
 		return { success: true, data: { status } };
 	});
@@ -179,7 +179,7 @@ export const deleteAccount = withAuthActionClient
 				console.error(error);
 			});
 
-		revalidatePath("/hive/settings/danger");
+		revalidatePath("/app/settings/danger");
 
 		return { success: true, data: { confirm: true } };
 	});

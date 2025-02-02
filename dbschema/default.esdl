@@ -58,8 +58,9 @@ module default {
         required title: Title {
             on target delete delete source;
         };
-        required season: int32;
-        required episodes: int32;
+        multi episodes := .<season[is Episode];
+        required season_number: int32;
+        required total_episodes: int32;
         required air_date: cal::local_date;
         required createdAt: datetime {
             default := datetime_current();
@@ -69,7 +70,26 @@ module default {
             rewrite update using (datetime_of_statement());
         }
 
-        constraint exclusive on ( (.title, .season) );
+        constraint exclusive on ( (.title, .season_number) );
+    }
+
+    type Episode {
+        required season: Season {
+            on target delete delete source;
+        };
+        required name: str;
+        required episode_number: int32;
+        required air_date: cal::local_date;
+        required overview: str;
+        required runtime: int32;
+        required createdAt: datetime {
+            default := datetime_current();
+        }
+        updatedAt: datetime {
+            rewrite insert using (datetime_of_statement());
+            rewrite update using (datetime_of_statement());
+        }
+        constraint exclusive on ( (.season, .episode_number) );
     }
 
     type Title {
@@ -110,6 +130,7 @@ module default {
         required isFavorite: bool {
             default := false;
         }
+        currentRunTime: int32;
         currentSeason: int32;
         currentEpisode: int32;
         rating: float32;

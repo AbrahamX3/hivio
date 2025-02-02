@@ -17,10 +17,10 @@ export default async function Settings({
 			</div>
 			<div className="mx-auto grid w-full items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
 				<nav className="flex h-full flex-col gap-2 rounded-md border bg-background p-2 text-muted-foreground text-sm">
-					<ActiveLink name="General" href="/hive/settings">
+					<ActiveLink name="General" href="/app/settings">
 						<Settings2Icon className="size-5" />
 					</ActiveLink>
-					<ActiveLink name="Danger" href="/hive/settings/danger">
+					<ActiveLink name="Danger" href="/app/settings/danger">
 						<TriangleAlertIcon className="size-5" />
 					</ActiveLink>
 				</nav>

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import {
 	type TitleFormValues,
 	titleFormSchema,
-} from "@/app/(dashboard)/hive/validations";
+} from "@/app/(dashboard)/app/validations";
 import {
 	Carousel,
 	CarouselContent,

@@ -9,11 +9,11 @@ import {
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 
-import type { SeasonData } from "@/app/(dashboard)/hive/actions";
+import type { SeasonData } from "@/app/(dashboard)/app/actions";
 import {
 	type HiveFormValues,
 	hiveFormSchema,
-} from "@/app/(dashboard)/hive/validations";
+} from "@/app/(dashboard)/app/validations";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {

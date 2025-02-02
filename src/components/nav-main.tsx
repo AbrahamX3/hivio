@@ -19,7 +19,7 @@ export function NavMain({
 	const items = [
 		{
 			title: "My Hive",
-			url: "/hive",
+			url: "/app",
 			icon: LogoIcon,
 			isActive: true,
 		},
@@ -35,7 +35,7 @@ export function NavMain({
 		},
 		{
 			title: "Settings",
-			url: "/hive/settings",
+			url: "/app/settings",
 			icon: CogIcon,
 		},
 	];

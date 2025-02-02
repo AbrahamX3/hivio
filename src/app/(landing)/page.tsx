@@ -16,7 +16,7 @@ export default async function Component() {
 	const isSignedIn = await isUserSignedIn();
 
 	if (isSignedIn) {
-		return redirect("/hive");
+		return redirect("/app");
 	}
 
 	return (
@@ -36,7 +36,7 @@ export default async function Component() {
 						<div className="flex flex-col items-center gap-4 align-middle md:flex-row">
 							<Button asChild size="lg" variant="outline">
 								{isSignedIn ? (
-									<Link href="/hive">Get Started</Link>
+									<Link href="/app">Get Started</Link>
 								) : (
 									<Link href="/auth/signin">Get Started</Link>
 								)}

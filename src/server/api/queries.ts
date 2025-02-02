@@ -47,6 +47,9 @@ export const selectTitleByIdQuery = e.params(
 				...e.Title["*"],
 				seasons: {
 					...e.Season["*"],
+					episodes: {
+						...e.Episode["*"],
+					},
 				},
 			},
 			filter_single: e.op(

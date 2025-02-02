@@ -56,7 +56,7 @@ export function FloatingDrawer({
 				<DialogHeader className="sticky top-0 z-10 border-b p-4 backdrop-blur-sm">
 					<DialogTitle className="flex items-center gap-4 align-middle">
 						<span>{title}</span>
-						<Badge>{status}</Badge>
+						<Badge size="sm">{status}</Badge>
 					</DialogTitle>
 					<button
 						type="button"

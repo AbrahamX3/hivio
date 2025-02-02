@@ -1,29 +1,26 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { StarIcon } from "lucide-react";
-import Link from "next/link";
+import { ClockIcon, DramaIcon, StarIcon } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/components/ui/datatable/data-table-column-header";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 
+import { FloatingDrawer } from "@/components/floating-panel";
+import { HiveForm } from "@/components/hive-form";
+import { Button } from "@/components/ui/button";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import type { GetAll } from "@/types/hive";
-import { HiveMoviesTableActions } from "./actions";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { useState } from "react";
 
 export function MovieColumns() {
 	const columns: ColumnDef<GetAll[number]>[] = [
-		{
-			id: "actions",
-			header: () => <div className="sr-only hidden">Actions</div>,
-			cell: ({ row }) => {
-				return <HiveMoviesTableActions row={row} />;
-			},
-		},
 		{
 			id: "Title Name",
 			accessorFn: (row) => row.title.name,
@@ -31,28 +28,36 @@ export function MovieColumns() {
 				<DataTableColumnHeader column={column} title="Title Name" />
 			),
 			cell: ({ row }) => {
+				const [isPanelOpen, setIsPanelOpen] = useState(false);
+
 				return (
-					<Tooltip>
-						<TooltipTrigger>
-							<Link
-								prefetch={false}
-								className="flex max-w-[250px] gap-2 truncate"
-								href={`/hive/${row.original.id}`}
-							>
-								<span className="flex justify-start gap-2 align-middle font-medium">
-									{row.original.isFavorite && (
-										<StarIcon className="size-4 text-primary" />
-									)}
-									<span className="w-[200px] truncate text-left duration-150 ease-in-out hover:text-primary">
-										{row.getValue("Title Name")}
-									</span>
+					<>
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setIsPanelOpen(true)}
+						>
+							<span className="flex justify-start gap-2 align-middle font-medium">
+								{row.original.isFavorite && (
+									<StarIcon className="size-4 text-primary" />
+								)}
+								<span className="truncate text-left duration-150 ease-in-out">
+									{row.getValue("Title Name")}
 								</span>
-							</Link>
-						</TooltipTrigger>
-						<TooltipContent className="w-fit max-w-[250px] text-pretty">
-							{row.getValue("Title Name")}
-						</TooltipContent>
-					</Tooltip>
+							</span>
+						</Button>
+						{isPanelOpen && (
+							<FloatingDrawer
+								isOpen={isPanelOpen}
+								onClose={() => setIsPanelOpen(false)}
+								title={row.original.title.name}
+								status={row.original.status}
+								side="right"
+							>
+								<HiveForm id={row.original.id} />
+							</FloatingDrawer>
+						)}
+					</>
 				);
 			},
 		},
@@ -140,6 +145,55 @@ export function MovieColumns() {
 			},
 		},
 		{
+			id: "Start/Finished",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Start/Finished" />
+			),
+			cell: ({ row }) => {
+				return row.original.startedAt ? (
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button variant="outline">
+								<ClockIcon className="size-4" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-full">
+							<div className="flex flex-col gap-y-2">
+								<span className="font-bold">Started On:</span>
+								<span>
+									{format(
+										toZonedTime(
+											new Date(row.original.startedAt),
+											Intl.DateTimeFormat().resolvedOptions().timeZone,
+										),
+										"PPpp",
+									)}
+								</span>
+								{row.original.finishedAt && (
+									<>
+										<span className="font-bold">Finished On:</span>
+										<span>
+											{format(
+												toZonedTime(
+													new Date(row.original.finishedAt),
+													Intl.DateTimeFormat().resolvedOptions().timeZone,
+												),
+												"PPpp",
+											)}
+										</span>
+									</>
+								)}
+							</div>
+						</PopoverContent>
+					</Popover>
+				) : (
+					<Button disabled variant="outline" className="w-max">
+						N/A
+					</Button>
+				);
+			},
+		},
+		{
 			id: "Genres",
 			accessorFn: (row) => row.title.genres,
 			enableSorting: false,
@@ -158,9 +212,16 @@ export function MovieColumns() {
 				}
 
 				return (
-					<div className="flex w-[100px] items-center">
-						<span>{genres.join(", ")}</span>
-					</div>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button>
+								<DramaIcon className="size-4" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-fit" align="end">
+							{genres.join(", ")}
+						</PopoverContent>
+					</Popover>
 				);
 			},
 			filterFn: (row, id, value: string[]) => {

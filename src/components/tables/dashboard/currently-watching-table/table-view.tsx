@@ -2,20 +2,20 @@
 
 import { DataTable } from "@/components/ui/datatable/data-table";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { genreOptions, statusOptions } from "@/lib/options";
+import { genreOptions, typeOptions } from "@/lib/options";
 
-import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
-import { MovieColumns } from "./columns";
+import type { HiveData } from "@/app/(dashboard)/app/actions";
+import { CurrentlyWatchingColumns } from "./columns";
 
-export default function MoviesTableView({
+export default function WatchingTableView({
 	data,
 	isLoading,
 }: { data: HiveData; isLoading: boolean }) {
 	const filters = [
 		{
-			columnId: "Status",
-			title: "Status",
-			options: statusOptions,
+			columnId: "Type",
+			title: "Type",
+			options: typeOptions,
 		},
 		{
 			columnId: "Genres",
@@ -27,9 +27,9 @@ export default function MoviesTableView({
 	return (
 		<TooltipProvider>
 			<DataTable
-				name="private-hive-movies"
 				isLoading={isLoading}
-				columns={MovieColumns()}
+				name="private-hive-currently-watching"
+				columns={CurrentlyWatchingColumns()}
 				data={data}
 				filters={filters}
 			/>

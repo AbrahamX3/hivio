@@ -127,15 +127,15 @@ export default async function PublicUserProfile({ params }: Props) {
 		const currentTitle = hive.title;
 
 		const totalEpisodes = currentTitle.seasons.reduce(
-			(acc, season) => acc + season.episodes,
+			(acc, season) => acc + season.total_episodes,
 			0,
 		);
 
 		let episodesWatched = 0;
 		for (const season of currentTitle.seasons) {
-			if (season.season < currentSeasonNumber) {
-				episodesWatched += season.episodes;
-			} else if (season.season === currentSeasonNumber) {
+			if (season.season_number < currentSeasonNumber) {
+				episodesWatched += season.total_episodes;
+			} else if (season.season_number === currentSeasonNumber) {
 				episodesWatched += currentEpisodeNumber;
 				break;
 			}

@@ -1,8 +1,8 @@
-import { updateTitle } from "@/app/(dashboard)/hive/actions";
+import { updateTitle } from "@/app/(dashboard)/app/actions";
 import {
 	FindTitleSeasonsSchema,
 	RefreshTitleDataSchema,
-} from "@/app/(dashboard)/hive/validations";
+} from "@/app/(dashboard)/app/validations";
 import { env } from "@/env";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import type { SeriesDetails } from "@/types/tmdb";

@@ -2,20 +2,20 @@
 
 import { DataTable } from "@/components/ui/datatable/data-table";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { genreOptions, typeOptions } from "@/lib/options";
+import { genreOptions, statusOptions } from "@/lib/options";
 
-import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
-import { CurrentlyWatchingColumns } from "./columns";
+import type { HiveData } from "../../../../app/(dashboard)/app/actions";
+import { SeriesColumns } from "./columns";
 
-export default function WatchingTableView({
+export default function SeriesTableView({
 	data,
 	isLoading,
 }: { data: HiveData; isLoading: boolean }) {
 	const filters = [
 		{
-			columnId: "Type",
-			title: "Type",
-			options: typeOptions,
+			columnId: "Status",
+			title: "Status",
+			options: statusOptions,
 		},
 		{
 			columnId: "Genres",
@@ -27,10 +27,10 @@ export default function WatchingTableView({
 	return (
 		<TooltipProvider>
 			<DataTable
-				isLoading={isLoading}
-				name="private-hive-currently-watching"
-				columns={CurrentlyWatchingColumns()}
+				name="private-hive-series"
+				columns={SeriesColumns()}
 				data={data}
+				isLoading={isLoading}
 				filters={filters}
 			/>
 		</TooltipProvider>

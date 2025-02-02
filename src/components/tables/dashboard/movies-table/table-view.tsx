@@ -4,10 +4,10 @@ import { DataTable } from "@/components/ui/datatable/data-table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { genreOptions, statusOptions } from "@/lib/options";
 
-import type { HiveData } from "../../../../../app/(dashboard)/hive/actions";
-import { SeriesColumns } from "./columns";
+import type { HiveData } from "@/app/(dashboard)/app/actions";
+import { MovieColumns } from "./columns";
 
-export default function SeriesTableView({
+export default function MoviesTableView({
 	data,
 	isLoading,
 }: { data: HiveData; isLoading: boolean }) {
@@ -27,10 +27,10 @@ export default function SeriesTableView({
 	return (
 		<TooltipProvider>
 			<DataTable
-				name="private-hive-series"
-				columns={SeriesColumns()}
-				data={data}
+				name="private-hive-movies"
 				isLoading={isLoading}
+				columns={MovieColumns()}
+				data={data}
 				filters={filters}
 			/>
 		</TooltipProvider>

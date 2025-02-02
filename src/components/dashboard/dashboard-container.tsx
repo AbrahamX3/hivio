@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { UserSession } from "@/types/auth";
 
-import AddTitleToHive from "@/app/(dashboard)/hive/_components/add-title/add-to-hive";
+import AddTitleToHive from "@/app/(dashboard)/app/_components/add-title/add-to-hive";
 import { api } from "@/trpc/react";
 import TableTabs from "./table-tabs";
 

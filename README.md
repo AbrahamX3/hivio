@@ -74,7 +74,7 @@ edgedb project init
 
 ```bash
 http://localhost:3000
-http://localhost:3000/hive
+http://localhost:3000/app
 http://localhost:3000/auth/signin
 ```
 

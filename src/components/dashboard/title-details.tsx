@@ -57,7 +57,7 @@ import {
 	findSeriesCreditsAction,
 	findSeriesDetailsAction,
 } from "@/actions/general/title/actions";
-import type { HiveData } from "../../app/(dashboard)/hive/actions";
+import type { HiveData } from "../../app/(dashboard)/app/actions";
 import DeleteHiveTitle from "./delete-title";
 
 const USD = Intl.NumberFormat("en-US", {

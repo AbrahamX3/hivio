@@ -52,6 +52,8 @@ export const FindTitleDetails = z.object({
 export const basehiveFormSchema = z.object({
 	currentSeason: z.coerce.number().min(1).optional(),
 	currentEpisode: z.coerce.number().min(1).optional(),
+	currentRuntimeHours: z.coerce.number().optional(),
+	currentRuntimeMinutes: z.coerce.number().optional(),
 	startedAt: z.date().optional(),
 });
 

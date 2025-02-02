@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import {
 	type HiveFormValues,
 	hiveFormSchema,
-} from "@/app/(dashboard)/hive/validations";
+} from "@/app/(dashboard)/app/validations";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -61,33 +61,75 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { genreOptions, statusOptions } from "@/lib/options";
-import { cn } from "@/lib/utils";
+import { cn, convertMinutesToHrMin } from "@/lib/utils";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/react";
+import { type RouterOutputs, api } from "@/trpc/react";
 import type { GetById } from "@/types/hive";
-import { type HiveData, deleteTitle } from "../app/(dashboard)/hive/actions";
+import type { LocalDate } from "edgedb";
+import { deleteTitle } from "../app/(dashboard)/app/actions";
 import { FloatingDrawer } from "./floating-panel";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import MovieRuntimeInput from "./runtime-input";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "./ui/accordion";
+import { Badge } from "./ui/badge";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "./ui/dialog";
 import { Separator } from "./ui/separator";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "./ui/tooltip";
 
-const createSeasonsMap = (titleSeasons: HiveData[0]["title"]["seasons"]) => {
-	const seasonsMap = new Map<number, number[]>();
+const createSeasonsMap = (hive: HiveById) => {
+	const seasonsMap = new Map<
+		number,
+		{
+			id: string;
+			createdAt: Date;
+			name: string;
+			updatedAt: Date | null;
+			runtime: number;
+			air_date: LocalDate;
+			episode_number: number;
+			overview: string;
+		}[]
+	>();
+	const seasons = hive?.title.seasons;
+	if (!seasons) return seasonsMap;
 
-	for (const season of titleSeasons) {
+	for (const season of seasons) {
 		if (season.air_date === null) continue;
 
-		const episodesArray = Array.from(
-			{ length: season.episodes },
-			(_, index) => index + 1,
+		const episodes = season.episodes || [];
+		const sortedEpisodes = episodes.sort(
+			(a, b) => a.episode_number - b.episode_number,
 		);
-		seasonsMap.set(season.season, episodesArray);
+
+		seasonsMap.set(season.season_number, sortedEpisodes);
 	}
 
 	return seasonsMap;
 };
 
 function handleValues(hive: GetById): HiveFormValues {
+	const runtime = hive?.currentRunTime;
+
+	const hours = runtime ? Math.floor(runtime / 60) : 0;
+	const minutes = runtime ? runtime % 60 : 0;
+
 	if (hive?.status === "WATCHING") {
 		return {
 			currentEpisode: hive.currentEpisode ?? undefined,
@@ -95,6 +137,8 @@ function handleValues(hive: GetById): HiveFormValues {
 			status: hive.status,
 			startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
 			isFavorite: hive.isFavorite,
+			currentRuntimeHours: hours ?? 0,
+			currentRuntimeMinutes: minutes ?? 0,
 		};
 	}
 	if (hive?.status === "UNFINISHED") {
@@ -103,6 +147,8 @@ function handleValues(hive: GetById): HiveFormValues {
 			currentSeason: hive.currentSeason ?? undefined,
 			startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
 			status: hive.status,
+			currentRuntimeHours: hours ?? 0,
+			currentRuntimeMinutes: minutes ?? 0,
 		};
 	}
 	if (hive?.status === "FINISHED") {
@@ -114,6 +160,8 @@ function handleValues(hive: GetById): HiveFormValues {
 			isFavorite: hive.isFavorite,
 			rating: hive.rating ?? undefined,
 			startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
+			currentRuntimeHours: hours ?? 0,
+			currentRuntimeMinutes: minutes ?? 0,
 		};
 	}
 	if (hive?.status === "PENDING") {
@@ -122,6 +170,8 @@ function handleValues(hive: GetById): HiveFormValues {
 			currentSeason: hive.currentSeason ?? undefined,
 			startedAt: hive.startedAt ? new Date(hive.startedAt) : undefined,
 			status: hive.status,
+			currentRuntimeHours: hours ?? 0,
+			currentRuntimeMinutes: minutes ?? 0,
 		};
 	}
 
@@ -130,11 +180,16 @@ function handleValues(hive: GetById): HiveFormValues {
 	};
 }
 
+type HiveById = RouterOutputs["hive"]["getById"];
+
 export function HiveForm({ id }: { id: string }) {
 	const utils = api.useUtils();
 	const hive = api.hive.getById.useQuery(
 		{ id },
 		{
+			refetchInterval: false,
+			refetchOnReconnect: false,
+			refetchOnWindowFocus: false,
 			experimental_prefetchInRender: true,
 		},
 	);
@@ -156,7 +211,6 @@ export function HiveForm({ id }: { id: string }) {
 
 	const [isPanelOpen, setIsPanelOpen] = useState(false);
 
-	const seasons = hive.data?.title.seasons ?? [];
 	const isTitleWatchable =
 		new Date() >= new Date(hive.data?.title.release_date.toString() ?? "");
 
@@ -179,7 +233,10 @@ export function HiveForm({ id }: { id: string }) {
 		});
 	}
 
-	const seasonsMap = useMemo(() => createSeasonsMap(seasons), [seasons]);
+	const seasonsMap = useMemo(
+		() => hive.data && createSeasonsMap(hive.data),
+		[hive.data],
+	);
 
 	const canSetSeason =
 		hiveForm.watch("status") === "UNFINISHED" ||
@@ -187,7 +244,7 @@ export function HiveForm({ id }: { id: string }) {
 		hiveForm.watch("status") === "FINISHED";
 
 	const currentSeason = hiveForm.watch("currentSeason");
-	const episodes = seasonsMap.get(Number(currentSeason)) ?? [];
+	const episodes = seasonsMap?.get(Number(currentSeason)) ?? [];
 	const genres = genreOptions
 		.filter((genre) => hive.data?.title.genres.includes(genre.value))
 		.map((genre) => genre.label);
@@ -281,7 +338,6 @@ export function HiveForm({ id }: { id: string }) {
 					<div className="grid gap-3">
 						<div className="flex w-full justify-between gap-4">
 							<div className="flex w-full flex-col justify-between align-middle">
-								<h2 className="mb-4 font-semibold text-xl">General Details</h2>
 								<dl className="flex w-full flex-col justify-between gap-3">
 									<dt className="font-semibold text-muted-foreground">
 										Release Date
@@ -310,7 +366,7 @@ export function HiveForm({ id }: { id: string }) {
 											placeholder="blur"
 											width={154}
 											height={231}
-											className="h-40 w-auto cursor-pointer rounded-md transition-all hover:scale-105 lg:h-20 xl:h-40"
+											className="h-56 w-auto cursor-pointer rounded-md transition-all hover:scale-105"
 										/>
 									</DialogTrigger>
 									<DialogContent className="h-[90vh]">
@@ -336,6 +392,168 @@ export function HiveForm({ id }: { id: string }) {
 								{hive.data?.title.description}
 							</p>
 						</div>
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button>View Seasons</Button>
+							</DialogTrigger>
+							<DialogContent className="rounded-md bg-background/80 shadow-lg backdrop-blur-sm">
+								<DialogHeader>
+									<DialogTitle>Seasons</DialogTitle>
+									<DialogDescription>
+										{hive.data.currentSeason && hive.data.currentSeason && (
+											<div>
+												{hive.data.status === "WATCHING" && (
+													<p className="flex items-center gap-2 align-middle">
+														<span className="font-semibold">Currently on:</span>
+														<Badge className="gap-1.5" variant="outline">
+															<span className="opacity-60">S</span>
+															{hive.data.currentSeason
+																?.toString()
+																.padStart(2, "0")}
+															<span className="opacity-60">E</span>
+															{hive.data.currentEpisode
+																?.toString()
+																.padStart(2, "0")}
+														</Badge>
+													</p>
+												)}
+
+												{hive.data.status === "UNFINISHED" && (
+													<p className="flex items-center gap-2 align-middle">
+														<span className="font-semibold">Stayed on:</span>
+														<Badge className="gap-1.5" variant="outline">
+															<span className="opacity-60">S</span>
+															{hive.data.currentSeason
+																?.toString()
+																.padStart(2, "0")}
+															<span className="opacity-60">E</span>
+															{hive.data.currentEpisode
+																?.toString()
+																.padStart(2, "0")}
+														</Badge>
+													</p>
+												)}
+
+												{hive.data.status === "FINISHED" && (
+													<p className="flex items-center gap-2 align-middle">
+														<span className="font-semibold">Finished on:</span>
+														<Badge className="gap-1.5" variant="outline">
+															<span className="opacity-60">S</span>
+															{hive.data.currentSeason
+																?.toString()
+																.padStart(2, "0")}
+															<span className="opacity-60">E</span>
+															{hive.data.currentEpisode
+																?.toString()
+																.padStart(2, "0")}
+														</Badge>
+													</p>
+												)}
+											</div>
+										)}
+									</DialogDescription>
+								</DialogHeader>
+								<Accordion type="single" collapsible className="w-full">
+									{hive.data.title.seasons
+										.sort((a, b) => a.season_number - b.season_number)
+										.map(({ season_number, total_episodes, air_date, id }) => (
+											<AccordionItem key={id} value={id}>
+												<AccordionTrigger className="hover:no-underline hover:opacity-70">
+													<div className="flex w-full justify-between gap-2 align-middle">
+														<span className="font-bold">
+															<span className="text-primary">
+																Season {season_number}
+															</span>{" "}
+															<span className="font-mono text-xs tabular-nums">
+																({total_episodes} episodes)
+															</span>
+														</span>
+														<span className="mr-4 font-extralight">
+															{new Date(
+																air_date.toString(),
+															).toLocaleDateString()}
+														</span>
+													</div>
+												</AccordionTrigger>
+												<AccordionContent>
+													<Accordion
+														type="single"
+														collapsible
+														className="w-full"
+													>
+														<AccordionContent>
+															{episodes.map((episode) => (
+																<AccordionItem
+																	key={episode.id}
+																	value={`${episode.id}-${episode.episode_number}`}
+																	className="ml-4"
+																>
+																	<AccordionTrigger>
+																		<div className="flex w-full justify-between gap-2 align-middle">
+																			<span className="font-bold">
+																				Episode {episode.episode_number}
+																			</span>
+																			<span className="mr-4 font-extralight">
+																				<TooltipProvider>
+																					<Tooltip>
+																						<TooltipTrigger>
+																							{episode.name}
+																						</TooltipTrigger>
+																						<TooltipContent>
+																							{episode.name}
+																						</TooltipContent>
+																					</Tooltip>
+																				</TooltipProvider>
+																			</span>
+																		</div>
+																	</AccordionTrigger>
+																	<AccordionContent className="flex flex-col gap-2">
+																		<div className="flex flex-col gap-2 align-middle">
+																			<span className="font-bold">
+																				Air Date
+																			</span>
+																			<span className="font-extralight">
+																				<TooltipProvider>
+																					<Tooltip>
+																						<TooltipTrigger>
+																							{format(
+																								episode.air_date.toString(),
+																								"PPP",
+																							)}
+																						</TooltipTrigger>
+																						<TooltipContent>
+																							{episode.air_date.toString()}
+																						</TooltipContent>
+																					</Tooltip>
+																				</TooltipProvider>
+																			</span>
+																		</div>
+																		<div className="flex flex-col gap-2 align-middle">
+																			<span className="font-bold">Runtime</span>
+																			<span className="font-extralight">
+																				{convertMinutesToHrMin(episode.runtime)}
+																			</span>
+																		</div>
+																		<div className="flex flex-col gap-2 align-middle">
+																			<span className="font-bold">
+																				Overview
+																			</span>
+																			<span className="w-full font-extralight">
+																				{episode.overview}
+																			</span>
+																		</div>
+																	</AccordionContent>
+																</AccordionItem>
+															))}
+														</AccordionContent>
+													</Accordion>
+												</AccordionContent>
+											</AccordionItem>
+										))}
+								</Accordion>
+							</DialogContent>
+						</Dialog>
+
 						<div className="flex w-full flex-col justify-between align-middle">
 							<h4 className="pb-2 font-semibold text-xl">Rating</h4>
 							<dl className="flex w-full justify-between gap-3">
@@ -362,298 +580,7 @@ export function HiveForm({ id }: { id: string }) {
 						</div>
 					</div>
 					<Separator className="my-4" />
-					{/* {selectedTitle?.type === "MOVIE" ? (
-							!movieCreditsResult.data &&
-							movieCreditsStatus === "executing" ? (
-								<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
-							) : (
-								<div>
-									<h2 className="pb-4 font-semibold text-xl">
-										Meet the Cast
-									</h2>
-									<Carousel
-										className="mx-auto w-full max-w-[380px] xs:max-w-[300px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
-										opts={{
-											align: "start",
-										}}
-										orientation="horizontal"
-									>
-										<CarouselContent>
-											{movieCreditsResult.data?.cast.map((cast) => (
-												<CarouselItem
-													key={cast.id}
-													className="basis-1/2 md:basis-1/4 lg:basis-11/12 xl:basis-1/2"
-												>
-													<div className="relative h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
-														<Image
-															unoptimized
-															alt={cast.name}
-															className="aspect-[231/154] h-full w-full object-cover"
-															src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
-															height={231}
-															width={154}
-														/>
-														<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
-															<div className="flex flex-col justify-start gap-2">
-																<div className="flex flex-col items-start gap-[4px]">
-																	<h3 className="text-balance font-bold text-white text-xl">
-																		{cast.name}
-																	</h3>
-																	<p className="text-balance text-foreground text-sm">
-																		{cast.character}
-																	</p>
-																</div>
-																<a
-																	className={cn(
-																		buttonVariants({
-																			size: "sm",
-																			variant: "outline",
-																		}),
-																		"group flex justify-between gap-4 align-middle",
-																	)}
-																	href={`https://www.themoviedb.org/person/${cast.id}`}
-																	target="_blank"
-																	rel="noreferrer"
-																>
-																	<span>View on TMDb</span>
-																	<ExternalLinkIcon className="size-4 group-hover:hidden" />
-																	<ArrowRightIcon className="hidden size-4 group-hover:block" />
-																</a>
-															</div>
-														</div>
-													</div>
-												</CarouselItem>
-											))}
-										</CarouselContent>
-										<CarouselPrevious />
-										<CarouselNext />
-									</Carousel>
-								</div>
-							)
-						) : !seriesCreditsResult.data &&
-							seriesCreditsStatus === "executing" ? (
-							<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
-						) : (
-							<div>
-								<h2 className="pb-4 font-semibold text-xl">
-									Meet the Cast
-								</h2>
-								<Carousel
-									className="mx-auto w-full max-w-[380px] xs:max-w-[300px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
-									opts={{
-										align: "start",
-									}}
-									orientation="horizontal"
-								>
-									<CarouselContent>
-										{seriesCreditsResult.data?.cast.map((cast) => (
-											<CarouselItem
-												key={cast.id}
-												className="basis-1/2 md:basis-1/4 lg:basis-11/12 xl:basis-1/2"
-											>
-												<div className="relative h-[400px] overflow-hidden rounded-lg sm:h-[300px]">
-													<Image
-														unoptimized
-														alt={cast.name}
-														className="aspect-[231/154] h-full w-full object-cover"
-														src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
-														height={231}
-														width={154}
-													/>
-													<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
-														<div className="flex flex-col justify-start gap-2">
-															<div className="flex flex-col items-start gap-[4px]">
-																<h3 className="text-balance font-bold text-white text-xl">
-																	{cast.name}
-																</h3>
-																<p className="text-balance text-foreground text-sm">
-																	{cast.character}
-																</p>
-															</div>
-															<a
-																className={cn(
-																	buttonVariants({
-																		size: "sm",
-																		variant: "outline",
-																	}),
-																	"group flex justify-between gap-4 align-middle",
-																)}
-																href={`https://www.themoviedb.org/person/${cast.id}`}
-																target="_blank"
-																rel="noreferrer"
-															>
-																<span>View on TMDb</span>
-																<ExternalLinkIcon className="size-4 group-hover:hidden" />
-																<ArrowRightIcon className="hidden size-4 group-hover:block" />
-															</a>
-														</div>
-													</div>
-												</div>
-											</CarouselItem>
-										))}
-									</CarouselContent>
-									<CarouselPrevious />
-									<CarouselNext />
-								</Carousel>
-							</div>
-						)}
-						<Separator className="my-4" />
-						{selectedTitle?.type === "MOVIE" &&
-							(movieDetailsResult.data &&
-							movieDetailsStatus === "hasSucceeded" &&
-							movieDetailsResult.data?.production_companies.length >
-								0 ? (
-								<div className="grid gap-3">
-									<h2 className="pb-2 font-semibold text-xl">
-										Production Companies
-									</h2>
-									<div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-										{movieDetailsResult.data?.production_companies.map(
-											(company) =>
-												company.logo_path ? (
-													<a
-														key={company.id}
-														className={cn(
-															"group flex items-center justify-center p-1",
-														)}
-														href={`https://www.themoviedb.org/company/${company.id}`}
-														target="_blank"
-														rel="noreferrer"
-													>
-														<Image
-															unoptimized
-															src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-															alt={company.name}
-															width={154}
-															height={50}
-															className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-														/>
-													</a>
-												) : (
-													<a
-														key={company.id}
-														className={cn(
-															"group flex items-center justify-center p-1",
-														)}
-														href={`https://www.themoviedb.org/company/${company.id}`}
-														target="_blank"
-														rel="noreferrer"
-													>
-														<span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
-															{company.name}
-														</span>
-													</a>
-												),
-										)}
-									</div>
-								</div>
-							) : (
-								<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
-							))}
-						{selectedTitle?.type === "SERIES" &&
-							(seriesDetailsResult.data &&
-							seriesDetailsStatus === "hasSucceeded" &&
-							seriesDetailsResult.data?.production_companies.length >
-								0 ? (
-								<div className="grid gap-3">
-									<h2 className="pb-2 font-semibold text-xl">
-										Production Companies
-									</h2>
-									<div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
-										{seriesDetailsResult.data?.production_companies.map(
-											(company) =>
-												company.logo_path ? (
-													<a
-														key={company.id}
-														className={cn(
-															"group flex items-center justify-center p-1",
-														)}
-														href={`https://www.themoviedb.org/company/${company.id}`}
-														target="_blank"
-														rel="noreferrer"
-													>
-														<Image
-															unoptimized
-															src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-															alt={company.name}
-															width={154}
-															height={50}
-															className="h-auto w-16 opacity-70 grayscale transition duration-200 group-hover:opacity-100 dark:invert"
-														/>
-													</a>
-												) : (
-													<a
-														key={company.id}
-														className={cn(
-															"group flex items-center justify-center p-1",
-														)}
-														href={`https://www.themoviedb.org/company/${company.id}`}
-														target="_blank"
-														rel="noreferrer"
-													>
-														<span className="text-sm opacity-70 transition duration-200 group-hover:opacity-100">
-															{company.name}
-														</span>
-													</a>
-												),
-										)}
-									</div>
-								</div>
-							) : (
-								<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
-							))}
-						{selectedTitle?.type === "MOVIE" &&
-							(movieDetailsResult.data &&
-							movieDetailsStatus === "hasSucceeded" ? (
-								<div>
-									<Separator className="my-4" />
-									<h2 className="pb-4 font-semibold text-xl">
-										Financial Details
-									</h2>
-									<ul className="grid gap-3">
-										<li className="flex items-center justify-between">
-											<span className="text-muted-foreground">
-												Budget
-											</span>
-											<span>
-												{movieDetailsResult.data?.budget &&
-													USD.format(movieDetailsResult.data?.budget)}
-											</span>
-										</li>
-										<li className="flex items-center justify-between">
-											<span className="text-muted-foreground">
-												Revenue
-											</span>
-											<span>
-												{movieDetailsResult.data?.budget &&
-													USD.format(movieDetailsResult.data?.revenue)}
-											</span>
-										</li>
-										<li className="flex items-center justify-between">
-											<span className="text-muted-foreground">
-												Profit
-											</span>
-											<span
-												className={cn(
-													movieDetailsResult.data?.revenue -
-														movieDetailsResult.data?.budget >=
-														movieDetailsResult.data?.budget
-														? "text-green-500"
-														: "text-red-500",
-												)}
-											>
-												{movieDetailsResult.data?.budget &&
-													USD.format(
-														movieDetailsResult.data?.revenue -
-															movieDetailsResult.data?.budget,
-													)}
-											</span>
-										</li>
-									</ul>
-								</div>
-							) : (
-								<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
-							))} */}
+
 					{hive.data?.title.updatedAt && (
 						<div className="text-muted-foreground text-xs">
 							<span className="font-semibold">Last Updated: </span>{" "}
@@ -745,7 +672,7 @@ export function HiveForm({ id }: { id: string }) {
 						{canSetSeason &&
 							hive &&
 							hive.data?.title.type === "SERIES" &&
-							seasons.length > 0 && (
+							hive.data?.title.seasons.length > 0 && (
 								<>
 									<FormField
 										control={hiveForm.control}
@@ -767,14 +694,16 @@ export function HiveForm({ id }: { id: string }) {
 														</SelectTrigger>
 													</FormControl>
 													<SelectContent>
-														{seasons.map(({ season }) => (
-															<SelectItem
-																key={`season_${season}`}
-																value={String(season)}
-															>
-																Season {season}
-															</SelectItem>
-														))}
+														{hive.data?.title.seasons.map(
+															({ season_number }) => (
+																<SelectItem
+																	key={`season_${season_number}`}
+																	value={String(season_number)}
+																>
+																	Season {season_number}
+																</SelectItem>
+															),
+														)}
 													</SelectContent>
 												</Select>
 												<FormMessage />
@@ -803,12 +732,12 @@ export function HiveForm({ id }: { id: string }) {
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															{episodes.map((episode) => (
+															{episodes.map(({ name, episode_number }) => (
 																<SelectItem
-																	key={`episode_${episode}`}
-																	value={String(episode)}
+																	key={`episode_${episode_number}`}
+																	value={String(episode_number)}
 																>
-																	Episode {episode}
+																	{episode_number}. {name}
 																</SelectItem>
 															))}
 														</SelectContent>
@@ -817,6 +746,22 @@ export function HiveForm({ id }: { id: string }) {
 												</FormItem>
 											)}
 										/>
+									)}
+								</>
+							)}
+
+						{hive &&
+							hive.data?.title.type === "MOVIE" &&
+							hiveForm.watch("status") !== "FINISHED" && (
+								<>
+									<MovieRuntimeInput />
+									{(hiveForm.formState.errors.currentRuntimeHours ||
+										hiveForm.formState.errors.currentRuntimeMinutes) && (
+										<p className="text-red-500 text-sm">
+											{hiveForm.formState.errors.currentRuntimeHours?.message ||
+												hiveForm.formState.errors.currentRuntimeMinutes
+													?.message}
+										</p>
 									)}
 								</>
 							)}
@@ -1105,7 +1050,7 @@ function DeleteTitle({ id, type }: { id: string; type: "MOVIE" | "SERIES" }) {
 				toast.success("Title deleted from your hive!", {
 					id: "delete-title",
 				});
-				router.replace("/hive");
+				router.replace("/app");
 			}
 		},
 		onError: ({ error }) => {

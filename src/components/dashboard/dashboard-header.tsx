@@ -11,7 +11,7 @@ import {
 import type { UserSession } from "@/types/auth";
 
 import type { GetAll } from "@/types/hive";
-import AddTitleToHive from "../../app/(dashboard)/hive/_components/add-title/add-to-hive";
+import AddTitleToHive from "../../app/(dashboard)/app/_components/add-title/add-to-hive";
 
 interface DashboardHeaderProps {
 	user: UserSession;

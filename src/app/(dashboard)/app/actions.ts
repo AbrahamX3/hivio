@@ -61,7 +61,7 @@ export const profileOnboarding = withAuthActionClient
 			}))
 			.run(client);
 
-		revalidatePath("/hive");
+		revalidatePath("/app");
 		return { success: true, data: { username } };
 	});
 
@@ -92,7 +92,7 @@ export const refreshTitleData = withAuthActionClient
 			userId: session?.id,
 		});
 
-		revalidatePath(`/hive/${id}`);
+		revalidatePath(`/app/${id}`);
 
 		return { success: true };
 	});
@@ -112,7 +112,7 @@ export const deleteTitle = withAuthActionClient
 			}))
 			.run(client);
 
-		revalidatePath("/hive");
+		revalidatePath("/app");
 		return { success: true, data: { id: deleteTitle?.id } };
 	});
 
@@ -356,8 +356,8 @@ export async function updateTitle({
 
 		const currentSeasons = await e
 			.select(e.Season, (season) => ({
-				season: true,
-				episodes: true,
+				season_number: true,
+				total_episodes: true,
 				filter: e.op(season.title.id, "=", e.uuid(updatedTitle.id)),
 			}))
 			.run(client);
@@ -375,13 +375,13 @@ export async function updateTitle({
 
 		for (const validSeason of validSeasons) {
 			const isSeasonAdded = currentSeasons.some(
-				(s) => s.season === validSeason.season,
+				(s) => s.season_number === validSeason.season,
 			);
 
 			const isEpisodeCorrect = currentSeasons.some(
 				(s) =>
-					s.season === validSeason.season &&
-					s.episodes === validSeason.episodes,
+					s.season_number === validSeason.season &&
+					s.total_episodes === validSeason.episodes,
 			);
 
 			if (!isSeasonAdded) {
@@ -417,8 +417,8 @@ export async function updateTitle({
 				return e.for(e.array_unpack(seasons), ({ date, season, episodes }) => {
 					return e.insert(e.Season, {
 						title: e.set(titleId),
-						season: season,
-						episodes: episodes,
+						season_number: season,
+						total_episodes: episodes,
 						air_date: e.cast(e.cal.local_date, date),
 					});
 				});
@@ -439,13 +439,13 @@ export async function updateTitle({
 				return e.for(e.array_unpack(seasons), ({ date, season, episodes }) => {
 					return e.update(e.Season, (s) => ({
 						filter_single: e.op(
-							e.op(s.season, "=", season),
+							e.op(s.season_number, "=", season),
 							"and",
 							e.op(s.title.id, "=", e.uuid(updatedTitle.id)),
 						),
 						set: {
 							air_date: e.cast(e.cal.local_date, date),
-							episodes: episodes,
+							total_episodes: episodes,
 						},
 					}));
 				});

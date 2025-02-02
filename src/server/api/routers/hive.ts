@@ -3,11 +3,11 @@ import {
 	findTitleDetails,
 	getIMDBId,
 	updateTitle,
-} from "@/app/(dashboard)/hive/actions";
+} from "@/app/(dashboard)/app/actions";
 import {
 	AddTitleToHiveSchema,
 	saveTitleFormSchema,
-} from "@/app/(dashboard)/hive/validations";
+} from "@/app/(dashboard)/app/validations";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import e from "@edgedb/edgeql-js";
 import { TitleType } from "@edgedb/edgeql-js/modules/default";
@@ -42,6 +42,10 @@ export const hiveRouter = createTRPCRouter({
 			const id = input.id;
 			const form = input.form;
 
+			const totalRuntime =
+				(input.form.currentRuntimeHours ?? 0) * 60 +
+				(input.form.currentRuntimeMinutes ?? 0);
+
 			if (form.status === "FINISHED") {
 				const data = await e
 					.update(e.Hive, (hive) => ({
@@ -53,6 +57,7 @@ export const hiveRouter = createTRPCRouter({
 							rating: form.rating ? form.rating : null,
 							startedAt: form.startedAt ? form.startedAt : null,
 							isFavorite: form.isFavorite ?? false,
+							currentRunTime: totalRuntime ?? 0,
 						},
 						filter_single: e.op(
 							e.op(hive.id, "=", e.uuid(id)),
@@ -89,6 +94,7 @@ export const hiveRouter = createTRPCRouter({
 							currentSeason: form.currentSeason ? form.currentSeason : null,
 							startedAt: form.startedAt ? form.startedAt : null,
 							isFavorite: e.bool(form.isFavorite ?? false),
+							currentRunTime: totalRuntime ?? 0,
 						},
 						filter_single: e.op(
 							e.op(hive.id, "=", e.uuid(id)),
@@ -109,6 +115,7 @@ export const hiveRouter = createTRPCRouter({
 							currentSeason: form.currentSeason ? form.currentSeason : null,
 							startedAt: form.startedAt ? form.startedAt : null,
 							isFavorite: e.bool(form.isFavorite ?? false),
+							currentRunTime: totalRuntime ?? 0,
 						},
 						filter_single: e.op(
 							e.op(hive.id, "=", e.uuid(id)),
@@ -208,8 +215,8 @@ export const hiveRouter = createTRPCRouter({
 								({ date, season, episodes }) => {
 									return e.insert(e.Season, {
 										title: e.set(titleId),
-										season: season,
-										episodes: episodes,
+										season_number: season,
+										total_episodes: episodes,
 										air_date: e.cast(e.cal.local_date, date),
 									});
 								},

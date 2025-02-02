@@ -90,7 +90,7 @@ export function NavUser({ user, signOutUrl }: NavUserProps) {
 							<DropdownMenuItem asChild>
 								<Link
 									className="flex items-center justify-between gap-2"
-									href="/hive/settings"
+									href="/app/settings"
 								>
 									Settings <CogIcon className="ml-2 size-4" />
 								</Link>

@@ -36,11 +36,11 @@ import { useConfetti } from "@/context/use-confetti";
 import { statusOptions } from "@/lib/options";
 import type { UserSession } from "@/types/auth";
 
-import { profileOnboarding } from "../hive/actions";
+import { profileOnboarding } from "../app/actions";
 import {
 	type ProfileSetupForm,
 	ProfileSetupFormSchema,
-} from "../hive/validations";
+} from "../app/validations";
 
 export function ProfileSetup({ user }: { user: UserSession }) {
 	const ProfileSetupForm = useForm<ProfileSetupForm>({
