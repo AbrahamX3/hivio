@@ -60,7 +60,9 @@ module default {
         };
         multi episodes := .<season[is Episode];
         required season_number: int32;
-        required total_episodes: int32;
+        required total_episodes: int32 {
+            default := 0
+        };
         required air_date: cal::local_date;
         required createdAt: datetime {
             default := datetime_current();
