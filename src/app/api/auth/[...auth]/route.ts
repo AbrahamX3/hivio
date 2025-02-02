@@ -49,7 +49,8 @@ const { GET, POST } = auth.createAuthRouteHandlers({
 				);
 			}
 		}
-		redirect("/hive");
+		revalidatePath("/", "page");
+		redirect("/app");
 	},
 	onSignout() {
 		revalidatePath("/", "page");

@@ -33,8 +33,8 @@ export function ProfileHeader({
 				</AvatarFallback>
 			</Avatar>
 			<div className="grid gap-1">
-				<h1 className="text-2xl font-bold">{name}</h1>
-				<h2 className="flex items-center gap-2 align-middle text-sm text-gray-500 dark:text-gray-400">
+				<h1 className="font-bold text-2xl">{name}</h1>
+				<h2 className="flex items-center gap-2 align-middle text-gray-500 text-sm dark:text-gray-400">
 					<Button
 						className="m-0 h-fit p-0 text-black dark:text-primary"
 						variant="link"

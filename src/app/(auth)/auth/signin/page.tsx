@@ -28,7 +28,7 @@ export default async function SignInPage({
 	const isSignedIn = await isUserSignedIn();
 
 	if (isSignedIn) {
-		return redirect("/hive");
+		return redirect("/app");
 	}
 
 	return (
@@ -68,7 +68,7 @@ export default async function SignInPage({
 									),
 							)
 						) : (
-							<div className="w-[14rem] italic text-slate-500">
+							<div className="w-[14rem] text-slate-500 italic">
 								No OAuth providers configured
 							</div>
 						)}

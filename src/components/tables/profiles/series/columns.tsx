@@ -156,7 +156,7 @@ export function SeriesColumns(currentUser: UserSession | null) {
 			),
 			cell: ({ row }) => {
 				const orderedSeasons = row.original.title.seasons.sort(
-					(a, b) => a.season - b.season,
+					(a, b) => a.season_number - b.season_number,
 				);
 				return (
 					<Popover>
@@ -173,7 +173,7 @@ export function SeriesColumns(currentUser: UserSession | null) {
 								</div>
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+						<PopoverContent className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 flex max-h-56 w-52 flex-col justify-between gap-4 overflow-y-auto">
 							<div className="flex flex-col gap-2 align-middle text-sm">
 								{row.original.currentSeason && row.original.currentSeason && (
 									<div>
@@ -210,23 +210,31 @@ export function SeriesColumns(currentUser: UserSession | null) {
 								)}
 
 								<Accordion type="single" collapsible className="w-full">
-									{orderedSeasons.map(({ season, episodes, air_date, id }) => (
-										<AccordionItem key={id} value={id}>
-											<AccordionTrigger>Season {season}</AccordionTrigger>
-											<AccordionContent>
-												<div className="flex gap-x-2 align-middle">
-													<span className="font-bold">Air Date</span>
-													<span className="font-extralight">
-														{new Date(air_date.toString()).toLocaleDateString()}
-													</span>
-												</div>
-												<div className="flex gap-x-2 align-middle">
-													<span className="font-bold">Total of Episodes</span>
-													<span className="font-extralight">{episodes}</span>
-												</div>
-											</AccordionContent>
-										</AccordionItem>
-									))}
+									{orderedSeasons.map(
+										({ season_number, total_episodes, air_date, id }) => (
+											<AccordionItem key={id} value={id}>
+												<AccordionTrigger>
+													Season {season_number}
+												</AccordionTrigger>
+												<AccordionContent>
+													<div className="flex gap-x-2 align-middle">
+														<span className="font-bold">Air Date</span>
+														<span className="font-extralight">
+															{new Date(
+																air_date.toString(),
+															).toLocaleDateString()}
+														</span>
+													</div>
+													<div className="flex gap-x-2 align-middle">
+														<span className="font-bold">Total of Episodes</span>
+														<span className="font-extralight">
+															{total_episodes}
+														</span>
+													</div>
+												</AccordionContent>
+											</AccordionItem>
+										),
+									)}
 								</Accordion>
 							</div>
 						</PopoverContent>

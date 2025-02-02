@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useTitleDetails } from "@/context/title-details-context";
 
-import { deleteTitle } from "../../app/(dashboard)/hive/actions";
+import { deleteTitle } from "../../app/(dashboard)/app/actions";
 
 export default function DeleteHiveTitle({ id }: { id: string }) {
 	const { setSelectedTitle } = useTitleDetails();

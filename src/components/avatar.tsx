@@ -32,10 +32,7 @@ interface AvatarDropDownProps {
 	user: UserSession;
 	signOutUrl: string;
 }
-export default function DashboardAvatar({
-	user,
-	signOutUrl,
-}: AvatarDropDownProps) {
+export default function HiveAvatar({ user, signOutUrl }: AvatarDropDownProps) {
 	const { name, avatar, username } = user;
 	const { setTheme } = useTheme();
 	return (
@@ -58,10 +55,7 @@ export default function DashboardAvatar({
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem asChild>
-					<Link
-						className="flex items-center justify-between gap-2"
-						href="/hive"
-					>
+					<Link className="flex items-center justify-between gap-2" href="/app">
 						My Hive <LogoIcon className="ml-2 size-4" />
 					</Link>
 				</DropdownMenuItem>
@@ -76,7 +70,7 @@ export default function DashboardAvatar({
 				<DropdownMenuItem asChild>
 					<Link
 						className="flex items-center justify-between gap-2"
-						href="/hive/settings"
+						href="/app/settings"
 					>
 						Settings <CogIcon className="ml-2 size-4" />
 					</Link>

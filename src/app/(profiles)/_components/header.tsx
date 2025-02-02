@@ -1,16 +1,16 @@
 import Link from "next/link";
 
-import DashboardAvatar from "@/components/avatar";
+import HiveAvatar from "@/components/avatar";
 import LogoFull from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import UsersSearchInput from "@/components/user-search/users-search-input";
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { auth } from "@/lib/edgedb";
 
 import HeaderButton from "./header-button";
 
 export default async function Header() {
-	const user = await getUserSession();
+	const user = await getSession();
 
 	return (
 		<header className="w-full bg-primary text-black">
@@ -25,7 +25,7 @@ export default async function Header() {
 						{user === null ? (
 							<Link href="/auth/signin">Sign In</Link>
 						) : (
-							<DashboardAvatar user={user} signOutUrl={auth.getSignoutUrl()} />
+							<HiveAvatar user={user} signOutUrl={auth.getSignoutUrl()} />
 						)}
 					</Button>
 				</div>

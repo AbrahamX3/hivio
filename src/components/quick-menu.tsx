@@ -69,7 +69,7 @@ export function QuickMenu({
 						<CommandItem
 							value="hive"
 							onSelect={() => {
-								runCommand(() => router.push("/hive"));
+								runCommand(() => router.push("/app"));
 							}}
 						>
 							<LogoIcon className="mr-2 size-4" />
@@ -89,7 +89,7 @@ export function QuickMenu({
 						<CommandItem
 							value="settings"
 							onSelect={() => {
-								runCommand(() => router.push("/hive/settings"));
+								runCommand(() => router.push("/app/settings"));
 							}}
 						>
 							<SettingsIcon className="mr-2 size-4" />

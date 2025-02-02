@@ -84,7 +84,7 @@ export default function HiveProfileFilter({
 	return (
 		<>
 			<div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-				<h1 className="text-2xl font-bold">Discover Hive Profiles</h1>
+				<h1 className="font-bold text-2xl">Discover Hive Profiles</h1>
 				<div className="flex flex-col items-center gap-2 sm:flex-row sm:flex-nowrap">
 					<Button variant="outline" onClick={handleReset}>
 						Reset
@@ -146,7 +146,7 @@ export default function HiveProfileFilter({
 					))
 				) : (
 					<div className="col-span-4 flex w-full items-center justify-center rounded-md border bg-background p-4">
-						<div className="text-sm text-gray-500 dark:text-gray-400">
+						<div className="text-gray-500 text-sm dark:text-gray-400">
 							No profiles found
 						</div>
 					</div>

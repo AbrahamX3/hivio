@@ -3,7 +3,7 @@
 "use client";
 
 import { cva } from "class-variance-authority";
-import { CheckIcon, Loader2, type LucideIcon, X } from "lucide-react";
+import { CheckIcon, LoaderIcon, type LucideIcon, X } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -701,9 +701,9 @@ const HorizontalStep = React.forwardRef<HTMLDivElement, StepSharedProps>(
 					"data-[completed=true]:[&:not(:last-child)]:after:bg-primary",
 					"data-[invalid=true]:[&:not(:last-child)]:after:bg-destructive",
 					variant === "circle-alt" &&
-						"flex-1 flex-col justify-start [&:not(:last-child)]:after:relative [&:not(:last-child)]:after:end-[50%] [&:not(:last-child)]:after:start-[50%] [&:not(:last-child)]:after:top-[calc(var(--step-icon-size)/2)] [&:not(:last-child)]:after:order-[-1] [&:not(:last-child)]:after:w-[calc((100%-var(--step-icon-size))-(var(--step-gap)))]",
+						"flex-1 flex-col justify-start [&:not(:last-child)]:after:relative [&:not(:last-child)]:after:start-[50%] [&:not(:last-child)]:after:end-[50%] [&:not(:last-child)]:after:top-[calc(var(--step-icon-size)/2)] [&:not(:last-child)]:after:order-[-1] [&:not(:last-child)]:after:w-[calc((100%-var(--step-icon-size))-(var(--step-gap)))]",
 					variant === "circle" &&
-						"[&:not(:last-child)]:after:me-[var(--step-gap)] [&:not(:last-child)]:after:ms-[var(--step-gap)] [&:not(:last-child)]:after:flex-1",
+						"[&:not(:last-child)]:after:ms-[var(--step-gap)] [&:not(:last-child)]:after:me-[var(--step-gap)] [&:not(:last-child)]:after:flex-1",
 					variant === "line" &&
 						"flex-1 flex-col border-t-[3px] data-[active=true]:border-primary",
 					styles?.["horizontal-step"],
@@ -901,7 +901,9 @@ const StepIcon = React.forwardRef<HTMLDivElement, StepIconProps>(
 				}
 				if (isLoading) {
 					return (
-						<Loader2 className={cn(iconVariants({ size }), "animate-spin")} />
+						<LoaderIcon
+							className={cn(iconVariants({ size }), "animate-spin")}
+						/>
 					);
 				}
 			}
@@ -916,7 +918,7 @@ const StepIcon = React.forwardRef<HTMLDivElement, StepIconProps>(
 				<span
 					ref={ref}
 					key="label"
-					className={cn("text-md text-center font-medium")}
+					className={cn("text-center font-medium text-md")}
 				>
 					{(index ?? 0) + 1}
 				</span>

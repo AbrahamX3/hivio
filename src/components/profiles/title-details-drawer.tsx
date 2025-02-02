@@ -21,7 +21,6 @@ import {
 	findSeriesDetailsAction,
 } from "@/actions/general/title/actions";
 import type { UserHiveProfile } from "@/actions/profiles/user/types";
-import { addTitleHive } from "@/app/(dashboard)/hive/actions";
 import { LogoIcon } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -54,6 +53,7 @@ import {
 } from "@/context/title-details-context";
 import { genreOptions } from "@/lib/options";
 import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
 import type { UserSession } from "@/types/auth";
 
 interface Props {
@@ -196,6 +196,7 @@ export function TitleDetailsDrawer({
 		setSelectedTitle,
 	]);
 
+	const utils = api.useUtils();
 	const isDone =
 		selectedTitle?.type === "MOVIE"
 			? movieCreditsStatus === "hasSucceeded" &&
@@ -203,32 +204,11 @@ export function TitleDetailsDrawer({
 			: seriesCreditsStatus === "hasSucceeded" &&
 				seriesDetailsStatus === "hasSucceeded";
 
-	const { execute: AddTitleAction, status: AddTitleStatus } = useAction(
-		addTitleHive,
-		{
-			onSuccess: ({ data }) => {
-				if (data?.success) {
-					toast.success("Title added to your Hive as PENDING", {
-						id: "add-title",
-					});
-				} else {
-					toast.error(data?.error?.reason, {
-						id: "add-title",
-					});
-				}
-			},
-			onExecute: () => {
-				toast.loading("Adding Title to your Hive", {
-					id: "add-title",
-				});
-			},
-			onError: () => {
-				toast.error("Error adding title to your hive", {
-					id: "add-title",
-				});
-			},
+	const create = api.hive.create.useMutation({
+		onSuccess: async () => {
+			await utils.hive.getAll.invalidate();
 		},
-	);
+	});
 
 	if (!selectedTitle && isDone) return null;
 
@@ -236,7 +216,7 @@ export function TitleDetailsDrawer({
 		<Drawer open={open} onOpenChange={setOpen} direction="right">
 			<DrawerContent
 				direction="right"
-				className="left-auto right-0 top-0 mt-0 h-screen w-full rounded-none pb-4 md:w-[600px]"
+				className="top-0 right-0 left-auto mt-0 h-screen w-full rounded-none pb-4 md:w-[600px]"
 			>
 				<div className="mx-auto grid w-full gap-0.5 px-5 pt-6">
 					<DrawerTitle className="group flex items-center gap-5 align-middle">
@@ -263,11 +243,11 @@ export function TitleDetailsDrawer({
 						)}
 					</DrawerTitle>
 				</div>
-				<div className="mx-auto flex w-full items-center justify-between gap-1 px-5 pb-4 pt-2 align-middle">
+				<div className="mx-auto flex w-full items-center justify-between gap-1 px-5 pt-2 pb-4 align-middle">
 					{data?.title.release_date && (
-						<div className="flex flex-col align-middle text-sm text-muted-foreground">
+						<div className="flex flex-col align-middle text-muted-foreground text-sm">
 							<span className="font-medium">Release Date</span>
-							<span className="text-lg font-semibold">
+							<span className="font-semibold text-lg">
 								{formatDate(data?.title.release_date.toString(), "PPP")}
 							</span>
 						</div>
@@ -278,17 +258,25 @@ export function TitleDetailsDrawer({
 								<Tooltip>
 									<TooltipTrigger asChild>
 										<Button
-											disabled={AddTitleStatus === "executing"}
+											disabled={create.status === "pending"}
 											onClick={() => {
-												AddTitleAction({
-													titleFormValues: {
-														tmdbId: data?.title.tmdbId,
-														type: data?.title.type === "MOVIE" ? "movie" : "tv",
+												toast.promise(
+													create.mutateAsync({
+														titleFormValues: {
+															tmdbId: data?.title.tmdbId,
+															type:
+																data?.title.type === "MOVIE" ? "movie" : "tv",
+														},
+														hiveFormValues: {
+															status: "PENDING",
+														},
+													}),
+													{
+														loading: "Adding Title to your Hive as PENDING!",
+														success: "Title added to your Hive as PENDING!",
+														error: "Error adding title to your hive!",
 													},
-													hiveFormValues: {
-														status: "PENDING",
-													},
-												});
+												);
 											}}
 											variant="outline"
 											size="sm"
@@ -296,7 +284,7 @@ export function TitleDetailsDrawer({
 										>
 											<span className="relative">
 												<LogoIcon className="size-4" />
-												<PlusIcon className="absolute left-[9px] top-[5px] size-3 stroke-[4px] text-primary group-hover:animate-pulse" />
+												<PlusIcon className="absolute top-[5px] left-[9px] size-3 stroke-[4px] text-primary group-hover:animate-pulse" />
 											</span>
 										</Button>
 									</TooltipTrigger>
@@ -380,7 +368,7 @@ export function TitleDetailsDrawer({
 						<div className="grid gap-3">
 							<div className="flex w-full justify-between gap-4">
 								<div className="flex w-full flex-col justify-between align-middle">
-									<h2 className="text-xl font-semibold">General Details</h2>
+									<h2 className="font-semibold text-xl">General Details</h2>
 									<dl className="flex w-full flex-col justify-between gap-3">
 										<dt className="font-semibold text-muted-foreground">
 											Type
@@ -426,13 +414,13 @@ export function TitleDetailsDrawer({
 								)}
 							</div>
 							<div className="w-full py-4">
-								<h4 className="pb-2 text-xl font-semibold">Description</h4>
+								<h4 className="pb-2 font-semibold text-xl">Description</h4>
 								<p className="w-full text-pretty text-sm leading-relaxed tracking-wide">
 									{data?.title.description}
 								</p>
 							</div>
 							<div className="flex w-full flex-col justify-between align-middle">
-								<h4 className="pb-2 text-xl font-semibold">Rating</h4>
+								<h4 className="pb-2 font-semibold text-xl">Rating</h4>
 								<dl className="flex w-full justify-between gap-3">
 									<dt className="font-semibold text-muted-foreground">
 										@{username}&apos;s Rating
@@ -459,10 +447,10 @@ export function TitleDetailsDrawer({
 								<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
 							) : (
 								<div>
-									<h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
+									<h2 className="pb-4 font-semibold text-xl">Meet the Cast</h2>
 									<Carousel
 										data-vaul-no-drag
-										className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]"
+										className="mx-auto w-full max-w-[380px] xs:max-w-[300px] overflow-hidden sm:max-w-[400px] md:max-w-[550px]"
 										opts={{
 											align: "start",
 										}}
@@ -486,10 +474,10 @@ export function TitleDetailsDrawer({
 														<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
 															<div className="flex flex-col justify-start gap-2">
 																<div className="flex flex-col items-start gap-[4px]">
-																	<h3 className="text-balance text-xl font-bold text-white">
+																	<h3 className="text-balance font-bold text-white text-xl">
 																		{cast.name}
 																	</h3>
-																	<p className="text-balance text-sm text-foreground">
+																	<p className="text-balance text-foreground text-sm">
 																		{cast.character}
 																	</p>
 																</div>
@@ -525,10 +513,10 @@ export function TitleDetailsDrawer({
 							<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
 						) : (
 							<div>
-								<h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
+								<h2 className="pb-4 font-semibold text-xl">Meet the Cast</h2>
 								<Carousel
 									data-vaul-no-drag
-									className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[550px]"
+									className="mx-auto w-full max-w-[380px] xs:max-w-[300px] overflow-hidden sm:max-w-[400px] md:max-w-[550px]"
 									opts={{
 										align: "start",
 									}}
@@ -552,10 +540,10 @@ export function TitleDetailsDrawer({
 													<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
 														<div className="flex flex-col justify-start gap-2">
 															<div className="flex flex-col items-start gap-[4px]">
-																<h3 className="text-balance text-xl font-bold text-white">
+																<h3 className="text-balance font-bold text-white text-xl">
 																	{cast.name}
 																</h3>
-																<p className="text-balance text-sm text-foreground">
+																<p className="text-balance text-foreground text-sm">
 																	{cast.character}
 																</p>
 															</div>
@@ -592,7 +580,7 @@ export function TitleDetailsDrawer({
 							movieDetailsStatus === "hasSucceeded" &&
 							movieDetailsResult.data?.production_companies.length > 0 ? (
 								<div className="grid gap-3">
-									<h2 className="pb-2 text-xl font-semibold">
+									<h2 className="pb-2 font-semibold text-xl">
 										Production Companies
 									</h2>
 									<div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
@@ -643,7 +631,7 @@ export function TitleDetailsDrawer({
 							seriesDetailsStatus === "hasSucceeded" &&
 							seriesDetailsResult.data?.production_companies.length > 0 ? (
 								<div className="grid gap-3">
-									<h2 className="pb-2 text-xl font-semibold">
+									<h2 className="pb-2 font-semibold text-xl">
 										Production Companies
 									</h2>
 									<div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
@@ -694,7 +682,7 @@ export function TitleDetailsDrawer({
 							movieDetailsStatus === "hasSucceeded" ? (
 								<div>
 									<Separator className="my-4" />
-									<h2 className="pb-4 text-xl font-semibold">
+									<h2 className="pb-4 font-semibold text-xl">
 										Financial Details
 									</h2>
 									<ul className="grid gap-3">

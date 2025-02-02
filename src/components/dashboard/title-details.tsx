@@ -57,7 +57,7 @@ import {
 	findSeriesCreditsAction,
 	findSeriesDetailsAction,
 } from "@/actions/general/title/actions";
-import type { HiveData } from "../../app/(dashboard)/hive/actions";
+import type { HiveData } from "../../app/(dashboard)/app/actions";
 import DeleteHiveTitle from "./delete-title";
 
 const USD = Intl.NumberFormat("en-US", {
@@ -230,9 +230,9 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 					</div>
 					<div className="flex w-full items-center justify-between gap-1 pt-3 align-middle">
 						{data?.title.release_date && (
-							<div className="flex flex-col align-middle text-sm text-muted-foreground">
+							<div className="flex flex-col align-middle text-muted-foreground text-sm">
 								<span className="font-medium">Release Date</span>
-								<span className="text-lg font-semibold">
+								<span className="font-semibold text-lg">
 									{formatDate(data?.title.release_date.toString(), "PPP")}
 								</span>
 							</div>
@@ -316,7 +316,7 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 					<div className="grid gap-3">
 						<div className="flex w-full justify-between gap-4">
 							<div className="flex w-full flex-col justify-between align-middle">
-								<h2 className="text-xl font-semibold">General Details</h2>
+								<h2 className="font-semibold text-xl">General Details</h2>
 								<dl className="flex w-full flex-col justify-between gap-3">
 									<dt className="font-semibold text-muted-foreground">Type</dt>
 									<dd className="capitalize">
@@ -360,13 +360,13 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 							)}
 						</div>
 						<div className="w-full py-4">
-							<h4 className="pb-2 text-xl font-semibold">Description</h4>
+							<h4 className="pb-2 font-semibold text-xl">Description</h4>
 							<p className="w-full text-pretty text-sm leading-relaxed tracking-wide">
 								{data?.title.description}
 							</p>
 						</div>
 						<div className="flex w-full flex-col justify-between align-middle">
-							<h4 className="pb-2 text-xl font-semibold">Rating</h4>
+							<h4 className="pb-2 font-semibold text-xl">Rating</h4>
 							<dl className="flex w-full justify-between gap-3">
 								<dt className="font-semibold text-muted-foreground">
 									My Rating
@@ -393,9 +393,9 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 							<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
 						) : (
 							<div>
-								<h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
+								<h2 className="pb-4 font-semibold text-xl">Meet the Cast</h2>
 								<Carousel
-									className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[600px]"
+									className="mx-auto w-full max-w-[380px] xs:max-w-[300px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
 									opts={{
 										align: "start",
 									}}
@@ -419,10 +419,10 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 													<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
 														<div className="flex flex-col justify-start gap-2">
 															<div className="flex flex-col items-start gap-[4px]">
-																<h3 className="text-balance text-xl font-bold text-white">
+																<h3 className="text-balance font-bold text-white text-xl">
 																	{cast.name}
 																</h3>
-																<p className="text-balance text-sm text-foreground">
+																<p className="text-balance text-foreground text-sm">
 																	{cast.character}
 																</p>
 															</div>
@@ -458,9 +458,9 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 						<Skeleton className="h-36 w-full animate-pulse flex-col items-center justify-center rounded-md border border-dashed p-8 font-semibold" />
 					) : (
 						<div>
-							<h2 className="pb-4 text-xl font-semibold">Meet the Cast</h2>
+							<h2 className="pb-4 font-semibold text-xl">Meet the Cast</h2>
 							<Carousel
-								className="mx-auto w-full max-w-[380px] overflow-hidden xs:max-w-[300px] sm:max-w-[400px] md:max-w-[600px]"
+								className="mx-auto w-full max-w-[380px] xs:max-w-[300px] overflow-hidden sm:max-w-[400px] md:max-w-[600px]"
 								opts={{
 									align: "start",
 								}}
@@ -484,10 +484,10 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 												<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
 													<div className="flex flex-col justify-start gap-2">
 														<div className="flex flex-col items-start gap-[4px]">
-															<h3 className="text-balance text-xl font-bold text-white">
+															<h3 className="text-balance font-bold text-white text-xl">
 																{cast.name}
 															</h3>
-															<p className="text-balance text-sm text-foreground">
+															<p className="text-balance text-foreground text-sm">
 																{cast.character}
 															</p>
 														</div>
@@ -524,7 +524,7 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 						movieDetailsStatus === "hasSucceeded" &&
 						movieDetailsResult.data?.production_companies.length > 0 ? (
 							<div className="grid gap-3">
-								<h2 className="pb-2 text-xl font-semibold">
+								<h2 className="pb-2 font-semibold text-xl">
 									Production Companies
 								</h2>
 								<div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
@@ -575,7 +575,7 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 						seriesDetailsStatus === "hasSucceeded" &&
 						seriesDetailsResult.data?.production_companies.length > 0 ? (
 							<div className="grid gap-3">
-								<h2 className="pb-2 text-xl font-semibold">
+								<h2 className="pb-2 font-semibold text-xl">
 									Production Companies
 								</h2>
 								<div className="flex flex-wrap items-center justify-center gap-4 rounded-md border border-dashed p-2">
@@ -626,7 +626,7 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 						movieDetailsStatus === "hasSucceeded" ? (
 							<div>
 								<Separator className="my-4" />
-								<h2 className="pb-4 text-xl font-semibold">
+								<h2 className="pb-4 font-semibold text-xl">
 									Financial Details
 								</h2>
 								<ul className="grid gap-3">
@@ -670,7 +670,7 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 				</CardContent>
 				<CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
 					{data?.title.updatedAt && (
-						<div className="text-xs text-muted-foreground">
+						<div className="text-muted-foreground text-xs">
 							<span className="font-semibold">Last Updated: </span>{" "}
 							{format(data?.title.updatedAt, "PPPP p")}
 						</div>

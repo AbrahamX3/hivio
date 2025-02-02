@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { SearchIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useAction } from "next-safe-action/hooks";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -37,9 +37,9 @@ export default function UsersSearchInput() {
 	}, [debouncedSearch, execute, reset]);
 
 	return (
-		<div className="relative ml-auto flex-1 text-black dark:text-white md:grow-0">
+		<div className="relative ml-auto flex-1 text-black md:grow-0 dark:text-white">
 			<div className="relative">
-				<SearchIcon className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+				<SearchIcon className="absolute top-3 left-2.5 h-4 w-4 text-muted-foreground" />
 				<Input
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
@@ -52,7 +52,7 @@ export default function UsersSearchInput() {
 				<div className="absolute mt-2 w-full rounded-md border-2 bg-background shadow-sm md:w-[200px] lg:w-[320px]">
 					<div className="max-h-[300px] overflow-y-auto">
 						<AnimatePresence mode="sync">
-							<div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1 scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2">
+							<div className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1">
 								{status === "executing" || status === "idle" ? (
 									<motion.div
 										initial={{ opacity: 0 }}

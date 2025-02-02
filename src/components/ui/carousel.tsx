@@ -207,8 +207,8 @@ const CarouselPrevious = React.forwardRef<
 			className={cn(
 				"absolute z-10 size-6 rounded-full",
 				orientation === "vertical"
-					? "-top-2 left-1/2 -translate-x-1/2 rotate-90"
-					: "-left-2 top-1/2 -translate-y-1/2",
+					? "-top-2 -translate-x-1/2 left-1/2 rotate-90"
+					: "-left-2 -translate-y-1/2 top-1/2",
 				className,
 			)}
 			disabled={!canScrollPrev}
@@ -236,8 +236,8 @@ const CarouselNext = React.forwardRef<
 			className={cn(
 				"absolute z-10 size-6 rounded-full",
 				orientation === "vertical"
-					? "-bottom-2 left-1/2 -translate-x-1/2 rotate-90"
-					: "-right-2 top-1/2 -translate-y-1/2",
+					? "-bottom-2 -translate-x-1/2 left-1/2 rotate-90"
+					: "-right-2 -translate-y-1/2 top-1/2",
 				className,
 			)}
 			disabled={!canScrollNext}

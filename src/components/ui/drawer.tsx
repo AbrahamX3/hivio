@@ -62,7 +62,7 @@ const DrawerContent = React.forwardRef<
 					direction === "bottom" ? (
 						<div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
 					) : (
-						<div className="absolute left-1 top-80 mx-auto mr-4 h-[100px] w-1 rounded-full bg-muted" />
+						<div className="absolute top-80 left-1 mx-auto mr-4 h-[100px] w-1 rounded-full bg-muted" />
 					)
 				) : null}
 				{children}
@@ -101,7 +101,7 @@ const DrawerTitle = React.forwardRef<
 	<DrawerPrimitive.Title
 		ref={ref}
 		className={cn(
-			"text-lg font-semibold leading-none tracking-tight",
+			"font-semibold text-lg leading-none tracking-tight",
 			className,
 		)}
 		{...props}
@@ -115,7 +115,7 @@ const DrawerDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<DrawerPrimitive.Description
 		ref={ref}
-		className={cn("text-sm text-muted-foreground", className)}
+		className={cn("text-muted-foreground text-sm", className)}
 		{...props}
 	/>
 ));

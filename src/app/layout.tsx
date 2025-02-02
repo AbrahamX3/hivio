@@ -8,10 +8,11 @@ import { QuickMenu } from "@/components/quick-menu";
 import { Toaster } from "@/components/ui/sonner";
 import { Confetti } from "@/context/confetti";
 import { env } from "@/env";
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 import "@/styles/globals.css";
 
+import { TRPCReactProvider } from "@/trpc/react";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -46,7 +47,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const currentUser = await getUserSession();
+	const currentUser = await getSession();
 
 	return (
 		<html
@@ -61,11 +62,13 @@ export default async function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					{children}
-					<Confetti />
-					<Toaster richColors />
-					<TailwindIndicator />
-					<QuickMenu currentUser={currentUser} />
+					<TRPCReactProvider>
+						{children}
+						<Confetti />
+						<Toaster richColors />
+						<TailwindIndicator />
+						<QuickMenu currentUser={currentUser} />
+					</TRPCReactProvider>
 				</ThemeProvider>
 			</body>
 			<Script

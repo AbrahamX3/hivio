@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/card";
 import type { UserSession } from "@/types/auth";
 
-import AddTitleToHive from "../../app/(dashboard)/hive/_components/add-title/add-to-hive";
-import type { HiveData } from "../../app/(dashboard)/hive/actions";
+import type { GetAll } from "@/types/hive";
+import AddTitleToHive from "../../app/(dashboard)/app/_components/add-title/add-to-hive";
 
 interface DashboardHeaderProps {
 	user: UserSession;
-	hive: HiveData;
+	hive: GetAll;
 }
 
 export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {
@@ -52,8 +52,8 @@ export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {
 				<CardHeader className="pb-3">
 					<CardTitle>Your Hive Dashboard</CardTitle>
 					<CardDescription className="max-w-lg text-balance leading-relaxed">
-						Your go-to hub for tracking your movies and series. Store, manage,
-						and track your favorite titles.
+						Search, add and manage your favorite series and movies, all stored
+						in your Hive.
 					</CardDescription>
 				</CardHeader>
 				<CardFooter>
@@ -69,7 +69,7 @@ export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<p className="flex-1 text-xs text-muted-foreground">
+					<p className="flex-1 text-muted-foreground text-xs">
 						Currently watching {currentWatchingMovies.length}{" "}
 						{currentWatchingMovies.length > 1
 							? "movies"
@@ -90,7 +90,7 @@ export default function DashboardHeader({ user, hive }: DashboardHeaderProps) {
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<p className="text-xs text-muted-foreground">
+					<p className="text-muted-foreground text-xs">
 						{finishedSeriesThisMonth.length}{" "}
 						{finishedSeriesThisMonth.length > 1 ? "series" : "series"} and{" "}
 						{finishedMoviesThisMonth.length}{" "}

@@ -1,4 +1,4 @@
-import { getUserSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 import { getUserProfilesAction } from "@/actions/profiles/discover/actions";
 import Background from "./_components/background";
@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function Discover() {
 	const data = await getUserProfilesAction({ limit: 100 });
-	const currentUser = await getUserSession();
+	const currentUser = await getSession();
 	return (
 		<Background>
 			<div className="mx-auto grid w-full gap-6">
