@@ -46,7 +46,7 @@ export default function SearchTitleCard({
 		>
 			{selectedTitleId === result.id && (
 				<>
-					<div className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 z-50 rounded-md bg-background/80 backdrop-blur-sm">
+					<div className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 z-50 rounded-md bg-background/80 backdrop-blur-xs">
 						<Button
 							onClick={(e) => {
 								e.stopPropagation();
@@ -59,14 +59,14 @@ export default function SearchTitleCard({
 							<ChevronRightIcon className="size-4" />
 						</Button>
 					</div>
-					<div className="absolute bottom-0 z-40 h-full w-full rounded-md bg-background/50 px-4 py-2 backdrop-blur-sm transition-all ease-in-out" />
+					<div className="absolute bottom-0 z-40 h-full w-full rounded-md bg-background/50 px-4 py-2 backdrop-blur-xs transition-all ease-in-out" />
 				</>
 			)}
 			<div className="relative h-[400px] overflow-hidden rounded-md sm:h-[400px]">
 				<Image
 					unoptimized
 					alt={titleName}
-					className="aspect-[231/154] h-full w-full object-cover"
+					className="aspect-231/154 h-full w-full object-cover"
 					src={`https://image.tmdb.org/t/p/w500${result.poster_path}`}
 					height={231}
 					width={154}
@@ -80,7 +80,7 @@ export default function SearchTitleCard({
 							"group-hover/card:animate-pulse group-hover/card:opacity-100",
 					)}
 				/>
-				<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
+				<div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-gray-900/80 to-transparent p-2">
 					<div className="flex flex-col justify-start gap-2">
 						<div className="flex flex-col items-start gap-[4px]">
 							<h3 className="flex items-center gap-2 text-balance align-middle font-bold text-white text-xl">
@@ -135,7 +135,7 @@ export function ViewPosterButton({
 					<ExpandIcon className="hidden size-4 group-hover:block" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="h-[90vh]">
+			<DialogContent>
 				<div className="max-h-[85vh] w-full p-6">
 					<Image
 						src={`https://image.tmdb.org/t/p/w500${poster}`}

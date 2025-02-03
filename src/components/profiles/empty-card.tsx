@@ -30,8 +30,8 @@ export function EmptyCard({
 	return (
 		<CarouselItem className="relative opacity-30 sm:basis-2/4 md:basis-1/4 lg:basis-1/3">
 			<Card>
-				<CardContent className="flex aspect-[500/750] h-full items-center justify-center p-0">
-					<div className="aspect-[2/3] w-full rounded-t-lg bg-muted object-cover" />
+				<CardContent className="flex aspect-500/750 h-full items-center justify-center p-0">
+					<div className="aspect-2/3 w-full rounded-t-lg bg-muted object-cover" />
 				</CardContent>
 				<CardFooter className="relative w-full flex-col gap-4 pt-2">
 					<div className="flex w-full items-center gap-2 justify-self-start align-middle">

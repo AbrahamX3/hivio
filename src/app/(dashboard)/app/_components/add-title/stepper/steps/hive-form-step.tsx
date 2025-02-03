@@ -425,7 +425,7 @@ export function HiveFormStep({
 							control={hiveForm.control}
 							name="isFavorite"
 							render={({ field }) => (
-								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+								<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
 									<div className="space-y-0.5">
 										<FormLabel>Is this a favorite?</FormLabel>
 										<FormDescription>

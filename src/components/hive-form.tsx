@@ -259,7 +259,7 @@ export function HiveForm({ id }: { id: string }) {
 			<div className="col-span-3 mx-auto flex w-full flex-col gap-4">
 				<div
 					className={cn(
-						"sticky top-0 flex justify-between gap-2 rounded-md border bg-background/80 px-6 py-2 align-middle backdrop-blur-sm transition-all duration-300",
+						"sticky top-0 flex justify-between gap-2 rounded-md border bg-background/80 px-6 py-2 align-middle backdrop-blur-xs transition-all duration-300",
 					)}
 				>
 					<div className="mx-auto flex flex-start items-center justify-center gap-2 align-middle">
@@ -369,7 +369,7 @@ export function HiveForm({ id }: { id: string }) {
 											className="h-56 w-auto cursor-pointer rounded-md transition-all hover:scale-105"
 										/>
 									</DialogTrigger>
-									<DialogContent className="h-[90vh]">
+									<DialogContent>
 										<div className="max-h-[85vh] w-full p-6">
 											<Image
 												src={`https://image.tmdb.org/t/p/original${hive.data.title.poster}`}
@@ -396,7 +396,7 @@ export function HiveForm({ id }: { id: string }) {
 							<DialogTrigger asChild>
 								<Button>View Seasons</Button>
 							</DialogTrigger>
-							<DialogContent className="rounded-md bg-background/80 shadow-lg backdrop-blur-sm">
+							<DialogContent className="rounded-md bg-background/80 shadow-lg backdrop-blur-xs">
 								<DialogHeader>
 									<DialogTitle>Seasons</DialogTitle>
 									<DialogDescription>
@@ -597,7 +597,7 @@ export function HiveForm({ id }: { id: string }) {
 				>
 					<div
 						className={cn(
-							"sticky top-0 flex justify-between gap-2 rounded-md border bg-background/80 px-6 py-2 align-middle backdrop-blur-sm transition-all duration-300",
+							"sticky top-0 flex justify-between gap-2 rounded-md border bg-background/80 px-6 py-2 align-middle backdrop-blur-xs transition-all duration-300",
 						)}
 					>
 						<div className="mx-auto flex flex-start items-center justify-center gap-2 align-middle">
@@ -861,7 +861,7 @@ export function HiveForm({ id }: { id: string }) {
 									control={hiveForm.control}
 									name="isFavorite"
 									render={({ field }) => (
-										<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+										<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
 											<div className="space-y-0.5">
 												<FormLabel>Is this a favorite?</FormLabel>
 												<FormDescription>

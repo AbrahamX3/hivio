@@ -40,7 +40,7 @@ export function FloatingDrawer({
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent
 				className={cn(
-					"fixed z-50 overflow-hidden rounded-md bg-background/80 p-0 shadow-lg backdrop-blur-sm",
+					"fixed z-50 overflow-hidden rounded-md bg-background/80 p-0 shadow-lg backdrop-blur-xs",
 					"duration-300 data-[state=closed]:animate-out data-[state=open]:animate-in",
 					side === "right"
 						? [
@@ -53,7 +53,7 @@ export function FloatingDrawer({
 							],
 				)}
 			>
-				<DialogHeader className="sticky top-0 z-10 border-b p-4 backdrop-blur-sm">
+				<DialogHeader className="sticky top-0 z-10 border-b p-4 backdrop-blur-xs">
 					<DialogTitle className="flex items-center gap-4 align-middle">
 						<span>{title}</span>
 						<Badge size="sm">{status}</Badge>
@@ -61,7 +61,7 @@ export function FloatingDrawer({
 					<button
 						type="button"
 						onClick={onClose}
-						className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+						className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
 					>
 						<X className="h-4 w-4" />
 						<span className="sr-only">Close</span>

@@ -173,14 +173,14 @@ export default async function PublicUserProfile({ params }: Props) {
 											className="relative sm:basis-2/4 md:basis-1/4 lg:basis-1/3"
 										>
 											<Card>
-												<CardContent className="flex aspect-[500/750] items-center justify-center p-0">
+												<CardContent className="flex aspect-500/750 items-center justify-center p-0">
 													<Image
 														unoptimized
 														loading="lazy"
 														blurDataURL={hive.title.posterBlur ?? ""}
 														placeholder="blur"
 														alt={hive.title.name}
-														className="aspect-[2/3] w-full rounded-t-lg object-cover"
+														className="aspect-2/3 w-full rounded-t-lg object-cover"
 														src={`https://image.tmdb.org/t/p/w780${hive.title.poster}`}
 														height={750}
 														width={500}

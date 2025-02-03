@@ -342,7 +342,7 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 											className="h-40 w-auto cursor-pointer rounded-md transition-all hover:scale-105 lg:h-20 xl:h-40"
 										/>
 									</DialogTrigger>
-									<DialogContent className="h-[90vh]">
+									<DialogContent>
 										<div className="max-h-[85vh] w-full p-6">
 											<Image
 												src={`https://image.tmdb.org/t/p/original${data?.title.poster}`}
@@ -411,12 +411,12 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 													<Image
 														unoptimized
 														alt={cast.name}
-														className="aspect-[231/154] h-full w-full object-cover"
+														className="aspect-231/154 h-full w-full object-cover"
 														src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
 														height={231}
 														width={154}
 													/>
-													<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
+													<div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-gray-900/80 to-transparent p-2">
 														<div className="flex flex-col justify-start gap-2">
 															<div className="flex flex-col items-start gap-[4px]">
 																<h3 className="text-balance font-bold text-white text-xl">
@@ -476,12 +476,12 @@ export default function TitleDetails({ data }: { data?: HiveData[0] }) {
 												<Image
 													unoptimized
 													alt={cast.name}
-													className="aspect-[231/154] h-full w-full object-cover"
+													className="aspect-231/154 h-full w-full object-cover"
 													src={`https://image.tmdb.org/t/p/w200${cast.profile_path}`}
 													height={231}
 													width={154}
 												/>
-												<div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-gray-900/80 to-transparent p-2">
+												<div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-gray-900/80 to-transparent p-2">
 													<div className="flex flex-col justify-start gap-2">
 														<div className="flex flex-col items-start gap-[4px]">
 															<h3 className="text-balance font-bold text-white text-xl">

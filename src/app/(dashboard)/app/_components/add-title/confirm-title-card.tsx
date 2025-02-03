@@ -66,7 +66,7 @@ export default function ConfirmTitleCard({
 									className="h-40 w-auto cursor-pointer rounded-md transition-all hover:scale-105"
 								/>
 							</DialogTrigger>
-							<DialogContent className="h-[90vh]">
+							<DialogContent>
 								<div className="max-h-[85vh] w-full p-6">
 									<Image
 										src={`https://image.tmdb.org/t/p/w780${selectedTitle.poster_path}`}
@@ -124,7 +124,7 @@ export default function ConfirmTitleCard({
 								className="h-40 w-auto cursor-pointer rounded-md transition-all hover:scale-105"
 							/>
 						</DialogTrigger>
-						<DialogContent className="h-[90vh]">
+						<DialogContent>
 							<div className="max-h-[85vh] w-full p-6">
 								<Image
 									src={`https://image.tmdb.org/t/p/w780${selectedTitle.poster_path}`}

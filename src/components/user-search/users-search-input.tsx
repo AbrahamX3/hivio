@@ -49,7 +49,7 @@ export default function UsersSearchInput() {
 				/>
 			</div>
 			{open && query.length > 0 && (
-				<div className="absolute mt-2 w-full rounded-md border-2 bg-background shadow-sm md:w-[200px] lg:w-[320px]">
+				<div className="absolute mt-2 w-full rounded-md border-2 bg-background shadow-xs md:w-[200px] lg:w-[320px]">
 					<div className="max-h-[300px] overflow-y-auto">
 						<AnimatePresence mode="sync">
 							<div className="scrollbar scrollbar-track-muted scrollbar-thumb-foreground scrollbar-thumb-rounded-md scrollbar-w-2 flex max-h-[300px] flex-col gap-1 overflow-y-auto p-1">

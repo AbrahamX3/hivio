@@ -147,7 +147,7 @@ export default function AddTitleToHive({
 				>
 					<span>Add Title</span>
 					<LogoIcon className="size-4" />
-					<PlusIcon className="absolute top-[17px] right-[24px] h-[10px] w-[10px] stroke-[4px] text-foreground text-white group-hover:animate-pulse" />
+					<PlusIcon className="absolute top-[17px] right-[24px] h-[10px] w-[10px] stroke-[4px] text-foreground group-hover:animate-pulse" />
 				</Button>
 			</DrawerTrigger>
 			<DrawerContent
@@ -168,7 +168,7 @@ export default function AddTitleToHive({
 							size="sm"
 							variant="circle-alt"
 							responsive={false}
-							className="sticky top-2 z-10 w-full rounded-md p-2 text-sm backdrop-blur supports-[backdrop-filter]:bg-muted/60"
+							className="sticky top-2 z-10 w-full rounded-md p-2 text-sm backdrop-blur-sm supports-backdrop-filter:bg-muted/60"
 							scrollTracking
 							initialStep={0}
 							steps={[

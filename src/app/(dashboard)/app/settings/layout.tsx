@@ -8,7 +8,7 @@ export default async function Settings({
 	children: React.ReactNode;
 }) {
 	return (
-		<main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4">
+		<main className="flex min-h-[calc(100vh-(--spacing(16)))] flex-1 flex-col gap-4 p-4">
 			<div className="mx-auto grid w-full gap-2 rounded-md border px-4 py-4 lg:px-6">
 				<h1 className="font-semibold text-3xl">Settings</h1>
 				<p className="text-muted-foreground">
