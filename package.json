@@ -19,7 +19,7 @@
 		"check": "biome check --write ./src && pnpm typecheck"
 	},
 	"engines": {
-		"node": "20.x"
+		"node": "22.x"
 	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.3.1",
