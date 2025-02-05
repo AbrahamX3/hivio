@@ -17,6 +17,7 @@ import {
 	selectTitleByIdQuery,
 	selectTitleMetadataByIdQuery,
 } from "../queries";
+import { addSeasonEpisodes } from "./title";
 
 export const hiveRouter = createTRPCRouter({
 	getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -240,8 +241,11 @@ export const hiveRouter = createTRPCRouter({
 					await query.run(client, {
 						seasons,
 					});
+
+					await addSeasonEpisodes(tmdbId);
 				}
 			} else {
+				await addSeasonEpisodes(isTitleAdded.tmdbId);
 				await updateTitle({
 					tmdbId: isTitleAdded.tmdbId,
 					type: isTitleAdded.type,

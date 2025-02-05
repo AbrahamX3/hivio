@@ -1,29 +1,8 @@
 "use client";
 
-import {
-	ClapperboardIcon,
-	FileJson2,
-	FilmIcon,
-	GalleryHorizontalEndIcon,
-} from "lucide-react";
 import { Suspense } from "react";
 
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { UserSession } from "@/types/auth";
 
 import AddTitleToHive from "@/app/(dashboard)/app/_components/add-title/add-to-hive";
@@ -81,7 +60,7 @@ export function DashboardContainer({ user }: DashboardContainerProps) {
 							</TabsTrigger>
 						</TabsList>
 						<AddTitleToHive user={user} />
-						<div className="ml-auto flex items-center gap-2">
+						{/* <div className="ml-auto flex items-center gap-2">
 							<DropdownMenu>
 								<TooltipProvider>
 									<Tooltip>
@@ -126,7 +105,7 @@ export function DashboardContainer({ user }: DashboardContainerProps) {
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
-						</div>
+						</div> */}
 					</div>
 					<Suspense fallback={<div>Loading...</div>}>
 						<TableTabs data={data ?? []} isLoading={status === "pending"} />

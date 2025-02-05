@@ -201,8 +201,6 @@ export async function GET() {
 		}))
 		.run(edgeClient);
 
-	console.log(data);
-
 	for (const title of data) {
 		const s: EpisodeData[] = [];
 

@@ -2,7 +2,7 @@
 
 import { DataTable } from "@/components/ui/datatable/data-table";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { genreOptions, typeOptions } from "@/lib/options";
+import { typeOptions } from "@/lib/options";
 
 import type { HiveData } from "@/app/(dashboard)/app/actions";
 import { CurrentlyWatchingColumns } from "./columns";
@@ -16,11 +16,6 @@ export default function WatchingTableView({
 			columnId: "Type",
 			title: "Type",
 			options: typeOptions,
-		},
-		{
-			columnId: "Genres",
-			title: "Genres",
-			options: genreOptions,
 		},
 	];
 
