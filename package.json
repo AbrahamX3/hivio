@@ -6,9 +6,9 @@
 	"type": "module",
 	"scripts": {
 		"dev": "next dev --turbo",
-		"build": "next build",
+		"build": "pnpm edge:generate && next build",
+		"edge:generate": "pnpx @edgedb/generate edgeql-js && pnpx @edgedb/generate interfaces",
 		"start": "next start",
-		"prebuild": "pnpx @edgedb/generate edgeql-js && pnpx @edgedb/generate interfaces",
 		"edge:start": "edgedb instance start -I hivio",
 		"edge:stop": "edgedb instance stop -I hivio",
 		"edge:migration": "edgedb migration create",
