@@ -181,7 +181,7 @@ const addEpisodesQuery = e.params(
 					air_date: e.cast(e.cal.local_date, air_date),
 					name: name,
 					overview: overview,
-					runtime: runtime,
+					runtime: runtime ?? 0,
 				});
 			},
 		);
@@ -317,7 +317,7 @@ export async function addSeasonEpisodes(tmdbId: number) {
 				episode_number: ep.episode_number,
 				name: ep.name,
 				overview: ep.overview,
-				runtime: ep.runtime,
+				runtime: ep.runtime ?? 0,
 				seasonId: findSeasonId,
 			});
 		}

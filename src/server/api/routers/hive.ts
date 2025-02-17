@@ -135,6 +135,9 @@ export const hiveRouter = createTRPCRouter({
 		.input(AddTitleToHiveSchema)
 		.mutation(async ({ ctx, input }) => {
 			const client = ctx.authClient;
+			const totalRuntime =
+				(input.hiveFormValues.currentRuntimeHours ?? 0) * 60 +
+				(input.hiveFormValues.currentRuntimeMinutes ?? 0);
 			const tmdbId = input.titleFormValues.tmdbId;
 			const TypeEnum =
 				input.titleFormValues.type === "movie"
@@ -185,8 +188,7 @@ export const hiveRouter = createTRPCRouter({
 						poster: e.str(poster_path),
 						posterBlur: posterBlurhash,
 						type: TypeEnum,
-						runtime:
-							data.mediaType === "movie" ? e.int32(data.runtime) : undefined,
+						runtime: data.mediaType === "movie" ? e.int32(data.runtime) : 0,
 						rating: data.vote_average
 							? e.float32(data.vote_average)
 							: undefined,
@@ -297,6 +299,7 @@ export const hiveRouter = createTRPCRouter({
 						startedAt: input.hiveFormValues.startedAt
 							? input.hiveFormValues.startedAt
 							: undefined,
+						currentRunTime: totalRuntime ?? 0,
 						currentEpisode: input.hiveFormValues.currentEpisode,
 						currentSeason: input.hiveFormValues.currentSeason,
 						rating: input.hiveFormValues.rating
@@ -321,6 +324,10 @@ export const hiveRouter = createTRPCRouter({
 						startedAt: input.hiveFormValues.startedAt
 							? input.hiveFormValues.startedAt
 							: null,
+						rating: input.hiveFormValues.rating
+							? e.float32(input.hiveFormValues.rating)
+							: undefined,
+						currentRunTime: totalRuntime ?? 0,
 						currentSeason: input.hiveFormValues.currentSeason,
 						status: input.hiveFormValues.status,
 					})
@@ -342,6 +349,10 @@ export const hiveRouter = createTRPCRouter({
 						: null,
 					currentSeason: input.hiveFormValues.currentSeason,
 					status: input.hiveFormValues.status,
+					currentRunTime: totalRuntime ?? 0,
+					rating: input.hiveFormValues.rating
+						? e.float32(input.hiveFormValues.rating)
+						: undefined,
 					isFavorite: e.bool(input.hiveFormValues.isFavorite ?? false),
 				})
 				.run(client);

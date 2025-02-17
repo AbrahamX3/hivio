@@ -55,6 +55,8 @@ export const basehiveFormSchema = z.object({
 	currentRuntimeHours: z.coerce.number().optional(),
 	currentRuntimeMinutes: z.coerce.number().optional(),
 	startedAt: z.date().optional(),
+	isFavorite: z.boolean().optional(),
+	rating: z.coerce.number().min(0).max(10).default(0).optional(),
 });
 
 export const hiveFormSchema = z
@@ -63,8 +65,6 @@ export const hiveFormSchema = z
 			.object({
 				status: z.literal("FINISHED"),
 				finishedAt: z.date().optional(),
-				isFavorite: z.boolean().optional(),
-				rating: z.coerce.number().min(0).max(10).default(0).optional(),
 			})
 			.merge(basehiveFormSchema),
 		z
