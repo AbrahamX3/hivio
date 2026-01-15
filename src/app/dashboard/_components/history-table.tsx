@@ -1,0 +1,371 @@
+"use client";
+
+import { type ColumnDef } from "@tanstack/react-table";
+import {
+  ClockIcon,
+  MinusIcon,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import * as React from "react";
+
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import ImageModal from "@/components/image-popper";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useDataTable } from "@/hooks/use-data-table";
+import { convertMinutesToHrMin } from "@/lib/utils";
+import { useQuery } from "convex/react";
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import { api } from "../../../../convex/_generated/api";
+import { HistoryStatus, MediaType } from "../../../../convex/types";
+
+export type HistoryItem = {
+  _id: string;
+  id: string;
+  titleId: string;
+  userId: string;
+  status: HistoryStatus;
+  currentEpisode?: number;
+  currentSeason?: number;
+  currentRuntime?: number;
+  isFavourite: boolean;
+  createdAt: number;
+  updatedAt: number;
+  title: {
+    id: string;
+    name: string;
+    posterUrl?: string;
+    backdropUrl?: string;
+    description?: string;
+    tmdbId: number;
+    imdbId: string;
+    mediaType: "MOVIE" | "SERIES";
+    releaseDate: string;
+    genres: string;
+    createdAt: number;
+    updatedAt: number;
+  } | null;
+};
+
+export const statusColors: Record<HistoryStatus, string> = {
+  FINISHED: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
+  WATCHING: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
+  PLANNED: "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20",
+  ON_HOLD: "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20",
+  DROPPED: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
+  REWATCHING: "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20",
+};
+
+export const typeColors: Record<MediaType, string> = {
+  MOVIE: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
+  SERIES: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
+};
+
+interface HistoryTableProps {
+  onEdit: (item: HistoryItem) => void;
+  onDelete: (id: string) => void;
+}
+
+export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
+  const columns = React.useMemo<ColumnDef<HistoryItem>[]>(
+    () => [
+      {
+        accessorKey: "title",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Title" />
+        ),
+        accessorFn: (row) => row.title?.name || "",
+        cell: ({ row }) => {
+          const title = row.original.title;
+          return (
+            <div className="flex items-center gap-3 min-w-50 truncate text-pretty">
+              {title?.posterUrl && (
+                <ImageModal
+                  url={title.posterUrl}
+                  alt={title.name}
+                  width={32}
+                  height={48}
+                />
+              )}
+              <div>
+                <div className="font-medium">{title?.name || "Unknown"}</div>
+              </div>
+            </div>
+          );
+        },
+        meta: {
+          label: "Title",
+          placeholder: "Search titles...",
+          variant: "text",
+        },
+        enableColumnFilter: true,
+      },
+      {
+        id: "type",
+        accessorFn: (row) => row.title?.mediaType,
+        header: ({ column }) => {
+          return <DataTableColumnHeader column={column} label="Type" />;
+        },
+        cell: ({ row }) => {
+          const type = row.getValue("type") as MediaType;
+          return (
+            <Badge className={typeColors[type]}>
+              {type === "MOVIE" ? "Movie" : "Series"}
+            </Badge>
+          );
+        },
+        meta: {
+          label: "Type",
+          variant: "multiSelect",
+          options: [
+            { label: "Movie", value: "MOVIE" },
+            { label: "Series", value: "SERIES" },
+          ],
+        },
+        enableColumnFilter: true,
+      },
+      {
+        id: "status",
+        accessorFn: (row) => row.status,
+        header: ({ column }) => {
+          return <DataTableColumnHeader column={column} label="Status" />;
+        },
+        cell: ({ row }) => {
+          const status = row.getValue("status") as HistoryStatus;
+          return (
+            <Badge className={statusColors[status]}>
+              {status.replace("_", " ")}
+            </Badge>
+          );
+        },
+        meta: {
+          label: "Status",
+          variant: "multiSelect",
+          options: [
+            { label: "Finished", value: "FINISHED" },
+            { label: "Watching", value: "WATCHING" },
+            { label: "Planned", value: "PLANNED" },
+            { label: "On Hold", value: "ON_HOLD" },
+            { label: "Dropped", value: "DROPPED" },
+            { label: "Rewatching", value: "REWATCHING" },
+          ],
+        },
+        enableColumnFilter: true,
+      },
+      {
+        header: "Progress",
+        accessorFn: (row) =>
+          row.title?.mediaType === "MOVIE"
+            ? row.currentRuntime
+            : row.currentSeason && row.currentEpisode,
+        cell: ({ row }) => {
+          const item = row.original;
+          const title = item.title;
+          if (title?.mediaType === "MOVIE") {
+            return item.currentRuntime ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline">
+                    <ClockIcon className="mr-1 h-3 w-3" />
+                    {convertMinutesToHrMin(item.currentRuntime)}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent className="w-fit">
+                  {item.currentRuntime}m
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <MinusIcon className="h-3 w-3" />
+            );
+          } else {
+            if (item.currentSeason && item.currentEpisode) {
+              return (
+                <Badge className="gap-1.5" variant="outline">
+                  <span className="opacity-60">S</span>
+                  {item.currentSeason?.toString().padStart(2, "0")}
+                  <span className="opacity-60">E</span>
+                  {item.currentEpisode?.toString().padStart(2, "0")}
+                </Badge>
+              );
+            }
+            return <MinusIcon className="h-3 w-3" />;
+          }
+        },
+      },
+      {
+        id: "Release Date",
+        accessorKey: "releaseDate",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Release Date" />
+        ),
+        cell: ({ row }) => {
+          const date = row.original.title?.releaseDate;
+          return date ? new Date(date).getFullYear() : "-";
+        },
+      },
+      {
+        id: "actions",
+        enableHiding: false,
+        cell: ({ row }) => {
+          const item = row.original;
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => onEdit(item)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => onDelete(item._id)}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+    ],
+    [onEdit, onDelete],
+  );
+
+  // URL state management - Dice UI uses individual parameters for each filter
+  const [typeFilter] = useQueryState(
+    "type",
+    parseAsArrayOf(parseAsString).withDefault([]),
+  );
+  const [statusFilter] = useQueryState(
+    "status",
+    parseAsArrayOf(parseAsString).withDefault([]),
+  );
+  const [titleFilter] = useQueryState("title", parseAsString.withDefault(""));
+  const [sortParam] = useQueryState("sort", {
+    parse: (value) => {
+      if (!value) return [];
+      try {
+        // Handle URL-encoded JSON array
+        const decoded = decodeURIComponent(value);
+        return JSON.parse(decoded);
+      } catch {
+        return [];
+      }
+    },
+    serialize: (value) => {
+      if (!value || value.length === 0) return "";
+      return encodeURIComponent(JSON.stringify(value));
+    },
+    eq: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+    defaultValue: [],
+  });
+
+  // Parse filters for Convex query
+  const queryArgs = React.useMemo(() => {
+    const filters = [];
+
+    // Add type filter if present
+    if (typeFilter.length > 0) {
+      filters.push({
+        id: "type",
+        value: typeFilter,
+        operator: "eq",
+      });
+    }
+
+    // Add status filter if present
+    if (statusFilter.length > 0) {
+      filters.push({
+        id: "status",
+        value: statusFilter,
+        operator: "eq",
+      });
+    }
+
+    // Add title filter if present
+    if (titleFilter) {
+      filters.push({
+        id: "title",
+        value: titleFilter,
+        operator: "iLike",
+      });
+    }
+
+    // Sort is already parsed as objects
+    const parsedSort = sortParam;
+
+    const queryKey = JSON.stringify({ filters, sort: parsedSort });
+
+    return {
+      filters,
+      sort: parsedSort,
+      queryKey,
+    };
+  }, [typeFilter, statusFilter, titleFilter, sortParam]);
+
+  // Fetch data based on URL state
+  // Create a stable key that changes when filters/sort change
+  const queryKey = React.useMemo(
+    () =>
+      `filters:${JSON.stringify(queryArgs.filters)}|sort:${JSON.stringify(queryArgs.sort)}`,
+    [queryArgs.filters, queryArgs.sort],
+  );
+
+  const data = useQuery(api.history.getAll, {
+    filters: queryArgs.filters,
+    sort: queryArgs.sort,
+    _refresh: queryKey, // Use stable key to force re-runs
+  });
+
+  const { table } = useDataTable({
+    data: data || [],
+    columns,
+    pageCount: 1,
+    queryKeys: {
+      page: "page",
+      perPage: "perPage",
+      sort: "sort",
+      filters: "filters",
+      joinOperator: "joinOperator",
+    },
+    initialState: {
+      sorting: [{ id: "title", desc: false }],
+      columnPinning: { right: ["actions"] },
+    },
+    getRowId: (row) => row.id,
+  });
+
+  return (
+    <div className="w-full space-y-4 min-w-0">
+      <DataTable table={table}>
+        <DataTableToolbar table={table} />
+      </DataTable>
+    </div>
+  );
+}
