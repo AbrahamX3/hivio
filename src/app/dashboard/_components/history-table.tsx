@@ -1,11 +1,12 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Table as TanstackTable } from "@tanstack/react-table";
 import {
   ClockIcon,
   MinusIcon,
   MoreHorizontal,
   Pencil,
+  Star,
   Trash2,
 } from "lucide-react";
 import * as React from "react";
@@ -13,7 +14,7 @@ import * as React from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import ImageModal from "@/components/image-popper";
+import ImageModal from "@/components/image-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -31,38 +33,17 @@ import {
 } from "@/components/ui/tooltip";
 import { useDataTable } from "@/hooks/use-data-table";
 import { convertMinutesToHrMin } from "@/lib/utils";
+import type {
+  HistoryId,
+  HistoryItem,
+  HistoryStatus,
+  MediaType,
+} from "@/types/history";
 import { useQuery } from "convex/react";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { api } from "../../../../convex/_generated/api";
-import { HistoryStatus, MediaType } from "../../../../convex/types";
 
-export type HistoryItem = {
-  _id: string;
-  id: string;
-  titleId: string;
-  userId: string;
-  status: HistoryStatus;
-  currentEpisode?: number;
-  currentSeason?: number;
-  currentRuntime?: number;
-  isFavourite: boolean;
-  createdAt: number;
-  updatedAt: number;
-  title: {
-    id: string;
-    name: string;
-    posterUrl?: string;
-    backdropUrl?: string;
-    description?: string;
-    tmdbId: number;
-    imdbId: string;
-    mediaType: "MOVIE" | "SERIES";
-    releaseDate: string;
-    genres: string;
-    createdAt: number;
-    updatedAt: number;
-  } | null;
-};
+export type { HistoryItem };
 
 export const statusColors: Record<HistoryStatus, string> = {
   FINISHED: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
@@ -79,11 +60,16 @@ export const typeColors: Record<MediaType, string> = {
 };
 
 interface HistoryTableProps {
-  onEdit: (item: HistoryItem) => void;
-  onDelete: (id: string) => void;
+  table: TanstackTable<HistoryItem>;
+  isLoading: boolean;
 }
 
-export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
+interface HistoryTableStateProps {
+  onEdit: (item: HistoryItem) => void;
+  onDelete: (id: HistoryId) => void;
+}
+
+export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
   const columns = React.useMemo<ColumnDef<HistoryItem>[]>(
     () => [
       {
@@ -94,6 +80,7 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
         accessorFn: (row) => row.title?.name || "",
         cell: ({ row }) => {
           const title = row.original.title;
+          const isFavourite = row.original.isFavourite;
           return (
             <div className="flex items-center gap-3 min-w-50 truncate text-pretty">
               {title?.posterUrl && (
@@ -102,10 +89,16 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
                   alt={title.name}
                   width={32}
                   height={48}
+                  className="h-20 w-14"
                 />
               )}
-              <div>
-                <div className="font-medium">{title?.name || "Unknown"}</div>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="font-medium truncate">
+                  {title?.name || "Unknown"}
+                </div>
+                {isFavourite && (
+                  <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 shrink-0" />
+                )}
               </div>
             </div>
           );
@@ -124,7 +117,8 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
           return <DataTableColumnHeader column={column} label="Type" />;
         },
         cell: ({ row }) => {
-          const type = row.getValue("type") as MediaType;
+          const type = row.getValue("type") as MediaType | undefined;
+          if (!type) return null;
           return (
             <Badge className={typeColors[type]}>
               {type === "MOVIE" ? "Movie" : "Series"}
@@ -148,7 +142,8 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
           return <DataTableColumnHeader column={column} label="Status" />;
         },
         cell: ({ row }) => {
-          const status = row.getValue("status") as HistoryStatus;
+          const status = row.getValue("status") as HistoryStatus | undefined;
+          if (!status) return null;
           return (
             <Badge className={statusColors[status]}>
               {status.replace("_", " ")}
@@ -257,7 +252,6 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
     [onEdit, onDelete],
   );
 
-  // URL state management - Dice UI uses individual parameters for each filter
   const [typeFilter] = useQueryState(
     "type",
     parseAsArrayOf(parseAsString).withDefault([]),
@@ -271,7 +265,6 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
     parse: (value) => {
       if (!value) return [];
       try {
-        // Handle URL-encoded JSON array
         const decoded = decodeURIComponent(value);
         return JSON.parse(decoded);
       } catch {
@@ -286,11 +279,9 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
     defaultValue: [],
   });
 
-  // Parse filters for Convex query
   const queryArgs = React.useMemo(() => {
     const filters = [];
 
-    // Add type filter if present
     if (typeFilter.length > 0) {
       filters.push({
         id: "type",
@@ -299,7 +290,6 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
       });
     }
 
-    // Add status filter if present
     if (statusFilter.length > 0) {
       filters.push({
         id: "status",
@@ -308,7 +298,6 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
       });
     }
 
-    // Add title filter if present
     if (titleFilter) {
       filters.push({
         id: "title",
@@ -329,8 +318,6 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
     };
   }, [typeFilter, statusFilter, titleFilter, sortParam]);
 
-  // Fetch data based on URL state
-  // Create a stable key that changes when filters/sort change
   const queryKey = React.useMemo(
     () =>
       `filters:${JSON.stringify(queryArgs.filters)}|sort:${JSON.stringify(queryArgs.sort)}`,
@@ -340,11 +327,11 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
   const data = useQuery(api.history.getAll, {
     filters: queryArgs.filters,
     sort: queryArgs.sort,
-    _refresh: queryKey, // Use stable key to force re-runs
+    _refresh: queryKey,
   });
 
   const { table } = useDataTable({
-    data: data || [],
+    data: data ?? [],
     columns,
     pageCount: 1,
     queryKeys: {
@@ -361,8 +348,26 @@ export function HistoryTable({ onEdit, onDelete }: HistoryTableProps) {
     getRowId: (row) => row.id,
   });
 
+  return {
+    table,
+    data,
+  };
+}
+
+export function HistoryTable({ table, isLoading }: HistoryTableProps) {
+  if (isLoading) {
+    return (
+      <div className="min-w-0 w-full space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full space-y-4 min-w-0">
+    <div className="min-w-0 w-full space-y-4">
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>

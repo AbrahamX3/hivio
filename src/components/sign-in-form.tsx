@@ -24,7 +24,9 @@ export default function SignInForm() {
           callbackURL: "/dashboard",
         });
       } catch (error) {
-        console.error("Sign in error:", error);
+        if (error instanceof Error) {
+          console.error("Sign in error:", error.message);
+        }
       }
     });
   };

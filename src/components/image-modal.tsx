@@ -4,7 +4,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { tmdbImageLoader } from "@/lib/utils";
+import { cn, tmdbImageLoader } from "@/lib/utils";
 import Image from "next/image";
 
 interface Props {
@@ -12,9 +12,16 @@ interface Props {
   alt: string;
   width: number;
   height: number;
+  className?: string;
 }
 
-export default function ImageModal({ url, alt, width, height }: Props) {
+export default function ImageModal({
+  url,
+  alt,
+  width,
+  height,
+  className,
+}: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -24,7 +31,7 @@ export default function ImageModal({ url, alt, width, height }: Props) {
           loader={tmdbImageLoader}
           src={url}
           alt={alt}
-          className="h-12 w-8 object-cover rounded"
+          className={cn("object-cover cursor-pointer rounded", className)}
         />
       </DialogTrigger>
       <DialogContent>

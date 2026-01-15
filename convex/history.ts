@@ -1,7 +1,9 @@
 import { v } from "convex/values";
+import { TMDB } from "tmdb-ts";
 import { v7 as createId } from "uuid";
 
-import { mutation, query } from "./_generated/server";
+import { api } from "./_generated/api";
+import { action, mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
 
 const historyStatusValidator = v.union(
@@ -34,7 +36,6 @@ export const getAll = query({
         }),
       ),
     ),
-    // Add a refresh key to force re-runs
     _refresh: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -45,20 +46,17 @@ export const getAll = query({
 
     const userId = authUser._id;
 
-    // Determine sorting direction
-    let sortDirection: "asc" | "desc" = "desc"; // default
+    let sortDirection: "asc" | "desc" = "desc";
 
     if (args.sort && args.sort.length > 0) {
       for (const sortItem of args.sort) {
         if (sortItem.id === "status") {
-          // Only status can be sorted at database level
           sortDirection = sortItem.desc ? "desc" : "asc";
-          break; // Only one sort direction allowed
+          break;
         }
       }
     }
 
-    // Start with base query and apply sorting
     const query = ctx.db
       .query("history")
       .withIndex("by_user_id", (q) => q.eq("userId", userId))
@@ -79,7 +77,6 @@ export const getAll = query({
       }),
     );
 
-    // Apply client-side filters that require title data or complex filtering
     if (args.filters && args.filters.length > 0) {
       for (const filter of args.filters) {
         if (filter.id === "title" && typeof filter.value === "string") {
@@ -97,19 +94,12 @@ export const getAll = query({
               item.title?.mediaType &&
               (filter.value as string[]).includes(item.title.mediaType),
           );
-        } else if (
-          filter.id === "releaseDate" &&
-          typeof filter.value === "string"
-        ) {
-          // For release date filtering - this could be more complex
-          // For now, we'll skip this as it's not straightforward
         }
       }
     }
 
-    // Apply client-side sorting for title, type, status, and release date
     if (args.sort && args.sort.length > 0) {
-      const sortItem = args.sort[0]; // Take only the first sort item for simplicity
+      const sortItem = args.sort[0];
 
       historyWithTitles.sort((a, b) => {
         let aValue: string | number;
@@ -291,7 +281,7 @@ export const remove = mutation({
   },
 });
 
-export const addFromTmdb = mutation({
+export const addFromTmdbInternal = mutation({
   args: {
     name: v.string(),
     posterUrl: v.optional(v.string()),
@@ -306,7 +296,6 @@ export const addFromTmdb = mutation({
     status: historyStatusValidator,
     currentEpisode: v.optional(v.number()),
     currentSeason: v.optional(v.number()),
-    currentRuntime: v.optional(v.number()),
     isFavourite: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -333,7 +322,7 @@ export const addFromTmdb = mutation({
         posterUrl: args.posterUrl,
         backdropUrl: args.backdropUrl,
         description: args.description,
-        directors: args.directors || [],
+        directors: args.directors,
         tmdbId: args.tmdbId,
         imdbId: args.imdbId,
         mediaType: args.mediaType,
@@ -364,7 +353,6 @@ export const addFromTmdb = mutation({
         status: typeof args.status;
         currentEpisode?: number;
         currentSeason?: number;
-        currentRuntime?: number;
         isFavourite?: boolean;
         updatedAt: number;
       } = {
@@ -376,8 +364,6 @@ export const addFromTmdb = mutation({
         updates.currentEpisode = args.currentEpisode;
       if (args.currentSeason !== undefined)
         updates.currentSeason = args.currentSeason;
-      if (args.currentRuntime !== undefined)
-        updates.currentRuntime = args.currentRuntime;
       if (args.isFavourite !== undefined)
         updates.isFavourite = args.isFavourite;
 
@@ -396,7 +382,7 @@ export const addFromTmdb = mutation({
       status: args.status,
       currentEpisode: args.currentEpisode,
       currentSeason: args.currentSeason,
-      currentRuntime: args.currentRuntime,
+      currentRuntime: undefined,
       isFavourite: args.isFavourite ?? false,
       createdAt: now,
       updatedAt: now,
@@ -407,5 +393,72 @@ export const addFromTmdb = mutation({
       ...history!,
       title,
     };
+  },
+});
+
+export const addFromTmdb = action({
+  args: {
+    tmdbId: v.number(),
+    mediaType: mediaTypeValidator,
+    status: historyStatusValidator,
+    currentEpisode: v.optional(v.number()),
+    currentSeason: v.optional(v.number()),
+    isFavourite: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args): Promise<unknown> => {
+    // Fetch title details from TMDB
+    const tmdb = new TMDB(process.env.TMDB_API_KEY!);
+
+    let titleData;
+    if (args.mediaType === "MOVIE") {
+      const [movie, credits] = await Promise.all([
+        tmdb.movies.details(args.tmdbId, ["external_ids"]),
+        tmdb.movies.credits(args.tmdbId),
+      ]);
+
+      const directors =
+        credits.crew?.filter((c) => c.job === "Director")?.map((c) => c.name) ||
+        [];
+
+      titleData = {
+        name: movie.title,
+        posterUrl: movie.poster_path || undefined,
+        backdropUrl: movie.backdrop_path || undefined,
+        description: movie.overview || undefined,
+        directors,
+        tmdbId: args.tmdbId,
+        imdbId: movie.external_ids?.imdb_id || "",
+        mediaType: args.mediaType,
+        releaseDate: movie.release_date || "",
+        genres: JSON.stringify(movie.genres?.map((g) => g.id) || []),
+      };
+    } else {
+      const tvShow = await tmdb.tvShows.details(args.tmdbId, ["external_ids"]);
+
+      const directors = tvShow.created_by?.map((c) => c.name) || [];
+
+      titleData = {
+        name: tvShow.name,
+        posterUrl: tvShow.poster_path || undefined,
+        backdropUrl: tvShow.backdrop_path || undefined,
+        description: tvShow.overview || undefined,
+        directors,
+        tmdbId: args.tmdbId,
+        imdbId: tvShow.external_ids?.imdb_id || "",
+        mediaType: args.mediaType,
+        releaseDate: tvShow.first_air_date || "",
+        genres: JSON.stringify(tvShow.genres?.map((g) => g.id) || []),
+      };
+    }
+
+    // Now call the mutation to handle database operations
+    const result: unknown = await ctx.runMutation(
+      api.history.addFromTmdbInternal,
+      {
+        ...args,
+        ...titleData,
+      },
+    );
+    return result;
   },
 });

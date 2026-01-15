@@ -8,8 +8,6 @@ import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL!;
 
-// The component client has methods needed for integrating Convex with Better Auth,
-// as well as helper methods for general use.
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
 export const createAuth = (ctx: GenericCtx<DataModel>) => {
@@ -19,7 +17,7 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
     session: {
       cookieCache: {
         enabled: true,
-        maxAge: 5 * 60, // Cache duration in seconds
+        maxAge: 5 * 60, // 5 minutes
       },
     },
     socialProviders: {
@@ -29,14 +27,10 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
       },
     },
     database: authComponent.adapter(ctx),
-    // Configure simple, non-verified email/password to get started
     emailAndPassword: {
       enabled: false,
     },
-    plugins: [
-      // The Convex plugin is required for Convex compatibility
-      convex({ authConfig }),
-    ],
+    plugins: [convex({ authConfig })],
   });
 };
 

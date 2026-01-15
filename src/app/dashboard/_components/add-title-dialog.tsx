@@ -1,11 +1,13 @@
 "use client";
 
-import { useAction, useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { Loader2, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import ImageModal from "@/components/image-modal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -14,8 +16,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -24,27 +33,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useForm } from "@tanstack/react-form";
+import { tmdbImageLoader } from "@/lib/utils";
+import type {
+  AddTitleFormValues,
+  Episode,
+  MediaType,
+  SearchResult,
+  TitleDetails,
+} from "@/types/history";
+import { addTitleFormSchema } from "@/types/history";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
 import { api } from "../../../../convex/_generated/api";
-import { HistoryStatus } from "../../../../convex/types";
 
 interface AddTitleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
-
-type SearchResult = {
-  id: number;
-  name: string;
-  posterUrl: string | undefined;
-  backdropUrl: string | undefined;
-  description: string | undefined;
-  mediaType: "MOVIE" | "SERIES";
-  releaseDate: string;
-  genres: string;
-};
 
 export function AddTitleDialog({
   open,
@@ -54,94 +61,75 @@ export function AddTitleDialog({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<
-    "all" | "MOVIE" | "SERIES"
-  >("all");
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<"all" | MediaType>(
+    "all",
+  );
   const [selectedResult, setSelectedResult] = useState<SearchResult | null>(
     null,
   );
 
   const [isAdding, setIsAdding] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [titleDetails, setTitleDetails] = useState<{
-    imdbId: string;
-    directors: string[];
-    runtime: number | null;
-    seasons: Array<{
-      seasonNumber: number;
-      episodeCount: number;
-      name: string;
-      airDate: string | null;
-    }> | null;
-  } | null>(null);
+  const [titleDetails, setTitleDetails] = useState<TitleDetails | null>(null);
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
-  const [episodes, setEpisodes] = useState<
-    Array<{ episodeNumber: number; name: string; airDate: string | null }>
-  >([]);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
 
   const searchTmdb = useAction(api.tmdb.search);
   const getDetails = useAction(api.tmdb.getDetails);
   const getSeasonEpisodes = useAction(api.tmdb.getSeasonEpisodes);
-  const addToHistory = useMutation(api.history.addFromTmdb);
+  const addToHistory = useAction(api.history.addFromTmdb);
 
-  const form = useForm({
+  const form = useForm<AddTitleFormValues>({
+    resolver: zodResolver(addTitleFormSchema),
     defaultValues: {
-      status: "PLANNED" as HistoryStatus,
+      status: "PLANNED",
       currentEpisode: "",
       currentSeason: "",
       currentRuntime: "",
       isFavourite: false,
     },
-    onSubmit: async ({ value }) => {
-      if (!selectedResult) return;
-
-      setIsAdding(true);
-
-      try {
-        if (!titleDetails) {
-          throw new Error("Title details not found");
-        }
-
-        await addToHistory({
-          name: selectedResult.name,
-          posterUrl: selectedResult.posterUrl,
-          backdropUrl: selectedResult.backdropUrl,
-          description: selectedResult.description,
-          tmdbId: selectedResult.id,
-          mediaType: selectedResult.mediaType,
-          releaseDate: selectedResult.releaseDate,
-          genres: selectedResult.genres,
-          imdbId: titleDetails.imdbId,
-          directors: titleDetails?.directors || [],
-          status: value.status,
-          currentEpisode: value.currentEpisode
-            ? Math.floor(parseFloat(value.currentEpisode))
-            : undefined,
-          currentSeason: value.currentSeason
-            ? Math.floor(parseFloat(value.currentSeason))
-            : undefined,
-          currentRuntime: value.currentRuntime
-            ? Math.floor(parseFloat(value.currentRuntime))
-            : undefined,
-          isFavourite: value.isFavourite,
-        });
-        toast.success("Title added to history");
-        onOpenChange(false);
-        setSearchQuery("");
-        setSearchResults([]);
-        setMediaTypeFilter("all");
-        setSelectedResult(null);
-        form.reset();
-        onSuccess?.();
-      } catch (error) {
-        toast.error("Failed to add title");
-        console.error(error);
-      } finally {
-        setIsAdding(false);
-      }
-    },
   });
+
+  const onSubmit = async (data: AddTitleFormValues) => {
+    if (!selectedResult) return;
+
+    setIsAdding(true);
+
+    try {
+      if (!titleDetails) {
+        throw new Error("Title details not found");
+      }
+
+      await addToHistory({
+        tmdbId: selectedResult.id,
+        mediaType: selectedResult.mediaType,
+        status: data.status,
+        currentEpisode: data.currentEpisode
+          ? Math.floor(parseFloat(data.currentEpisode))
+          : undefined,
+        currentSeason: data.currentSeason
+          ? Math.floor(parseFloat(data.currentSeason))
+          : undefined,
+        isFavourite: data.isFavourite,
+      });
+      toast.success("Title added to history");
+      onOpenChange(false);
+      setSearchQuery("");
+      setSearchResults([]);
+      setMediaTypeFilter("all");
+      setSelectedResult(null);
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      toast.error("Failed to add title");
+      if (error instanceof Error) {
+        console.error("Add title error:", error.message);
+      }
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -155,7 +143,9 @@ export function AddTitleDialog({
       setSearchResults(results);
     } catch (error) {
       toast.error("Failed to search");
-      console.error(error);
+      if (error instanceof Error) {
+        console.error("Search error:", error.message);
+      }
     } finally {
       setIsSearching(false);
     }
@@ -173,11 +163,12 @@ export function AddTitleDialog({
         tmdbId: result.id,
         mediaType: result.mediaType,
       });
-      console.log(details);
       setTitleDetails(details);
     } catch (error) {
       toast.error("Failed to load title details");
-      console.error(error);
+      if (error instanceof Error) {
+        console.error("Load details error:", error.message);
+      }
     } finally {
       setIsLoadingDetails(false);
     }
@@ -210,9 +201,9 @@ export function AddTitleDialog({
     setSelectedSeason(null);
     setEpisodes([]);
     setSearchResults([]);
-    form.setFieldValue("currentSeason", "");
-    form.setFieldValue("currentEpisode", "");
-    form.setFieldValue("currentRuntime", "");
+    form.setValue("currentSeason", "");
+    form.setValue("currentEpisode", "");
+    form.setValue("currentRuntime", "");
   };
 
   const isSeries = selectedResult?.mediaType === "SERIES";
@@ -270,8 +261,8 @@ export function AddTitleDialog({
                 />
                 <Select
                   value={mediaTypeFilter}
-                  onValueChange={(value: "all" | "MOVIE" | "SERIES") =>
-                    setMediaTypeFilter(value as "all" | "MOVIE" | "SERIES")
+                  onValueChange={(value: "all" | MediaType) =>
+                    setMediaTypeFilter(value)
                   }
                 >
                   <SelectTrigger className="w-[140px]">
@@ -315,8 +306,8 @@ export function AddTitleDialog({
                         <Image
                           width={48}
                           height={64}
-                          unoptimized
-                          src={`https://image.tmdb.org/t/p/w92${result.posterUrl}`}
+                          loader={tmdbImageLoader}
+                          src={result.posterUrl}
                           alt={result.name}
                           className="h-16 w-12 object-cover rounded"
                         />
@@ -341,12 +332,11 @@ export function AddTitleDialog({
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-lg border">
                 {selectedResult.posterUrl && (
-                  <Image
+                  <ImageModal
+                    url={selectedResult.posterUrl}
+                    alt={selectedResult.name}
                     width={56}
                     height={80}
-                    unoptimized
-                    src={`https://image.tmdb.org/t/p/w92${selectedResult.posterUrl}`}
-                    alt={selectedResult.name}
                     className="h-20 w-14 object-cover rounded"
                   />
                 )}
@@ -366,6 +356,13 @@ export function AddTitleDialog({
                 </Button>
               </div>
 
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Description</span>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {selectedResult.description}
+                </p>
+              </div>
+
               {isLoadingDetails && (
                 <div className="space-y-2">
                   <Skeleton className="h-10 w-full" />
@@ -373,180 +370,208 @@ export function AddTitleDialog({
                 </div>
               )}
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  form.handleSubmit();
-                }}
-                className="space-y-4"
-              >
-                <form.Field name="status">
-                  {(field) => (
-                    <div className="space-y-2">
-                      <Label htmlFor={field.name}>Status</Label>
-                      <Select
-                        value={field.state.value}
-                        onValueChange={(value: HistoryStatus) => {
-                          field.handleChange(value as HistoryStatus);
-                        }}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a fruit" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="FINISHED">Finished</SelectItem>
-                          <SelectItem value="WATCHING">Watching</SelectItem>
-                          <SelectItem value="PLANNED">Planned</SelectItem>
-                          <SelectItem value="ON_HOLD">On Hold</SelectItem>
-                          <SelectItem value="DROPPED">Dropped</SelectItem>
-                          <SelectItem value="REWATCHING">Rewatching</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </form.Field>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="FINISHED">Finished</SelectItem>
+                            <SelectItem value="WATCHING">Watching</SelectItem>
+                            <SelectItem value="PLANNED">Planned</SelectItem>
+                            <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                            <SelectItem value="DROPPED">Dropped</SelectItem>
+                            <SelectItem value="REWATCHING">
+                              Rewatching
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                {!isLoadingDetails && titleDetails && (
-                  <>
-                    {isSeries ? (
-                      <>
-                        <form.Field name="currentSeason">
-                          {(field) => (
-                            <div className="space-y-2">
-                              <Label htmlFor={field.name}>Season</Label>
-                              <Select
-                                value={
-                                  selectedSeason !== null
-                                    ? selectedSeason.toString()
-                                    : field.state.value || ""
-                                }
-                                onValueChange={(value: string) => {
-                                  const seasonNum = parseInt(value, 10);
-                                  setSelectedSeason(seasonNum);
-                                  field.handleChange(value);
-                                  handleSelectSeason(seasonNum);
-                                  form.setFieldValue("currentEpisode", "");
-                                }}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select season" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {titleDetails.seasons?.map((season) => {
-                                    const year = getSeasonYear(season.airDate);
-                                    return (
-                                      <SelectItem
-                                        key={season.seasonNumber}
-                                        value={season.seasonNumber.toString()}
-                                      >
-                                        {season.name}
-                                        {year && ` (${year})`} (
-                                        {season.episodeCount} episodes)
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-                        </form.Field>
-                        {selectedSeason !== null && (
-                          <form.Field name="currentEpisode">
-                            {(field) => (
-                              <div className="space-y-2">
-                                <Label htmlFor={field.name}>Episode</Label>
-                                {isLoadingEpisodes ? (
-                                  <Skeleton className="h-10 w-full" />
-                                ) : (
-                                  <Select
-                                    value={field.state.value || ""}
-                                    onValueChange={(value: string) =>
-                                      field.handleChange(value)
-                                    }
-                                  >
-                                    <SelectTrigger className="w-full">
-                                      <SelectValue placeholder="Select episode" />
+                  {!isLoadingDetails && titleDetails && (
+                    <>
+                      {isSeries ? (
+                        <>
+                          <FormField
+                            control={form.control}
+                            name="currentSeason"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Season</FormLabel>
+                                <Select
+                                  value={
+                                    selectedSeason !== null
+                                      ? selectedSeason.toString()
+                                      : field.value || ""
+                                  }
+                                  onValueChange={(value: string) => {
+                                    const seasonNum = parseInt(value, 10);
+                                    setSelectedSeason(seasonNum);
+                                    field.onChange(value);
+                                    handleSelectSeason(seasonNum);
+                                    form.setValue("currentEpisode", "");
+                                  }}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select season" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                      {episodes.map((ep) => {
-                                        const dateStr = formatEpisodeDate(
-                                          ep.airDate,
-                                        );
-                                        return (
-                                          <SelectItem
-                                            key={ep.episodeNumber}
-                                            value={ep.episodeNumber.toString()}
-                                          >
-                                            {ep.episodeNumber}. {ep.name}
-                                            {dateStr && ` - ${dateStr}`}
-                                          </SelectItem>
-                                        );
-                                      })}
-                                    </SelectContent>
-                                  </Select>
-                                )}
-                              </div>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {titleDetails.seasons?.map((season) => {
+                                      const year = getSeasonYear(
+                                        season.airDate,
+                                      );
+                                      return (
+                                        <SelectItem
+                                          key={season.seasonNumber}
+                                          value={season.seasonNumber.toString()}
+                                        >
+                                          {season.name}
+                                          {year && ` (${year})`} (
+                                          {season.episodeCount} episodes)
+                                        </SelectItem>
+                                      );
+                                    })}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
                             )}
-                          </form.Field>
-                        )}
-                      </>
-                    ) : (
-                      <form.Field name="currentRuntime">
-                        {(field) => (
-                          <div className="space-y-2">
-                            <Label htmlFor={field.name}>
-                              Runtime (minutes)
-                              {titleDetails.runtime && (
-                                <span className="text-muted-foreground text-xs ml-2">
-                                  Max: {titleDetails.runtime} min
-                                </span>
+                          />
+                          {selectedSeason !== null && (
+                            <FormField
+                              control={form.control}
+                              name="currentEpisode"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Episode</FormLabel>
+                                  {isLoadingEpisodes ? (
+                                    <Skeleton className="h-10 w-full" />
+                                  ) : (
+                                    <Select
+                                      value={field.value ?? ""}
+                                      onValueChange={field.onChange}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select episode" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {episodes.map((ep) => {
+                                          const dateStr = formatEpisodeDate(
+                                            ep.airDate,
+                                          );
+                                          return (
+                                            <SelectItem
+                                              key={ep.episodeNumber}
+                                              value={ep.episodeNumber.toString()}
+                                            >
+                                              {ep.episodeNumber}. {ep.name}
+                                              {dateStr && ` - ${dateStr}`}
+                                            </SelectItem>
+                                          );
+                                        })}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                  <FormMessage />
+                                </FormItem>
                               )}
-                            </Label>
-                            <Input
-                              id={field.name}
-                              type="number"
-                              min="0"
-                              max={titleDetails.runtime || undefined}
-                              value={field.state.value}
-                              onChange={(e) =>
-                                field.handleChange(e.target.value)
-                              }
-                              placeholder="Runtime in minutes"
                             />
-                          </div>
-                        )}
-                      </form.Field>
-                    )}
-                  </>
-                )}
+                          )}
+                        </>
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="currentRuntime"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Runtime (minutes)
+                                {titleDetails.runtime && (
+                                  <span className="text-muted-foreground text-xs ml-2">
+                                    Max: {titleDetails.runtime} min
+                                  </span>
+                                )}
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max={titleDetails.runtime || undefined}
+                                  placeholder="Runtime in minutes"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </>
+                  )}
 
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      onOpenChange(false);
-                      handleChangeTitle();
-                      setSearchQuery("");
-                      setMediaTypeFilter("all");
-                      form.reset();
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <form.Subscribe>
-                    {(state) => (
-                      <Button
-                        type="submit"
-                        disabled={isAdding || !state.canSubmit}
-                      >
-                        {isAdding ? "Adding..." : "Add to History"}
-                      </Button>
+                  <FormField
+                    control={form.control}
+                    name="isFavourite"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Favorite</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Mark this title as a favorite
+                          </p>
+                        </div>
+                      </FormItem>
                     )}
-                  </form.Subscribe>
-                </DialogFooter>
-              </form>
+                  />
+
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        onOpenChange(false);
+                        handleChangeTitle();
+                        setSearchQuery("");
+                        setMediaTypeFilter("all");
+                        form.reset();
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isAdding}>
+                      {isAdding ? "Adding..." : "Add to History"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
             </div>
           )}
         </div>
