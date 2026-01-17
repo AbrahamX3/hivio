@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { Authenticated, Unauthenticated } from "convex/react";
 import { HivioLogo } from "../icons";
 
 export function LandingNavbar() {
+
   return (
     <div className="fixed top-4 right-0 left-0 z-50 w-full px-4">
       <div className="mx-auto flex max-w-6xl">
@@ -23,13 +27,24 @@ export function LandingNavbar() {
             >
               <Link href="#features">Features</Link>
             </Button>
+            <Authenticated>
             <Button
-              asChild
-              size="sm"
-              className="rounded-full px-4 text-xs shadow-sm"
-            >
-              <Link href="/auth/sign-in">Sign in</Link>
-            </Button>
+                asChild
+                size="sm"
+                className="rounded-full px-4 text-xs shadow-sm"
+              >
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            </Authenticated>
+            <Unauthenticated>
+              <Button
+                asChild
+                size="sm"
+                className="rounded-full px-4 text-xs shadow-sm"
+              >
+                <Link href="/auth/sign-in">Sign in</Link>
+              </Button>
+            </Unauthenticated>
           </div>
         </div>
       </div>

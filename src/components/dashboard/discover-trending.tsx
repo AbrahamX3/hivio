@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { tmdbImageLoader } from "@/lib/utils";
 import { useHistoryStore } from "@/stores/history-store";
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { Film, Tv } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { TrendingTitleDialog } from "./trending-title-dialog";
 
@@ -64,7 +64,8 @@ function TrendingTitleCard({
                   loader={tmdbImageLoader}
                   src={logo}
                   alt="Provider"
-                  fill
+                  height={20}
+                  width={20}
                   className="object-cover"
                 />
               </div>
@@ -82,7 +83,8 @@ function TrendingTitleCard({
 }
 
 export function DiscoverTrending() {
-  const [trendingTitles, setTrendingTitles] = useState<TrendingTitle[]>([]);
+  const [allTrendingTitles, setAllTrendingTitles] = useState<TrendingTitle[]>([]);
+  const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTitle, setSelectedTitle] = useState<TrendingTitle | null>(
     null
@@ -90,15 +92,27 @@ export function DiscoverTrending() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const getTrendingTitles = useAction(api.tmdb.getTrendingTitles);
   const isTitleAdded = useHistoryStore((state) => state.isTitleAdded);
+  
+  const historyData = useQuery(api.history.getAll, {
+    filters: [],
+    sort: [],
+    _refresh: "discover-trending",
+  });
+
+  const addedTmdbIds = useMemo(() => {
+    if (!historyData) return new Set<string>();
+    return new Set(
+      historyData
+        .map((item) => item.title?.tmdbId?.toString())
+        .filter((id): id is string => id !== undefined)
+    );
+  }, [historyData]);
 
   useEffect(() => {
     const fetchTitles = async () => {
       try {
         const titles = await getTrendingTitles({ limit: 100 });
-        const filteredTitles = titles.filter(
-          (title) => !isTitleAdded(title.tmdbId)
-        );
-        setTrendingTitles(filteredTitles);
+        setAllTrendingTitles(titles);
       } catch (error) {
         if (error instanceof Error) {
           console.error("Failed to load trending titles:", error.message);
@@ -109,7 +123,20 @@ export function DiscoverTrending() {
     };
 
     fetchTitles();
-  }, [getTrendingTitles, isTitleAdded]);
+  }, [getTrendingTitles]);
+
+  const trendingTitles = useMemo(() => {
+    if (allTrendingTitles.length === 0) return [];
+    
+    if (historyData === undefined) return allTrendingTitles;
+    
+    return allTrendingTitles.filter((title) => {
+      if (recentlyAddedIds.has(title.tmdbId)) return false;
+      
+      const tmdbIdStr = title.tmdbId.toString();
+      return !addedTmdbIds.has(tmdbIdStr) && !isTitleAdded(title.tmdbId);
+    });
+  }, [allTrendingTitles, historyData, addedTmdbIds, isTitleAdded, recentlyAddedIds]);
 
   const handleTitleClick = (title: TrendingTitle) => {
     setSelectedTitle(title);
@@ -117,9 +144,7 @@ export function DiscoverTrending() {
   };
 
   const handleTitleAdded = (tmdbId: number) => {
-    setTrendingTitles((prev) =>
-      prev.filter((title) => title.tmdbId !== tmdbId)
-    );
+    setRecentlyAddedIds((prev) => new Set(prev).add(tmdbId));
   };
 
   return (

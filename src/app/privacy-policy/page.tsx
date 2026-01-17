@@ -12,8 +12,7 @@ export const metadata = {
 export default function PrivacyPolicy() {
   return (
     <main className="bg-background text-foreground flex min-h-screen flex-col">
-      {/* Navigation */}
-      <div className="pointer-events-none sticky top-4 z-50 w-full px-4">
+      <div className="pointer-events-none fixed top-4 z-50 w-full px-4">
         <div className="mx-auto flex max-w-6xl">
           <div className="border-border/60 bg-background/80 ring-border/40 pointer-events-auto flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 shadow-black/5 backdrop-blur">
             <Link
@@ -34,7 +33,6 @@ export default function PrivacyPolicy() {
         </div>
       </div>
 
-      {/* Content */}
       <section className="px-4 py-14 sm:py-16">
         <div className="mx-auto max-w-4xl">
           <div className="mb-8 text-center">
@@ -60,7 +58,7 @@ export default function PrivacyPolicy() {
                 1. Introduction
               </h2>
               <p>
-                Welcome to Hivio ("we," "our," or "us"). We are committed to
+                Welcome to Hivio (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to
                 protecting your privacy and being transparent about how we
                 collect, use, and protect your personal information. This
                 Privacy Policy explains our practices regarding your data when
@@ -119,7 +117,7 @@ export default function PrivacyPolicy() {
                     <strong className="text-foreground font-medium">
                       Watch History
                     </strong>{" "}
-                    - Movies and TV shows you've tracked, including watch
+                    - Movies and TV shows you&apos;ve tracked, including watch
                     status, progress, and ratings
                   </li>
                   <li>
@@ -365,7 +363,7 @@ export default function PrivacyPolicy() {
 
             <section className="space-y-4">
               <h2 className="text-foreground text-2xl font-semibold">
-                10. Children's Privacy
+                10. Children&apos;s Privacy
               </h2>
               <p>
                 Our service is not intended for children under 13 years of age.
@@ -393,7 +391,7 @@ export default function PrivacyPolicy() {
               <p>
                 We may update this Privacy Policy from time to time. We will
                 notify you of any material changes by posting the new policy on
-                this page and updating the "Last updated" date. Your continued
+                this page and updating the &quot;Last updated&quot; date. Your continued
                 use of our service after such changes constitutes acceptance of
                 the updated policy.
               </p>

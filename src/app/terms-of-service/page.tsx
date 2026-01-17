@@ -11,8 +11,7 @@ export const metadata = {
 export default function TermsOfService() {
   return (
     <main className="bg-background text-foreground flex min-h-screen flex-col">
-      {/* Navigation */}
-      <div className="pointer-events-none sticky top-4 z-50 w-full px-4">
+      <div className="pointer-events-none fixed top-4 z-50 w-full px-4">
         <div className="mx-auto flex max-w-6xl">
           <div className="border-border/60 bg-background/80 ring-border/40 pointer-events-auto flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 shadow-black/5 backdrop-blur">
             <Link
@@ -33,7 +32,6 @@ export default function TermsOfService() {
         </div>
       </div>
 
-      {/* Content */}
       <section className="px-4 py-14 sm:py-16">
         <div className="mx-auto max-w-4xl">
           <div className="mb-8 text-center">
@@ -59,7 +57,7 @@ export default function TermsOfService() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing and using Hivio ("the Service"), you accept and
+                By accessing and using Hivio (&quot;the Service&quot;), you accept and
                 agree to be bound by the terms and provision of this agreement.
                 If you do not agree to abide by the above, please do not use
                 this service.
@@ -273,7 +271,7 @@ export default function TermsOfService() {
                   9.1 No Warranties
                 </h3>
                 <p>
-                  The Service is provided "as is" and "as available" without
+                  The Service is provided &quot;as is&quot; and &quot;as available&quot; without
                   warranties of any kind, either express or implied, including
                   but not limited to merchantability, fitness for a particular
                   purpose, and non-infringement.

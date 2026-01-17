@@ -13,6 +13,7 @@ interface Props {
   width: number;
   height: number;
   className?: string;
+  loading?: "eager" | "lazy";
 }
 
 export default function ImageModal({
@@ -21,6 +22,7 @@ export default function ImageModal({
   width,
   height,
   className,
+  loading = "lazy",
 }: Props) {
   return (
     <Dialog>
@@ -32,6 +34,7 @@ export default function ImageModal({
           src={url}
           alt={alt}
           className={cn("cursor-pointer rounded object-cover", className)}
+          loading={loading}
         />
       </DialogTrigger>
       <DialogContent>
@@ -42,6 +45,7 @@ export default function ImageModal({
           loader={tmdbImageLoader}
           src={url}
           alt={alt}
+          loading="lazy"
           className="rounded object-cover"
         />
       </DialogContent>

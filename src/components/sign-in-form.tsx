@@ -28,7 +28,6 @@ export default function SignInForm() {
 
   return (
     <main className="bg-background text-foreground flex min-h-screen flex-col">
-      {/* Navigation */}
       <div className="pointer-events-none sticky top-4 z-50 w-full px-4">
         <div className="mx-auto flex max-w-6xl">
           <div className="border-border/60 bg-background/80 ring-border/40 pointer-events-auto flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 shadow-black/5 backdrop-blur">
@@ -50,7 +49,6 @@ export default function SignInForm() {
         </div>
       </div>
 
-      {/* Sign In Section */}
       <section className="flex flex-1 items-center justify-center px-4 py-14 sm:py-16">
         <div className="mx-auto flex max-w-md flex-col items-center gap-8 text-center">
           <div className="space-y-4">

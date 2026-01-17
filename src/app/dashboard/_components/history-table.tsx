@@ -56,8 +56,8 @@ export const statusColors: Record<HistoryStatus, string> = {
 };
 
 export const typeColors: Record<MediaType, string> = {
-  MOVIE: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
-  SERIES: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
+  MOVIE: "bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20",
+  SERIES: "bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20",
 };
 
 interface HistoryTableProps {
@@ -74,6 +74,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
   const columns = React.useMemo<ColumnDef<HistoryItem>[]>(
     () => [
       {
+        id: "title",
         accessorKey: "title",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label="Title" />
@@ -90,6 +91,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
                   alt={title.name}
                   width={32}
                   height={48}
+                  loading="lazy"
                   className="h-20 w-14"
                 />
               )}
@@ -261,7 +263,10 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
     "status",
     parseAsArrayOf(parseAsString).withDefault([])
   );
-  const [titleFilter] = useQueryState("title", parseAsString.withDefault(""));
+  const [titleFilter] = useQueryState(
+    "title",
+    parseAsString.withDefault("")
+  );
   const [sortParam] = useQueryState("sort", {
     parse: (value) => {
       if (!value) return [];

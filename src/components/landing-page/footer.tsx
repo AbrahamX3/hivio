@@ -8,7 +8,6 @@ export function Footer() {
     <footer className="bg-muted/30 border-t">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:py-16">
         <div className="flex flex-col items-center gap-8 text-center">
-          {/* Brand Section */}
           <div className="max-w-md space-y-4">
             <Link
               href="/"
@@ -22,7 +21,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links Section */}
           <div className="flex flex-wrap justify-center gap-8">
             <Button
               asChild
@@ -66,7 +64,6 @@ export function Footer() {
             </Button>
           </div>
 
-          {/* Bottom Section */}
           <div className="border-border/50 flex w-full max-w-md flex-col items-center gap-4 border-t pt-4">
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-xs tracking-widest uppercase">
