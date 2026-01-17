@@ -31,7 +31,7 @@ export default function ImageModal({
           loader={tmdbImageLoader}
           src={url}
           alt={alt}
-          className={cn("object-cover cursor-pointer rounded", className)}
+          className={cn("cursor-pointer rounded object-cover", className)}
         />
       </DialogTrigger>
       <DialogContent>
@@ -42,7 +42,7 @@ export default function ImageModal({
           loader={tmdbImageLoader}
           src={url}
           alt={alt}
-          className="object-cover rounded"
+          className="rounded object-cover"
         />
       </DialogContent>
     </Dialog>

@@ -27,12 +27,12 @@ export default function UserMenu() {
     return (
       <Button
         size="default"
-        className="p-1 rounded-lg"
+        className="rounded-lg p-1"
         variant="outline"
         disabled
       >
         <Skeleton className="h-8 w-8 rounded-lg" />
-        <div className="grid flex-1 text-left text-sm leading-tight gap-1">
+        <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-32" />
         </div>
@@ -56,7 +56,7 @@ export default function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button
           size="default"
-          className="data-[state=open]:bg-sidebar-accent p-1 rounded-lg data-[state=open]:text-sidebar-accent-foreground"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground rounded-lg p-1"
           variant="outline"
         >
           <Avatar className="h-8 w-8 rounded-lg">

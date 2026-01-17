@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/button";
 
 export function CallToAction() {
   return (
-    <section className="border-t bg-linear-to-r from-primary/10 via-primary/5 to-background py-14 sm:py-16">
+    <section className="from-primary/10 via-primary/5 to-background border-t bg-linear-to-r py-14 sm:py-16">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 text-center">
-        <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+        <p className="text-primary text-sm font-semibold tracking-widest uppercase">
           Ready to track smarter?
         </p>
         <h3 className="text-3xl font-semibold sm:text-4xl">
           Start logging your shows in minutes.
         </h3>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="text-muted-foreground max-w-2xl">
           Sign in and build your watch history, keep tabs on weekly episodes,
           and discover what to watch next—all in one calm dashboard.
         </p>

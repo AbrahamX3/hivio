@@ -29,7 +29,7 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
 
   removeHistoryItem: (id) => {
     set((state) => ({
-      historyItems: state.historyItems.filter((item) => item.id !== id),
+      historyItems: state.historyItems.filter((item) => item._id !== id),
     }));
     get().updateTitleIds();
   },

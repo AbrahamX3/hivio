@@ -20,13 +20,35 @@ import type {
 } from "@/types/history";
 import { useMutation } from "convex/react";
 import { Plus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
-import { AddTitleDialog } from "./add-title-dialog";
-import { DeleteHistoryDialog } from "./delete-history-dialog";
-import { EditHistoryDialog } from "./edit-history-dialog";
 import { HistoryTable, useHistoryTable } from "./history-table";
+
+const AddTitleDialog = dynamic(
+  () =>
+    import("./add-title-dialog").then((mod) => ({
+      default: mod.AddTitleDialog,
+    })),
+  { ssr: false }
+);
+
+const DeleteHistoryDialog = dynamic(
+  () =>
+    import("./delete-history-dialog").then((mod) => ({
+      default: mod.DeleteHistoryDialog,
+    })),
+  { ssr: false }
+);
+
+const EditHistoryDialog = dynamic(
+  () =>
+    import("./edit-history-dialog").then((mod) => ({
+      default: mod.EditHistoryDialog,
+    })),
+  { ssr: false }
+);
 
 export default function View() {
   const [editingItem, setEditingItem] = useState<HistoryItem | null>(null);
@@ -90,20 +112,33 @@ export default function View() {
 
   const overview = useMemo(() => {
     const historyItems = data ?? [];
+    let watching = 0;
+    let finished = 0;
+    let planned = 0;
+    let favourites = 0;
+    const watchingItems: typeof historyItems = [];
+
+    for (const item of historyItems) {
+      switch (item.status) {
+        case "WATCHING":
+          watching++;
+          if (item.title) {
+            watchingItems.push(item);
+          }
+          break;
+        case "FINISHED":
+          finished++;
+          break;
+        case "PLANNED":
+          planned++;
+          break;
+      }
+      if (item.isFavourite) {
+        favourites++;
+      }
+    }
+
     const total = historyItems.length;
-    const watching = historyItems.filter(
-      (item) => item.status === "WATCHING",
-    ).length;
-    const finished = historyItems.filter(
-      (item) => item.status === "FINISHED",
-    ).length;
-    const planned = historyItems.filter(
-      (item) => item.status === "PLANNED",
-    ).length;
-    const favourites = historyItems.filter((item) => item.isFavourite).length;
-    const watchingItems = historyItems.filter(
-      (item) => item.status === "WATCHING" && item.title,
-    );
     const progressValue = total > 0 ? Math.round((finished / total) * 100) : 0;
 
     const watchlistDescription =
@@ -129,7 +164,7 @@ export default function View() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Your Watch History</CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Track progress, stay ahead of episodes, and keep your watchlist
               tidy.
             </p>

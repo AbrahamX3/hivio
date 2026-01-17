@@ -1,14 +1,7 @@
 "use client";
 
 import type { ColumnDef, Table as TanstackTable } from "@tanstack/react-table";
-import {
-  ClockIcon,
-  MinusIcon,
-  MoreHorizontal,
-  Pencil,
-  Star,
-  Trash2,
-} from "lucide-react";
+
 import * as React from "react";
 
 import { DataTable } from "@/components/data-table/data-table";
@@ -40,6 +33,14 @@ import type {
   MediaType,
 } from "@/types/history";
 import { useQuery } from "convex/react";
+import {
+  ClockIcon,
+  MinusIcon,
+  MoreHorizontal,
+  Pencil,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { api } from "../../../../convex/_generated/api";
 
@@ -82,7 +83,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
           const title = row.original.title;
           const isFavourite = row.original.isFavourite;
           return (
-            <div className="flex items-center gap-3 min-w-50 truncate text-pretty">
+            <div className="flex min-w-50 items-center gap-3 truncate text-pretty">
               {title?.posterUrl && (
                 <ImageModal
                   url={title.posterUrl}
@@ -92,12 +93,12 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
                   className="h-20 w-14"
                 />
               )}
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="font-medium truncate">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <div className="truncate font-medium">
                   {title?.name || "Unknown"}
                 </div>
                 {isFavourite && (
-                  <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 shrink-0" />
+                  <Star className="h-4 w-4 shrink-0 fill-yellow-500 text-yellow-500" />
                 )}
               </div>
             </div>
@@ -249,16 +250,16 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
         },
       },
     ],
-    [onEdit, onDelete],
+    [onEdit, onDelete]
   );
 
   const [typeFilter] = useQueryState(
     "type",
-    parseAsArrayOf(parseAsString).withDefault([]),
+    parseAsArrayOf(parseAsString).withDefault([])
   );
   const [statusFilter] = useQueryState(
     "status",
-    parseAsArrayOf(parseAsString).withDefault([]),
+    parseAsArrayOf(parseAsString).withDefault([])
   );
   const [titleFilter] = useQueryState("title", parseAsString.withDefault(""));
   const [sortParam] = useQueryState("sort", {
@@ -306,7 +307,6 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
       });
     }
 
-    // Sort is already parsed as objects
     const parsedSort = sortParam;
 
     const queryKey = JSON.stringify({ filters, sort: parsedSort });
@@ -321,7 +321,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
   const queryKey = React.useMemo(
     () =>
       `filters:${JSON.stringify(queryArgs.filters)}|sort:${JSON.stringify(queryArgs.sort)}`,
-    [queryArgs.filters, queryArgs.sort],
+    [queryArgs.filters, queryArgs.sort]
   );
 
   const data = useQuery(api.history.getAll, {
@@ -345,7 +345,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
       sorting: [{ id: "title", desc: false }],
       columnPinning: { right: ["actions"] },
     },
-    getRowId: (row) => row.id,
+    getRowId: (row) => row._id,
   });
 
   return {
@@ -357,7 +357,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 export function HistoryTable({ table, isLoading }: HistoryTableProps) {
   if (isLoading) {
     return (
-      <div className="min-w-0 w-full space-y-4">
+      <div className="w-full min-w-0 space-y-4">
         <div className="space-y-2">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-64 w-full" />
@@ -367,7 +367,7 @@ export function HistoryTable({ table, isLoading }: HistoryTableProps) {
   }
 
   return (
-    <div className="min-w-0 w-full space-y-4">
+    <div className="w-full min-w-0 space-y-4">
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>

@@ -38,7 +38,7 @@ function ShowcaseCard({
   const mockNextEpisode = index === 0 ? "Monday, Jan 15" : undefined;
 
   return (
-    <Card className="rounded-xl border bg-card p-4">
+    <Card className="bg-card rounded-xl border p-4">
       <div className="flex gap-4">
         {title.posterUrl ? (
           <Image
@@ -47,18 +47,18 @@ function ShowcaseCard({
             loader={tmdbImageLoader}
             src={title.posterUrl}
             alt={title.name}
-            className="h-20 w-14 shrink-0 object-cover rounded"
+            className="h-20 w-14 shrink-0 rounded object-cover"
           />
         ) : (
-          <div className="h-20 w-14 shrink-0 rounded bg-linear-to-br from-muted to-muted/60" />
+          <div className="from-muted to-muted/60 h-20 w-14 shrink-0 rounded bg-linear-to-br" />
         )}
-        <div className="flex-1 min-w-0 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h4 className="font-semibold truncate">{title.name}</h4>
-              <p className="text-sm text-muted-foreground">{mockSubtitle}</p>
+              <h4 className="truncate font-semibold">{title.name}</h4>
+              <p className="text-muted-foreground text-sm">{mockSubtitle}</p>
             </div>
-            <Badge className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            <Badge className="bg-primary/10 text-primary shrink-0 rounded-full px-2 py-0.5 text-xs font-medium">
               Trending
             </Badge>
           </div>
@@ -72,9 +72,13 @@ function ShowcaseCard({
           </div>
 
           {mockNextEpisode && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
               <Calendar className="h-3 w-3" />
-              <span>Next: {mockNextEpisode}</span>
+              <span>
+                {title.mediaType === "MOVIE" ? "Releasing on" : "Next episode"}
+                {": "}
+                {mockNextEpisode}
+              </span>
             </div>
           )}
         </div>
@@ -94,9 +98,7 @@ export function HeroShowcase() {
         const titles = await getTrendingTitles({ limit: 3 });
         setTrendingTitles(titles);
       } catch (error) {
-        if (error instanceof Error) {
-          console.error("Failed to load trending titles:", error.message);
-        }
+        console.error("Failed to load trending titles:", error);
       } finally {
         setIsLoading(false);
       }
@@ -106,10 +108,10 @@ export function HeroShowcase() {
   }, [getTrendingTitles]);
 
   return (
-    <Card className="rounded-2xl border bg-card p-6">
+    <Card className="bg-card rounded-2xl border p-6">
       <div className="space-y-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently Watching
           </p>
           <h3 className="mt-1 text-xl font-semibold">
@@ -121,7 +123,7 @@ export function HeroShowcase() {
           {isLoading ? (
             <>
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="rounded-xl border bg-card p-4">
+                <Card key={i} className="bg-card rounded-xl border p-4">
                   <div className="flex gap-4">
                     <Skeleton className="h-20 w-14 shrink-0" />
                     <div className="flex-1 space-y-2">

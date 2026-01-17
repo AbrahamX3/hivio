@@ -13,7 +13,7 @@ export default function DashboardLayout({
   return (
     <>
       <Authenticated>
-        <div className="min-h-screen overflow-x-hidden max-w-full">
+        <div className="min-h-screen max-w-full overflow-x-hidden">
           <header className="border-b">
             <div className="mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
@@ -22,7 +22,7 @@ export default function DashboardLayout({
               </div>
             </div>
           </header>
-          <main className="container mx-auto px-4 py-6 overflow-x-hidden max-w-full">
+          <main className="container mx-auto max-w-full overflow-x-hidden px-4 py-6">
             {children}
           </main>
         </div>
@@ -32,9 +32,9 @@ export default function DashboardLayout({
       </Unauthenticated>
       <AuthLoading>
         <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center space-y-4">
-            <Skeleton className="h-8 w-32 mx-auto" />
-            <Skeleton className="h-4 w-48 mx-auto" />
+          <div className="space-y-4 text-center">
+            <Skeleton className="mx-auto h-8 w-32" />
+            <Skeleton className="mx-auto h-4 w-48" />
           </div>
         </div>
       </AuthLoading>

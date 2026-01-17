@@ -16,6 +16,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAction } from "convex/react";
+
 import { ChevronDown, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -146,8 +147,8 @@ export function TrendingTitleDialog({
               <div className="space-y-4">
                 {details.description && (
                   <div>
-                    <p className="text-sm font-medium mb-1">Description</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="mb-1 text-sm font-medium">Description</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {details.description}
                     </p>
                   </div>
@@ -155,10 +156,10 @@ export function TrendingTitleDialog({
 
                 {details.directors.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium mb-1">
+                    <p className="mb-1 text-sm font-medium">
                       {title.mediaType === "MOVIE" ? "Directors" : "Creators"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {details.directors.join(", ")}
                     </p>
                   </div>
@@ -166,8 +167,8 @@ export function TrendingTitleDialog({
 
                 {title.mediaType === "MOVIE" && details.runtime && (
                   <div>
-                    <p className="text-sm font-medium mb-1">Runtime</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="mb-1 text-sm font-medium">Runtime</p>
+                    <p className="text-muted-foreground text-sm">
                       {Math.floor(details.runtime / 60)}h {details.runtime % 60}
                       m
                     </p>
@@ -178,11 +179,11 @@ export function TrendingTitleDialog({
                   <Collapsible
                     open={isSeasonsOpen}
                     onOpenChange={setIsSeasonsOpen}
-                    className="border rounded-lg p-2"
+                    className="rounded-lg border p-2"
                   >
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">Seasons</p>
-                      <CollapsibleTrigger className="flex items-center gap-1 rounded-sm p-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
+                      <CollapsibleTrigger className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-sm p-1 text-sm transition-colors">
                         <ChevronDown
                           className={`h-4 w-4 transition-transform duration-200 ${
                             isSeasonsOpen ? "rotate-180" : ""
@@ -198,12 +199,12 @@ export function TrendingTitleDialog({
                         >
                           <div>
                             <p className="font-medium">{season.name}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {season.episodeCount} episodes
                             </p>
                           </div>
                           {season.airDate && (
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {new Date(season.airDate).getFullYear()}
                             </p>
                           )}
@@ -217,7 +218,7 @@ export function TrendingTitleDialog({
           </div>
         </ScrollArea>
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end border-t pt-4">
           <Button
             onClick={handleAddToWatchlist}
             disabled={isAdding}

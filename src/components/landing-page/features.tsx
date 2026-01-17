@@ -29,16 +29,16 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="border-t bg-muted/30 py-16 sm:py-20">
+    <section id="features" className="bg-muted/30 border-t py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex flex-col gap-3 text-center sm:gap-4">
-          <p className="text-sm font-medium uppercase tracking-widest text-primary">
+          <p className="text-primary text-sm font-medium tracking-widest uppercase">
             Simple by design
           </p>
           <h2 className="text-3xl font-semibold sm:text-4xl">
             Everything you need to keep up, nothing you don’t.
           </h2>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
+          <p className="text-muted-foreground mx-auto max-w-2xl">
             Hivio is built for people who want to enjoy their shows, not manage
             spreadsheets. Clear progress, smart reminders, and a dashboard that
             stays out of the way.
@@ -48,13 +48,13 @@ export function Features() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="group rounded-2xl border bg-background p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="group bg-background rounded-2xl border p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl">
                 <feature.icon className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-semibold">{feature.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-2 text-sm">
                 {feature.description}
               </p>
             </div>

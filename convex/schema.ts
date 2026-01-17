@@ -11,12 +11,16 @@ export default defineSchema({
         v.literal("PLANNED"),
         v.literal("ON_HOLD"),
         v.literal("DROPPED"),
-        v.literal("REWATCHING"),
-      ),
+        v.literal("REWATCHING")
+      )
     ),
-  }),
+    authId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_auth_id", ["authId"])
+    .index("by_email", ["email"]),
   title: defineTable({
-    id: v.string(),
     name: v.string(),
     posterUrl: v.optional(v.string()),
     backdropUrl: v.optional(v.string()),
@@ -34,16 +38,15 @@ export default defineSchema({
     .index("by_imdb_id", ["imdbId"])
     .index("by_tmdb_id_media_type", ["tmdbId", "mediaType"]),
   history: defineTable({
-    id: v.string(),
-    titleId: v.string(),
-    userId: v.string(),
+    titleId: v.id("title"),
+    userId: v.id("users"),
     status: v.union(
       v.literal("FINISHED"),
       v.literal("WATCHING"),
       v.literal("PLANNED"),
       v.literal("ON_HOLD"),
       v.literal("DROPPED"),
-      v.literal("REWATCHING"),
+      v.literal("REWATCHING")
     ),
     currentEpisode: v.optional(v.number()),
     currentSeason: v.optional(v.number()),

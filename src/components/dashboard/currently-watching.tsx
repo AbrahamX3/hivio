@@ -65,7 +65,7 @@ function WatchingShowCard({
 
   if (isLoading || !title) {
     return (
-      <Card className="rounded-xl border bg-card p-4">
+      <Card className="bg-card rounded-xl border p-4">
         <div className="flex gap-4">
           <Skeleton className="h-20 w-14 shrink-0" />
           <div className="flex-1 space-y-2">
@@ -86,7 +86,7 @@ function WatchingShowCard({
 
   if (isSeries && seasonProgress) {
     progressValue = Math.round(
-      (seasonProgress.current / seasonProgress.total) * 100,
+      (seasonProgress.current / seasonProgress.total) * 100
     );
     progressLabel = `S${String(item.currentSeason || 0).padStart(2, "0")} • E${String(item.currentEpisode || 0).padStart(2, "0")} of ${seasonProgress.total}`;
   } else if (isMovie && item.currentRuntime && movieRuntime) {
@@ -95,7 +95,7 @@ function WatchingShowCard({
   }
 
   return (
-    <Card className="rounded-xl border bg-card p-4">
+    <Card className="bg-card rounded-xl border p-4">
       <div className="flex gap-4">
         {title.posterUrl ? (
           <ImageModal
@@ -103,29 +103,29 @@ function WatchingShowCard({
             alt={title.name}
             width={56}
             height={80}
-            className="h-20 w-14 shrink-0 object-cover rounded"
+            className="h-20 w-14 shrink-0 rounded object-cover"
           />
         ) : (
-          <div className="h-20 w-14 shrink-0 rounded bg-muted" />
+          <div className="bg-muted h-20 w-14 shrink-0 rounded" />
         )}
 
-        <div className="flex-1 min-w-0 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h4 className="font-semibold truncate">{title.name}</h4>
+              <h4 className="truncate font-semibold">{title.name}</h4>
               {isSeries && item.currentSeason && item.currentEpisode ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   S{String(item.currentSeason).padStart(2, "0")} • E
                   {String(item.currentEpisode).padStart(2, "0")}
                 </p>
               ) : isMovie && item.currentRuntime ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {convertMinutesToHrMin(item.currentRuntime)} logged
                 </p>
               ) : null}
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Badge className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            <div className="flex shrink-0 items-center gap-2">
+              <Badge className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
                 Watching
               </Badge>
               <Button
@@ -150,7 +150,7 @@ function WatchingShowCard({
           )}
 
           {nextEpisode && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
               <Calendar className="h-3 w-3" />
               <span>
                 {new Date(nextEpisode.airDate) >= new Date()
@@ -274,13 +274,13 @@ export function CurrentlyWatching({
 }: CurrentlyWatchingProps) {
   if (emptyState) {
     return (
-      <Card className="rounded-2xl border bg-card p-6">
+      <Card className="bg-card rounded-2xl border p-6">
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently watching
           </p>
           <h3 className="text-xl font-semibold">{emptyState.title}</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {emptyState.description}
           </p>
         </div>
@@ -293,10 +293,10 @@ export function CurrentlyWatching({
   }
 
   return (
-    <Card className="rounded-2xl border bg-card p-6">
+    <Card className="bg-card rounded-2xl border p-6">
       <div className="space-y-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently watching
           </p>
           <h3 className="mt-1 text-xl font-semibold">
@@ -314,6 +314,129 @@ export function CurrentlyWatching({
   );
 }
 
+function CurrentlyWatchingDataFetcher({
+  items,
+  onUpdate,
+}: {
+  items: HistoryItem[];
+  onUpdate?: () => void;
+}) {
+  const [showData, setShowData] = useState<WatchingShowData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getNextEpisodeInfo = useAction(api.tmdb.getNextEpisodeInfo);
+  const getDetails = useAction(api.tmdb.getDetails);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setIsLoading(true);
+
+      try {
+        const dataPromises = items.map(async (item) => {
+          if (!item.title) {
+            return {
+              item,
+              nextEpisode: undefined,
+              seasonProgress: undefined,
+              movieRuntime: undefined,
+              isLoading: false,
+            } as WatchingShowData;
+          }
+
+          try {
+            let nextEpisode: WatchingShowData["nextEpisode"];
+            let seasonProgress: WatchingShowData["seasonProgress"];
+            let movieRuntime: WatchingShowData["movieRuntime"];
+
+            if (
+              item.title.mediaType === "SERIES" &&
+              item.currentSeason &&
+              item.currentEpisode
+            ) {
+              const result = await getNextEpisodeInfo({
+                tmdbId: item.title.tmdbId,
+                currentSeason: item.currentSeason,
+                currentEpisode: item.currentEpisode,
+              });
+              nextEpisode = result.nextEpisode ?? undefined;
+              seasonProgress = result.seasonProgress;
+            } else if (item.title.mediaType === "MOVIE") {
+              const details = await getDetails({
+                tmdbId: item.title.tmdbId,
+                mediaType: "MOVIE",
+              });
+              movieRuntime = details.runtime || undefined;
+            }
+
+            return {
+              item,
+              nextEpisode,
+              seasonProgress,
+              movieRuntime,
+              isLoading: false,
+            } as WatchingShowData;
+          } catch (error) {
+            console.error("Failed to load show data:", error);
+            return {
+              item,
+              nextEpisode: undefined,
+              seasonProgress: undefined,
+              movieRuntime: undefined,
+              isLoading: false,
+            } as WatchingShowData;
+          }
+        });
+
+        const results = await Promise.all(dataPromises);
+        setShowData(results);
+      } catch (error) {
+        console.error("Failed to fetch watching data:", error);
+        setShowData(
+          items.map((item) => ({
+            item,
+            nextEpisode: undefined,
+            seasonProgress: undefined,
+            movieRuntime: undefined,
+            isLoading: false,
+          }))
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, [items]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {items.map((item) => (
+          <WatchingShowCard
+            key={item._id}
+            show={{
+              item,
+              nextEpisode: undefined,
+              seasonProgress: undefined,
+              movieRuntime: undefined,
+              isLoading: true,
+            }}
+            onUpdate={onUpdate}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {showData.map((show) => (
+        <WatchingShowCard key={show.item._id} show={show} onUpdate={onUpdate} />
+      ))}
+    </div>
+  );
+}
+
 export function CurrentlyWatchingWithData({
   items,
   emptyState,
@@ -328,13 +451,13 @@ export function CurrentlyWatchingWithData({
 }) {
   if (emptyState) {
     return (
-      <Card className="rounded-2xl border bg-card p-6">
+      <Card className="bg-card rounded-2xl border p-6">
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently watching
           </p>
           <h3 className="text-xl font-semibold">{emptyState.title}</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {emptyState.description}
           </p>
         </div>
@@ -347,10 +470,10 @@ export function CurrentlyWatchingWithData({
   }
 
   return (
-    <Card className="rounded-2xl border bg-card p-6">
+    <Card className="bg-card rounded-2xl border p-6">
       <div className="space-y-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently watching
           </p>
           <h3 className="mt-1 text-xl font-semibold">
@@ -358,15 +481,7 @@ export function CurrentlyWatchingWithData({
           </h3>
         </div>
 
-        <div className="space-y-3">
-          {items.map((item) => (
-            <WatchingShowCardWithData
-              key={item._id}
-              item={item}
-              onUpdate={onUpdate}
-            />
-          ))}
-        </div>
+        <CurrentlyWatchingDataFetcher items={items} onUpdate={onUpdate} />
       </div>
     </Card>
   );

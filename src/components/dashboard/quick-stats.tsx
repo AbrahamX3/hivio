@@ -19,29 +19,29 @@ export function QuickStats({
         <CardTitle>Quick stats</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border bg-muted/30 p-4">
-          <p className="text-xs uppercase text-muted-foreground">Watching</p>
+        <div className="bg-muted/30 rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs uppercase">Watching</p>
           <p className="mt-2 text-2xl font-semibold">{watching}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Titles in progress right now.
           </p>
         </div>
-        <div className="rounded-xl border bg-muted/30 p-4">
-          <p className="text-xs uppercase text-muted-foreground">Completed</p>
+        <div className="bg-muted/30 rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs uppercase">Completed</p>
           <p className="mt-2 text-2xl font-semibold">{finished}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Finished titles in your library.
           </p>
         </div>
-        <div className="rounded-xl border bg-muted/30 p-4">
-          <p className="text-xs uppercase text-muted-foreground">Planned</p>
+        <div className="bg-muted/30 rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs uppercase">Planned</p>
           <p className="mt-2 text-2xl font-semibold">{planned}</p>
-          <p className="text-xs text-muted-foreground">Lined up for later.</p>
+          <p className="text-muted-foreground text-xs">Lined up for later.</p>
         </div>
-        <div className="rounded-xl border bg-muted/30 p-4">
-          <p className="text-xs uppercase text-muted-foreground">Favorites</p>
+        <div className="bg-muted/30 rounded-xl border p-4">
+          <p className="text-muted-foreground text-xs uppercase">Favorites</p>
           <p className="mt-2 text-2xl font-semibold">{favourites}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Saved highlights you love.
           </p>
         </div>

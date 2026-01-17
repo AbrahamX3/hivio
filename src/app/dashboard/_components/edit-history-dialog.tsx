@@ -303,19 +303,21 @@ export function EditHistoryDialog({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {titleDetails.seasons?.map((season) => {
-                                const year = getSeasonYear(season.airDate);
-                                return (
-                                  <SelectItem
-                                    key={season.seasonNumber}
-                                    value={season.seasonNumber.toString()}
-                                  >
-                                    {season.name}
-                                    {year && ` (${year})`} (
-                                    {season.episodeCount} episodes)
-                                  </SelectItem>
-                                );
-                              })}
+                              {titleDetails.seasons
+                                ?.filter((season) => season.episodeCount > 0)
+                                .map((season) => {
+                                  const year = getSeasonYear(season.airDate);
+                                  return (
+                                    <SelectItem
+                                      key={season.seasonNumber}
+                                      value={season.seasonNumber.toString()}
+                                    >
+                                      {season.name}
+                                      {year && ` (${year})`} (
+                                      {season.episodeCount} episodes)
+                                    </SelectItem>
+                                  );
+                                })}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -344,7 +346,7 @@ export function EditHistoryDialog({
                                 <SelectContent>
                                   {episodes.map((ep) => {
                                     const dateStr = formatEpisodeDate(
-                                      ep.airDate,
+                                      ep.airDate
                                     );
                                     return (
                                       <SelectItem
@@ -374,7 +376,7 @@ export function EditHistoryDialog({
                         <FormLabel>
                           Runtime (minutes)
                           {titleDetails.runtime && (
-                            <span className="text-muted-foreground text-xs ml-2">
+                            <span className="text-muted-foreground ml-2 text-xs">
                               Max: {titleDetails.runtime} min
                             </span>
                           )}
@@ -400,7 +402,7 @@ export function EditHistoryDialog({
               control={form.control}
               name="isFavourite"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -409,7 +411,7 @@ export function EditHistoryDialog({
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>Favorite</FormLabel>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Mark this title as a favorite
                     </p>
                   </div>

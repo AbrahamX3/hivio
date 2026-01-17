@@ -12,6 +12,18 @@ export const search = action({
     query: v.string(),
     mediaType: v.optional(mediaTypeValidator),
   },
+  returns: v.array(
+    v.object({
+      id: v.number(),
+      name: v.string(),
+      posterUrl: v.optional(v.string()),
+      backdropUrl: v.optional(v.string()),
+      description: v.optional(v.string()),
+      mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+      releaseDate: v.string(),
+      genres: v.string(),
+    })
+  ),
   handler: async (ctx, args) => {
     if (args.mediaType === "MOVIE") {
       const results = await tmdb.search.movies({
@@ -21,9 +33,9 @@ export const search = action({
       return results.results.map((movie) => ({
         id: movie.id,
         name: movie.title,
-        posterUrl: movie.poster_path ?? undefined,
-        backdropUrl: movie.backdrop_path ?? undefined,
-        description: movie.overview ?? undefined,
+        posterUrl: movie.poster_path || undefined,
+        backdropUrl: movie.backdrop_path || undefined,
+        description: movie.overview || undefined,
         mediaType: "MOVIE" as const,
         releaseDate: movie.release_date || "",
         genres: JSON.stringify(movie.genre_ids || []),
@@ -35,9 +47,9 @@ export const search = action({
       return results.results.map((show) => ({
         id: show.id,
         name: show.name,
-        posterUrl: show.poster_path ?? undefined,
-        backdropUrl: show.backdrop_path ?? undefined,
-        description: show.overview ?? undefined,
+        posterUrl: show.poster_path || undefined,
+        backdropUrl: show.backdrop_path || undefined,
+        description: show.overview || undefined,
         mediaType: "SERIES" as const,
         releaseDate: show.first_air_date || "",
         genres: JSON.stringify(show.genre_ids || []),
@@ -50,7 +62,7 @@ export const search = action({
       const filteredResults = results.results
         .filter(
           (item): item is typeof item & { media_type: "movie" | "tv" } =>
-            item.media_type === "movie" || item.media_type === "tv",
+            item.media_type === "movie" || item.media_type === "tv"
         )
         .slice(0, 25)
         .map((item) => {
@@ -63,9 +75,9 @@ export const search = action({
             return {
               id: movie.id,
               name: movie.title,
-              posterUrl: movie.poster_path ?? undefined,
-              backdropUrl: movie.backdrop_path ?? undefined,
-              description: movie.overview ?? undefined,
+              posterUrl: movie.poster_path || undefined,
+              backdropUrl: movie.backdrop_path || undefined,
+              description: movie.overview || undefined,
               mediaType: "MOVIE" as const,
               releaseDate: movie.release_date || "",
               genres: JSON.stringify(movie.genre_ids || []),
@@ -79,9 +91,9 @@ export const search = action({
             return {
               id: show.id,
               name: show.name,
-              posterUrl: show.poster_path ?? undefined,
-              backdropUrl: show.backdrop_path ?? undefined,
-              description: show.overview ?? undefined,
+              posterUrl: show.poster_path || undefined,
+              backdropUrl: show.backdrop_path || undefined,
+              description: show.overview || undefined,
               mediaType: "SERIES" as const,
               releaseDate: show.first_air_date || "",
               genres: JSON.stringify(show.genre_ids || []),
@@ -99,6 +111,24 @@ export const getDetails = action({
     tmdbId: v.number(),
     mediaType: mediaTypeValidator,
   },
+  returns: v.object({
+    directors: v.array(v.string()),
+    imdbId: v.union(v.string(), v.null()),
+    runtime: v.union(v.number(), v.null()),
+    seasons: v.union(
+      v.array(
+        v.object({
+          seasonNumber: v.number(),
+          episodeCount: v.number(),
+          name: v.string(),
+          airDate: v.union(v.string(), v.null()),
+        })
+      ),
+      v.null()
+    ),
+    episodes: v.null(),
+    description: v.union(v.string(), v.null()),
+  }),
   handler: async (ctx, args) => {
     if (args.mediaType === "MOVIE") {
       const [movie, credits] = await Promise.all([
@@ -152,6 +182,13 @@ export const getSeasonEpisodes = action({
     tmdbId: v.number(),
     seasonNumber: v.number(),
   },
+  returns: v.array(
+    v.object({
+      episodeNumber: v.number(),
+      name: v.string(),
+      airDate: v.union(v.string(), v.null()),
+    })
+  ),
   handler: async (ctx, args) => {
     const season = await tmdb.tvSeasons.details({
       tvShowID: args.tmdbId,
@@ -180,7 +217,7 @@ export const getNextEpisodeInfo = action({
         name: v.string(),
         airDate: v.string(),
       }),
-      v.null(),
+      v.null()
     ),
     seasonProgress: v.object({
       current: v.number(),
@@ -201,7 +238,7 @@ export const getNextEpisodeInfo = action({
       };
 
       const currentEpIndex = episodes.findIndex(
-        (ep) => ep.episode_number === args.currentEpisode,
+        (ep) => ep.episode_number === args.currentEpisode
       );
 
       if (currentEpIndex === -1) {
@@ -211,17 +248,15 @@ export const getNextEpisodeInfo = action({
         };
       }
 
-      // Find the next episode that airs after today
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+      today.setHours(0, 0, 0, 0); 
 
-      // Look for episodes after the current one that haven't aired yet
       for (let i = currentEpIndex + 1; i < episodes.length; i++) {
         const episode = episodes[i];
         if (!episode.air_date) continue;
 
         const airDate = new Date(episode.air_date);
-        airDate.setHours(0, 0, 0, 0); // Reset time to start of day
+        airDate.setHours(0, 0, 0, 0); 
 
         if (airDate >= today) {
           return {
@@ -235,7 +270,6 @@ export const getNextEpisodeInfo = action({
         }
       }
 
-      // No upcoming episodes found, return the most recent aired episode
       const now = new Date();
       now.setHours(0, 0, 0, 0);
 
@@ -288,7 +322,8 @@ export const getTrendingTitles = action({
       posterUrl: v.union(v.string(), v.null()),
       mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
       tmdbId: v.number(),
-    }),
+      providers: v.array(v.string()),
+    })
   ),
   handler: async (ctx, args) => {
     try {
@@ -316,7 +351,7 @@ export const getTrendingTitles = action({
             posterUrl: movie.poster_path,
             mediaType: "MOVIE" as const,
             tmdbId: movie.id,
-          }),
+          })
         );
 
       const series = (popularTv.results || [])
@@ -328,10 +363,9 @@ export const getTrendingTitles = action({
             posterUrl: show.poster_path,
             mediaType: "SERIES" as const,
             tmdbId: show.id,
-          }),
+          })
         );
 
-      // Interleave movies and series to alternate between them
       const allTrending: Array<{
         id: number;
         name: string;
@@ -350,10 +384,39 @@ export const getTrendingTitles = action({
         }
       }
 
-      return allTrending.slice(0, limit).map((item) => ({
-        ...item,
-        posterUrl: item.posterUrl ?? null,
-      }));
+      const trendingSlice = allTrending.slice(0, limit);
+
+      const resultsWithProviders = await Promise.all(
+        trendingSlice.map(async (item) => {
+          try {
+            let providersResults;
+            if (item.mediaType === "MOVIE") {
+              providersResults = await tmdb.movies.watchProviders(item.tmdbId);
+            } else {
+              providersResults = await tmdb.tvShows.watchProviders(item.tmdbId);
+            }
+
+            const usProviders = (providersResults.results)?.US;
+            const flatrate = usProviders?.flatrate || [];
+            
+            const providerLogos = flatrate.slice(0, 3).map((p) => p.logo_path).filter(Boolean);
+
+            return {
+              ...item,
+              posterUrl: item.posterUrl ?? null,
+              providers: providerLogos,
+            };
+          } catch {
+             return {
+              ...item,
+              posterUrl: item.posterUrl ?? null,
+              providers: [],
+            };
+          }
+        })
+      );
+
+      return resultsWithProviders;
     } catch {
       return [];
     }

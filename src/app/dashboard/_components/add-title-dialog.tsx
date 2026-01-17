@@ -1,7 +1,7 @@
 "use client";
 
 import { useAction } from "convex/react";
-import { Loader2, Search } from "lucide-react";
+
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -43,6 +43,7 @@ import type {
 } from "@/types/history";
 import { addTitleFormSchema } from "@/types/history";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Search } from "lucide-react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { api } from "../../../../convex/_generated/api";
@@ -62,10 +63,10 @@ export function AddTitleDialog({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [mediaTypeFilter, setMediaTypeFilter] = useState<"all" | MediaType>(
-    "all",
+    "all"
   );
   const [selectedResult, setSelectedResult] = useState<SearchResult | null>(
-    null,
+    null
   );
 
   const [isAdding, setIsAdding] = useState(false);
@@ -235,7 +236,7 @@ export function AddTitleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-h-[90vh] max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Title to History</DialogTitle>
           <DialogDescription>
@@ -295,12 +296,12 @@ export function AddTitleDialog({
               )}
 
               {!isSearching && searchResults.length > 0 && (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div className="max-h-64 space-y-2 overflow-y-auto">
                   {searchResults.map((result) => (
                     <button
                       key={result.id}
                       onClick={() => handleSelectTitle(result)}
-                      className="w-full p-3 rounded-lg border hover:bg-accent text-left flex items-center gap-3"
+                      className="hover:bg-accent flex w-full items-center gap-3 rounded-lg border p-3 text-left"
                     >
                       {result.posterUrl && (
                         <Image
@@ -309,12 +310,13 @@ export function AddTitleDialog({
                           loader={tmdbImageLoader}
                           src={result.posterUrl}
                           alt={result.name}
-                          className="h-16 w-12 object-cover rounded"
+                          loading="lazy"
+                          className="h-16 w-12 rounded object-cover"
                         />
                       )}
                       <div className="flex-1">
                         <div className="font-medium">{result.name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-muted-foreground text-xs">
                           {result.mediaType === "MOVIE" ? "Movie" : "Series"} •{" "}
                           {result.releaseDate
                             ? new Date(result.releaseDate).getFullYear()
@@ -330,19 +332,19 @@ export function AddTitleDialog({
 
           {selectedResult && (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg border">
+              <div className="flex items-center gap-3 rounded-lg border p-3">
                 {selectedResult.posterUrl && (
                   <ImageModal
                     url={selectedResult.posterUrl}
                     alt={selectedResult.name}
                     width={56}
                     height={80}
-                    className="h-20 w-14 object-cover rounded"
+                    className="h-20 w-14 rounded object-cover"
                   />
                 )}
                 <div>
                   <div className="font-medium">{selectedResult.name}</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     {selectedResult.mediaType === "MOVIE" ? "Movie" : "Series"}
                   </div>
                 </div>
@@ -358,7 +360,7 @@ export function AddTitleDialog({
 
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Description</span>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {selectedResult.description}
                 </p>
               </div>
@@ -436,21 +438,25 @@ export function AddTitleDialog({
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {titleDetails.seasons?.map((season) => {
-                                      const year = getSeasonYear(
-                                        season.airDate,
-                                      );
-                                      return (
-                                        <SelectItem
-                                          key={season.seasonNumber}
-                                          value={season.seasonNumber.toString()}
-                                        >
-                                          {season.name}
-                                          {year && ` (${year})`} (
-                                          {season.episodeCount} episodes)
-                                        </SelectItem>
-                                      );
-                                    })}
+                                    {titleDetails.seasons
+                                      ?.filter(
+                                        (season) => season.episodeCount > 0
+                                      )
+                                      .map((season) => {
+                                        const year = getSeasonYear(
+                                          season.airDate
+                                        );
+                                        return (
+                                          <SelectItem
+                                            key={season.seasonNumber}
+                                            value={season.seasonNumber.toString()}
+                                          >
+                                            {season.name}
+                                            {year && ` (${year})`} (
+                                            {season.episodeCount} episodes)
+                                          </SelectItem>
+                                        );
+                                      })}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -479,7 +485,7 @@ export function AddTitleDialog({
                                       <SelectContent>
                                         {episodes.map((ep) => {
                                           const dateStr = formatEpisodeDate(
-                                            ep.airDate,
+                                            ep.airDate
                                           );
                                           return (
                                             <SelectItem
@@ -509,7 +515,7 @@ export function AddTitleDialog({
                               <FormLabel>
                                 Runtime (minutes)
                                 {titleDetails.runtime && (
-                                  <span className="text-muted-foreground text-xs ml-2">
+                                  <span className="text-muted-foreground ml-2 text-xs">
                                     Max: {titleDetails.runtime} min
                                   </span>
                                 )}
@@ -535,7 +541,7 @@ export function AddTitleDialog({
                     control={form.control}
                     name="isFavourite"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -544,7 +550,7 @@ export function AddTitleDialog({
                         </FormControl>
                         <div className="space-y-1 leading-none">
                           <FormLabel>Favorite</FormLabel>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             Mark this title as a favorite
                           </p>
                         </div>

@@ -2,7 +2,7 @@ import UserMenu from "@/components/user-menu";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen overflow-x-hidden max-w-full">
+    <div className="min-h-screen max-w-full overflow-x-hidden">
       <header className="border-b">
         <div className="mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="container mx-auto px-4 py-6 overflow-x-hidden max-w-full">
+      <main className="container mx-auto max-w-full overflow-x-hidden px-4 py-6">
         {children}
       </main>
     </div>

@@ -203,5 +203,21 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    /* Touch handling */
+    touch-action: manipulation;
+    /* Safe area insets for modern devices */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Prevent unwanted scrollbars on full-bleed layouts */
+  html {
+    overflow-x: hidden;
+  }
+
+  /* Modal and dialog scroll behavior */
+  [data-state="open"][data-radix-dialog-overlay],
+  [data-state="open"][data-radix-sheet-overlay] {
+    overscroll-behavior: contain;
   }
 }

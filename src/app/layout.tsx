@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning style={{ colorScheme: "dark" }}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -42,7 +42,7 @@ export default function RootLayout({
               disableTransitionOnChange
               storageKey="vite-ui-theme"
             >
-              <div className="grid grid-rows-[auto_1fr] h-svh">{children}</div>
+              <div className="grid h-svh grid-rows-[auto_1fr]">{children}</div>
               <Toaster richColors />
             </ThemeProvider>
           </NuqsAdapter>

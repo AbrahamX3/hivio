@@ -33,7 +33,7 @@ export function QuickActionDialog({
 }: QuickActionDialogProps) {
   const [isFavourite, setIsFavourite] = useState(item?.isFavourite ?? false);
   const [originalFavourite, setOriginalFavourite] = useState(
-    item?.isFavourite ?? false,
+    item?.isFavourite ?? false
   );
   const [isSubmittingFavorite, setIsSubmittingFavorite] = useState(false);
   const [isSubmittingFinished, setIsSubmittingFinished] = useState(false);
@@ -82,7 +82,7 @@ export function QuickActionDialog({
       });
       setOriginalFavourite(isFavourite);
       toast.success(
-        isFavourite ? "Added to favorites" : "Removed from favorites",
+        isFavourite ? "Added to favorites" : "Removed from favorites"
       );
       onUpdate?.();
     } catch (error) {
@@ -116,7 +116,7 @@ export function QuickActionDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          <div className="rounded-lg border p-4 space-y-3">
+          <div className="space-y-3 rounded-lg border p-4">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="favorite"
@@ -125,7 +125,7 @@ export function QuickActionDialog({
               />
               <Label
                 htmlFor="favorite"
-                className="flex-1 cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="flex-1 cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Mark as favorite
               </Label>
@@ -140,9 +140,9 @@ export function QuickActionDialog({
             </Button>
           </div>
 
-          <div className="rounded-lg border bg-muted/40 p-4">
-            <p className="text-sm font-medium mb-2">Mark as finished</p>
-            <p className="text-xs text-muted-foreground mb-4">
+          <div className="bg-muted/40 rounded-lg border p-4">
+            <p className="mb-2 text-sm font-medium">Mark as finished</p>
+            <p className="text-muted-foreground mb-4 text-xs">
               Mark this title as completed in your watch history.
             </p>
             <Button
