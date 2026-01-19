@@ -89,6 +89,8 @@ export function TitleDetailsDialog({
         episodeNumber: number;
         name: string;
         airDate: string | null;
+        runtime: number | null;
+        overview: string | null;
       }>
     >
   >({});
@@ -431,31 +433,59 @@ export function TitleDetailsDialog({
                                         <Skeleton className="h-10 w-full rounded-lg" />
                                       </div>
                                     ) : episodes.length > 0 ? (
-                                      <div className="grid gap-2">
+                                      <div className="grid gap-3">
                                         {episodes.map((episode) => (
                                           <div
                                             key={episode.episodeNumber}
-                                            className="hover:bg-primary/5 flex items-center justify-between rounded-xl p-3 transition-colors"
+                                            className="hover:bg-primary/5 group/episode rounded-xl border border-transparent p-4 transition-all hover:border-primary/10"
                                           >
-                                            <div className="flex items-center gap-4">
-                                              <span className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold">
+                                            <div className="flex items-start gap-4">
+                                              <span className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold">
                                                 {episode.episodeNumber}
                                               </span>
-                                              <span className="font-medium">
-                                                {episode.name}
-                                              </span>
+                                              <div className="flex-1 space-y-2">
+                                                <div className="flex items-start justify-between gap-4">
+                                                  <div className="flex-1">
+                                                    <h4 className="font-semibold leading-tight">
+                                                      {episode.name}
+                                                    </h4>
+                                                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-3 text-xs">
+                                                      {episode.airDate && (
+                                                        <span>
+                                                          {new Date(
+                                                            episode.airDate
+                                                          ).toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                              month: "short",
+                                                              day: "numeric",
+                                                              year: "numeric",
+                                                            }
+                                                          )}
+                                                        </span>
+                                                      )}
+                                                      {episode.runtime && (
+                                                        <>
+                                                          {episode.airDate && (
+                                                            <span className="text-primary/40">
+                                                              •
+                                                            </span>
+                                                          )}
+                                                          <span>
+                                                            {episode.runtime}m
+                                                          </span>
+                                                        </>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                {episode.overview && (
+                                                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 group-hover/episode:line-clamp-none">
+                                                    {episode.overview}
+                                                  </p>
+                                                )}
+                                              </div>
                                             </div>
-                                            {episode.airDate && (
-                                              <span className="text-muted-foreground text-xs">
-                                                {new Date(
-                                                  episode.airDate
-                                                ).toLocaleDateString("en-US", {
-                                                  month: "short",
-                                                  day: "numeric",
-                                                  year: "numeric",
-                                                })}
-                                              </span>
-                                            )}
                                           </div>
                                         ))}
                                       </div>
@@ -552,7 +582,7 @@ export function TitleDetailsDialog({
                       <div className="pt-4">
                         <Button
                           variant="outline"
-                          className="group h-12 w-full justify-start rounded-xl px-4 font-bold shadow-sm transition-all hover:shadow-md [&_svg]:size-8"
+                          className="group h-10 w-full justify-start rounded-xl px-4 font-bold shadow-sm transition-all hover:shadow-md"
                           asChild
                         >
                           <a
@@ -599,32 +629,32 @@ export function TitleDetailsDialog({
                                 xlinkHref="#b"
                                 fillOpacity="0"
                                 stroke="#000"
-                                stroke-opacity="0"
+                                strokeOpacity="0"
                               />
                               <use xlinkHref="#c" />
                               <use
                                 xlinkHref="#c"
-                                fill-opacity="0"
+                                fillOpacity="0"
                                 stroke="#000"
-                                stroke-opacity="0"
+                                    strokeOpacity="0"
                               />
                               <use xlinkHref="#d" />
                               <use
                                 xlinkHref="#d"
-                                fill-opacity="0"
+                                fillOpacity="0"
                                 stroke="#000"
-                                stroke-opacity="0"
+                                strokeOpacity="0"
                               />
                               <use xlinkHref="#e" />
                               <use
                                 xlinkHref="#e"
-                                fill-opacity="0"
+                                fillOpacity="0"
                                 stroke="#000"
-                                stroke-opacity="0"
+                                strokeOpacity="0"
                               />
                             </svg>
                             <span className="flex-1">View on IMDb</span>
-                            <ExternalLink className="h-4 w-4 opacity-50 transition-transform group-hover:translate-x-1" />
+                            <ExternalLink className="size-5 opacity-50 transition-transform group-hover:translate-x-1" />
                           </a>
                         </Button>
                       </div>

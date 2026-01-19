@@ -169,6 +169,8 @@ export const getSeasonEpisodes = action({
       episodeNumber: v.number(),
       name: v.string(),
       airDate: v.union(v.string(), v.null()),
+      runtime: v.union(v.number(), v.null()),
+      overview: v.union(v.string(), v.null()),
     })
   ),
   handler: async (ctx, args) => {
@@ -181,6 +183,8 @@ export const getSeasonEpisodes = action({
         episodeNumber: ep.episode_number,
         name: ep.name || `Episode ${ep.episode_number}`,
         airDate: ep.air_date || null,
+        runtime: ep.runtime || null,
+        overview: ep.overview || null,
       })) || []
     );
   },
