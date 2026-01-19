@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Authenticated, Unauthenticated } from "convex/react";
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { HivioLogo } from "../icons";
 
 export function LandingNavbar() {
@@ -36,6 +36,15 @@ export function LandingNavbar() {
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
             </Authenticated>
+            <AuthLoading>
+              <Button
+                asChild
+                size="sm"
+                className="rounded-full px-4 text-xs shadow-sm"
+              >
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            </AuthLoading>
             <Unauthenticated>
               <Button
                 asChild

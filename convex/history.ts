@@ -331,99 +331,11 @@ export const getAll = query({
 
       historyWithTitles.sort(
         (
-          a: {
-            _id: Id<"history">;
-            _creationTime: number;
-            titleId: Id<"title">;
-            userId: Id<"users">;
-            status:
-              | "FINISHED"
-              | "WATCHING"
-              | "PLANNED"
-              | "ON_HOLD"
-              | "DROPPED"
-              | "REWATCHING";
-            currentEpisode?: number | undefined;
-            currentSeason?: number | undefined;
-            currentRuntime?: number | undefined;
-            isFavourite: boolean;
-            createdAt: number;
-            updatedAt: number;
-            title: {
-              _id: Id<"title">;
-              _creationTime: number;
-              name: string;
-              posterUrl?: string | undefined;
-              backdropUrl?: string | undefined;
-              description?: string | undefined;
-              directors?: string[] | undefined;
-              tmdbId: number;
-              imdbId: string;
-              mediaType: "MOVIE" | "SERIES";
-              releaseDate: string;
-              genres: string;
-              createdAt: number;
-              updatedAt: number;
-            } | null;
-          },
-          b: {
-            _id: Id<"history">;
-            _creationTime: number;
-            titleId: Id<"title">;
-            userId: Id<"users">;
-            status:
-              | "FINISHED"
-              | "WATCHING"
-              | "PLANNED"
-              | "ON_HOLD"
-              | "DROPPED"
-              | "REWATCHING";
-            currentEpisode?: number | undefined;
-            currentSeason?: number | undefined;
-            currentRuntime?: number | undefined;
-            isFavourite: boolean;
-            createdAt: number;
-            updatedAt: number;
-            title: {
-              _id: Id<"title">;
-              _creationTime: number;
-              name: string;
-              posterUrl?: string | undefined;
-              backdropUrl?: string | undefined;
-              description?: string | undefined;
-              directors?: string[] | undefined;
-              tmdbId: number;
-              imdbId: string;
-              mediaType: "MOVIE" | "SERIES";
-              releaseDate: string;
-              genres: string;
-              createdAt: number;
-              updatedAt: number;
-            } | null;
-          }
+          a: typeof historyWithTitles[number],
+          b: typeof historyWithTitles[number]
         ) => {
-          let aValue: string | number;
-          let bValue: string | number;
-
-          if (sortItem.id === "title") {
-            aValue = a.title?.name || "";
-            bValue = b.title?.name || "";
-          } else if (sortItem.id === "type") {
-            aValue = a.title?.mediaType || "";
-            bValue = b.title?.mediaType || "";
-          } else if (sortItem.id === "status") {
-            aValue = a.status;
-            bValue = b.status;
-          } else if (sortItem.id === "releaseDate") {
-            aValue = a.title?.releaseDate
-              ? new Date(a.title.releaseDate).getFullYear()
-              : 0;
-            bValue = b.title?.releaseDate
-              ? new Date(b.title.releaseDate).getFullYear()
-              : 0;
-          } else {
-            return 0;
-          }
+          const aValue = getSortValue(a, sortItem.id);
+          const bValue = getSortValue(b, sortItem.id);
 
           if (aValue < bValue) return sortItem.desc ? 1 : -1;
           if (aValue > bValue) return sortItem.desc ? -1 : 1;
@@ -435,6 +347,21 @@ export const getAll = query({
     return historyWithTitles;
   },
 });
+
+function getSortValue(item: any, sortId: string): string | number {
+    if (sortId === "title") {
+        return item.title?.name || "";
+    } else if (sortId === "type") {
+        return item.title?.mediaType || "";
+    } else if (sortId === "status") {
+       return item.status;
+    } else if (sortId === "releaseDate") {
+        return item.title?.releaseDate
+          ? new Date(item.title.releaseDate).getFullYear()
+          : 0;
+    }
+    return 0;
+}
 
 export const add = mutation({
   args: {
