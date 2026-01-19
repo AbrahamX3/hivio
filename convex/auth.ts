@@ -77,16 +77,7 @@ export const getCurrentUser = query({
   args: {},
   returns: v.union(v.null(), authUserValidator),
   handler: async (ctx) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
-    if (!user) {
-      return null;
-    }
-    return {
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      image: user.image,
-    };
+    return await authComponent.safeGetAuthUser(ctx);
   },
 });
 
