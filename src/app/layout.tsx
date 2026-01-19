@@ -2,10 +2,10 @@ import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { UmamiAnalytics } from "@/components/umami-analytics";
+import { UmamiScript } from "@/components/umami-script";
 import { getToken } from "@/lib/auth-server";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import { NuqsAdapter } from "nuqs/adapters/next";
 import "./globals.css";
 
@@ -56,19 +56,7 @@ export default async function RootLayout({
           </NuqsAdapter>
           {process.env.NODE_ENV === "production" && <UmamiAnalytics />}
         </ConvexClientProvider>
-        {process.env.NODE_ENV === "production" &&
-          process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
-            <Script
-              defer
-              src="https://cloud.umami.is/script.js"
-              data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-              onLoad={() => {
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new Event("umami-loaded"));
-                }
-              }}
-            />
-          )}
+        <UmamiScript />
       </body>
     </html>
   );
