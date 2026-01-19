@@ -5,3 +5,6 @@ build
 .convex
 convex/_generated
 pnpm-lock.yaml
+.cursor
+.gemini
+.agent

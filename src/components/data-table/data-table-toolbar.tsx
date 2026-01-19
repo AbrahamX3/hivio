@@ -88,6 +88,7 @@ function DataTableToolbarFilter<TData>({
               value={(column.getFilterValue() as string) ?? ""}
               onChange={(event) => column.setFilterValue(event.target.value)}
               className="h-8 w-40 lg:w-56"
+              type="search"
             />
           );
 

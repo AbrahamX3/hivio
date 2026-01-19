@@ -21,8 +21,8 @@ import {
   parseAsInteger,
   parseAsString,
   type SingleParser,
-  type UseQueryStateOptions,
   useQueryState,
+  type UseQueryStateOptions,
   useQueryStates,
 } from "nuqs";
 import * as React from "react";
@@ -266,6 +266,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     [debouncedSetFilterValues, filterableColumns, enableAdvancedFilter]
   );
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     ...tableProps,
     columns,

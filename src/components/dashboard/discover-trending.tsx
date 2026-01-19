@@ -8,8 +8,9 @@ import { useAction, useQuery } from "convex/react";
 import { Film, Tv } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
-import { TrendingTitleDialog } from "./trending-title-dialog";
+import { TitleDetailsDialog } from "../title-details-dialog";
 
 type TrendingTitle = {
   id: number;
@@ -54,11 +55,11 @@ function TrendingTitleCard({
         )}
         <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
         {title.providers && title.providers.length > 0 && (
-          <div className="absolute bottom-1 right-1 flex -space-x-1.5">
+          <div className="absolute right-1 bottom-1 flex -space-x-1.5">
             {title.providers.map((logo, i) => (
               <div
                 key={i}
-                className="relative h-5 w-5 overflow-hidden rounded-full border border-white bg-background shadow-sm"
+                className="bg-background relative h-5 w-5 overflow-hidden rounded-full border border-white shadow-sm"
               >
                 <Image
                   loader={tmdbImageLoader}
@@ -83,16 +84,21 @@ function TrendingTitleCard({
 }
 
 export function DiscoverTrending() {
-  const [allTrendingTitles, setAllTrendingTitles] = useState<TrendingTitle[]>([]);
-  const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<number>>(new Set());
+  const [allTrendingTitles, setAllTrendingTitles] = useState<TrendingTitle[]>(
+    []
+  );
+  const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<number>>(
+    new Set()
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTitle, setSelectedTitle] = useState<TrendingTitle | null>(
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const getTrendingTitles = useAction(api.tmdb.getTrendingTitles);
+  const addToHistory = useAction(api.history.addFromTmdb);
   const isTitleAdded = useHistoryStore((state) => state.isTitleAdded);
-  
+
   const historyData = useQuery(api.history.getAll, {
     filters: [],
     sort: [],
@@ -127,16 +133,22 @@ export function DiscoverTrending() {
 
   const trendingTitles = useMemo(() => {
     if (allTrendingTitles.length === 0) return [];
-    
+
     if (historyData === undefined) return allTrendingTitles;
-    
+
     return allTrendingTitles.filter((title) => {
       if (recentlyAddedIds.has(title.tmdbId)) return false;
-      
+
       const tmdbIdStr = title.tmdbId.toString();
       return !addedTmdbIds.has(tmdbIdStr) && !isTitleAdded(title.tmdbId);
     });
-  }, [allTrendingTitles, historyData, addedTmdbIds, isTitleAdded, recentlyAddedIds]);
+  }, [
+    allTrendingTitles,
+    historyData,
+    addedTmdbIds,
+    isTitleAdded,
+    recentlyAddedIds,
+  ]);
 
   const handleTitleClick = (title: TrendingTitle) => {
     setSelectedTitle(title);
@@ -183,12 +195,33 @@ export function DiscoverTrending() {
         </CardContent>
       </Card>
 
-      <TrendingTitleDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        title={selectedTitle}
-        onTitleAdded={handleTitleAdded}
-      />
+      {selectedTitle && (
+        <TitleDetailsDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          title={{
+            name: selectedTitle.name,
+            posterUrl: selectedTitle.posterUrl || undefined,
+            tmdbId: selectedTitle.tmdbId,
+            mediaType: selectedTitle.mediaType,
+          }}
+          showAddToWatchlist
+          onAddToWatchlist={async (tmdbId) => {
+            try {
+              await addToHistory({
+                tmdbId,
+                mediaType: selectedTitle.mediaType,
+                status: "PLANNED",
+              });
+              toast.success("Added to watchlist!");
+              handleTitleAdded(tmdbId);
+            } catch (error) {
+              toast.error("Failed to add to watchlist");
+              throw error;
+            }
+          }}
+        />
+      )}
     </>
   );
 }

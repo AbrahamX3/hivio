@@ -7,7 +7,6 @@ import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { HivioLogo } from "../icons";
 
 export function LandingNavbar() {
-
   return (
     <div className="fixed top-4 right-0 left-0 z-50 w-full px-4">
       <div className="mx-auto flex max-w-6xl">
@@ -28,7 +27,7 @@ export function LandingNavbar() {
               <Link href="#features">Features</Link>
             </Button>
             <Authenticated>
-            <Button
+              <Button
                 asChild
                 size="sm"
                 className="rounded-full px-4 text-xs shadow-sm"

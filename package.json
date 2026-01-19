@@ -9,9 +9,9 @@
     "predev": "convex dev --until-success && convex dashboard",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ignore-pattern \"convex/_generated/**\"",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm run lint && pnpm run typecheck",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run format",
     "format": "prettier --write .",
     "deploy": "convex deploy"
   },

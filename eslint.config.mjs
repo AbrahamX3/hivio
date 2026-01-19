@@ -1,9 +1,18 @@
-import { defineConfig } from "eslint/config";
+import convexPlugin from "@convex-dev/eslint-plugin";
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
-import convexPlugin from "@convex-dev/eslint-plugin";
+import { defineConfig } from "eslint/config";
 
 export default defineConfig([
+  {
+    ignores: [
+      ".cursor/**",
+      ".gemini/**",
+      ".agent/**",
+      "convex/_generated/**",
+      ".next/**",
+    ],
+  },
   ...nextCoreWebVitals,
   ...nextTypescript,
   ...convexPlugin.configs.recommended,

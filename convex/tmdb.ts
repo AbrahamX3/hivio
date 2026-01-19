@@ -31,7 +31,6 @@ export const search = action({
       });
 
       return results.results.map(mapMovieToResult);
-
     } else if (args.mediaType === "SERIES") {
       const results = await tmdb.search.tvShows({
         query: args.query,
@@ -50,11 +49,11 @@ export const search = action({
         .slice(0, 25)
         .map((item) => {
           if (item.media_type === "movie") {
-             // We need to cast because the MultiSearchResult type in tmdb-ts might be broad
-             // but we know it has movie properties if media_type is movie
-             return mapMovieToResult(item);
+            // We need to cast because the MultiSearchResult type in tmdb-ts might be broad
+            // but we know it has movie properties if media_type is movie
+            return mapMovieToResult(item);
           } else {
-             return mapShowToResult(item);
+            return mapShowToResult(item);
           }
         });
 
@@ -64,29 +63,29 @@ export const search = action({
 });
 
 function mapMovieToResult(movie: Movie) {
-    return {
-        id: movie.id,
-        name: movie.title,
-        posterUrl: movie.poster_path || undefined,
-        backdropUrl: movie.backdrop_path || undefined,
-        description: movie.overview || undefined,
-        mediaType: "MOVIE" as const,
-        releaseDate: movie.release_date || "",
-        genres: JSON.stringify(movie.genre_ids || []),
-      };
+  return {
+    id: movie.id,
+    name: movie.title,
+    posterUrl: movie.poster_path || undefined,
+    backdropUrl: movie.backdrop_path || undefined,
+    description: movie.overview || undefined,
+    mediaType: "MOVIE" as const,
+    releaseDate: movie.release_date || "",
+    genres: JSON.stringify(movie.genre_ids || []),
+  };
 }
 
 function mapShowToResult(show: TV) {
-    return {
-        id: show.id,
-        name: show.name,
-        posterUrl: show.poster_path || undefined,
-        backdropUrl: show.backdrop_path || undefined,
-        description: show.overview || undefined,
-        mediaType: "SERIES" as const,
-        releaseDate: show.first_air_date || "",
-        genres: JSON.stringify(show.genre_ids || []),
-      };
+  return {
+    id: show.id,
+    name: show.name,
+    posterUrl: show.poster_path || undefined,
+    backdropUrl: show.backdrop_path || undefined,
+    description: show.overview || undefined,
+    mediaType: "SERIES" as const,
+    releaseDate: show.first_air_date || "",
+    genres: JSON.stringify(show.genre_ids || []),
+  };
 }
 
 export const getDetails = action({
@@ -232,14 +231,14 @@ export const getNextEpisodeInfo = action({
       }
 
       const today = new Date();
-      today.setHours(0, 0, 0, 0); 
+      today.setHours(0, 0, 0, 0);
 
       for (let i = currentEpIndex + 1; i < episodes.length; i++) {
         const episode = episodes[i];
         if (!episode.air_date) continue;
 
         const airDate = new Date(episode.air_date);
-        airDate.setHours(0, 0, 0, 0); 
+        airDate.setHours(0, 0, 0, 0);
 
         if (airDate >= today) {
           return {
@@ -324,22 +323,20 @@ export const getTrendingTitles = action({
       const movies = (popularMovies.results || [])
         .slice(0, limit)
         .map((movie) => ({
-             id: movie.id,
-             name: movie.title,
-             posterUrl: movie.poster_path ? movie.poster_path : null, // explicit null
-             mediaType: "MOVIE" as const,
-             tmdbId: movie.id,
+          id: movie.id,
+          name: movie.title,
+          posterUrl: movie.poster_path ? movie.poster_path : null, // explicit null
+          mediaType: "MOVIE" as const,
+          tmdbId: movie.id,
         }));
 
-      const series = (popularTv.results || [])
-        .slice(0, limit)
-        .map((show) => ({
-             id: show.id,
-             name: show.name,
-             posterUrl: show.poster_path ? show.poster_path : null, // explicit null
-             mediaType: "SERIES" as const,
-             tmdbId: show.id,
-        }));
+      const series = (popularTv.results || []).slice(0, limit).map((show) => ({
+        id: show.id,
+        name: show.name,
+        posterUrl: show.poster_path ? show.poster_path : null, // explicit null
+        mediaType: "SERIES" as const,
+        tmdbId: show.id,
+      }));
 
       // Interleave results
       const allTrending = [];
@@ -354,21 +351,25 @@ export const getTrendingTitles = action({
       const resultsWithProviders = await Promise.all(
         trendingSlice.map(async (item) => {
           try {
-            const providersResults = item.mediaType === "MOVIE"
-               ? await tmdb.movies.watchProviders(item.tmdbId)
-               : await tmdb.tvShows.watchProviders(item.tmdbId);
+            const providersResults =
+              item.mediaType === "MOVIE"
+                ? await tmdb.movies.watchProviders(item.tmdbId)
+                : await tmdb.tvShows.watchProviders(item.tmdbId);
 
-            const usProviders = (providersResults.results)?.US;
+            const usProviders = providersResults.results?.US;
             const flatrate = usProviders?.flatrate || [];
-            
-            const providerLogos = flatrate.slice(0, 3).map((p) => p.logo_path).filter(Boolean);
+
+            const providerLogos = flatrate
+              .slice(0, 3)
+              .map((p) => p.logo_path)
+              .filter(Boolean);
 
             return {
               ...item,
               providers: providerLogos,
             };
           } catch {
-             return {
+            return {
               ...item,
               providers: [],
             };
@@ -377,6 +378,75 @@ export const getTrendingTitles = action({
       );
 
       return resultsWithProviders;
+    } catch {
+      return [];
+    }
+  },
+});
+
+export const getWatchProviders = action({
+  args: {
+    tmdbId: v.number(),
+    mediaType: mediaTypeValidator,
+  },
+  returns: v.array(
+    v.object({
+      logo_path: v.string(),
+      provider_name: v.string(),
+    })
+  ),
+  handler: async (ctx, args) => {
+    try {
+      const providersResults =
+        args.mediaType === "MOVIE"
+          ? await tmdb.movies.watchProviders(args.tmdbId)
+          : await tmdb.tvShows.watchProviders(args.tmdbId);
+
+      const usProviders = providersResults.results?.US;
+      const flatrate = usProviders?.flatrate || [];
+
+      return flatrate.map((p) => ({
+        logo_path: p.logo_path,
+        provider_name: p.provider_name,
+      }));
+    } catch {
+      return [];
+    }
+  },
+});
+
+export const getVideos = action({
+  args: {
+    tmdbId: v.number(),
+    mediaType: mediaTypeValidator,
+  },
+  returns: v.array(
+    v.object({
+      key: v.string(),
+      name: v.string(),
+      site: v.string(),
+      type: v.string(),
+    })
+  ),
+  handler: async (ctx, args) => {
+    try {
+      const videosResults =
+        args.mediaType === "MOVIE"
+          ? await tmdb.movies.videos(args.tmdbId)
+          : await tmdb.tvShows.videos(args.tmdbId);
+
+      return (videosResults.results || [])
+        .filter(
+          (v) =>
+            v.site === "YouTube" &&
+            (v.type === "Trailer" || v.type === "Teaser")
+        )
+        .map((v) => ({
+          key: v.key,
+          name: v.name,
+          site: v.site,
+          type: v.type,
+        }));
     } catch {
       return [];
     }

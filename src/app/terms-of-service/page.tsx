@@ -57,10 +57,10 @@ export default function TermsOfService() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing and using Hivio (&quot;the Service&quot;), you accept and
-                agree to be bound by the terms and provision of this agreement.
-                If you do not agree to abide by the above, please do not use
-                this service.
+                By accessing and using Hivio (&quot;the Service&quot;), you
+                accept and agree to be bound by the terms and provision of this
+                agreement. If you do not agree to abide by the above, please do
+                not use this service.
               </p>
             </section>
 
@@ -271,10 +271,10 @@ export default function TermsOfService() {
                   9.1 No Warranties
                 </h3>
                 <p>
-                  The Service is provided &quot;as is&quot; and &quot;as available&quot; without
-                  warranties of any kind, either express or implied, including
-                  but not limited to merchantability, fitness for a particular
-                  purpose, and non-infringement.
+                  The Service is provided &quot;as is&quot; and &quot;as
+                  available&quot; without warranties of any kind, either express
+                  or implied, including but not limited to merchantability,
+                  fitness for a particular purpose, and non-infringement.
                 </p>
               </div>
 

@@ -12,7 +12,7 @@ import { Calendar, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { EditHistoryDialog } from "../../app/dashboard/_components/edit-history-dialog";
-import ImageModal from "../image-modal";
+import { TitleDetailsDialog } from "../title-details-dialog";
 
 type WatchingShowData = {
   item: HistoryItem;
@@ -98,12 +98,23 @@ function WatchingShowCard({
     <Card className="bg-card rounded-xl border p-4">
       <div className="flex gap-4">
         {title.posterUrl ? (
-          <ImageModal
-            url={title.posterUrl}
-            alt={title.name}
-            width={56}
-            height={80}
-            className="h-20 w-14 shrink-0 rounded object-cover"
+          <TitleDetailsDialog
+            title={{
+              name: title.name,
+              posterUrl: title.posterUrl,
+              backdropUrl: title.backdropUrl,
+              description: title.description,
+              directors: title.directors,
+              tmdbId: title.tmdbId,
+              mediaType: title.mediaType,
+              releaseDate: title.releaseDate,
+              genres: title.genres,
+            }}
+            triggerImage={{
+              width: 56,
+              height: 80,
+              className: "h-20 w-14 shrink-0 rounded object-cover",
+            }}
           />
         ) : (
           <div className="bg-muted h-20 w-14 shrink-0 rounded" />
@@ -175,96 +186,6 @@ function WatchingShowCard({
         }}
       />
     </Card>
-  );
-}
-
-function WatchingShowCardWithData({
-  item,
-  onUpdate,
-}: {
-  item: HistoryItem;
-  onUpdate?: () => void;
-}) {
-  const [nextEpisode, setNextEpisode] = useState<
-    | {
-        episodeNumber: number;
-        name: string;
-        airDate: string;
-      }
-    | undefined
-  >();
-  const [seasonProgress, setSeasonProgress] = useState<
-    | {
-        current: number;
-        total: number;
-      }
-    | undefined
-  >();
-  const [movieRuntime, setMovieRuntime] = useState<number | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
-
-  const getNextEpisodeInfo = useAction(api.tmdb.getNextEpisodeInfo);
-  const getDetails = useAction(api.tmdb.getDetails);
-
-  useEffect(() => {
-    if (!item.title) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        if (
-          item.title?.mediaType === "SERIES" &&
-          item.currentSeason &&
-          item.currentEpisode
-        ) {
-          const result = await getNextEpisodeInfo({
-            tmdbId: item.title.tmdbId,
-            currentSeason: item.currentSeason,
-            currentEpisode: item.currentEpisode,
-          });
-          setNextEpisode(result.nextEpisode ?? undefined);
-          setSeasonProgress(result.seasonProgress);
-        } else if (item.title?.mediaType === "MOVIE") {
-          const details = await getDetails({
-            tmdbId: item.title.tmdbId,
-            mediaType: "MOVIE",
-          });
-          if (details.runtime) {
-            setMovieRuntime(details.runtime);
-          }
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Failed to load show data:", error.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [
-    item.title,
-    item.currentSeason,
-    item.currentEpisode,
-    getNextEpisodeInfo,
-    getDetails,
-  ]);
-
-  return (
-    <WatchingShowCard
-      show={{
-        item,
-        nextEpisode,
-        seasonProgress,
-        movieRuntime,
-        isLoading,
-      }}
-      onUpdate={onUpdate}
-    />
   );
 }
 
@@ -406,7 +327,7 @@ function CurrentlyWatchingDataFetcher({
     };
 
     fetchAllData();
-  }, [items]);
+  }, [getDetails, getNextEpisodeInfo, items]);
 
   if (isLoading) {
     return (

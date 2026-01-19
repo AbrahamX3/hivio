@@ -11,7 +11,8 @@ export function formatDate(
       year: opts.year ?? "numeric",
       ...opts,
     }).format(new Date(date));
-  } catch (_err) {
+  } catch (e) {
+    console.error("Error formatting date:", e);
     return "";
   }
 }

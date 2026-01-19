@@ -5,7 +5,7 @@ import { useAction } from "convex/react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import ImageModal from "@/components/image-modal";
+import { TitleDetailsDialog } from "@/components/title-details-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -334,12 +334,22 @@ export function AddTitleDialog({
             <div className="space-y-4">
               <div className="flex items-center gap-3 rounded-lg border p-3">
                 {selectedResult.posterUrl && (
-                  <ImageModal
-                    url={selectedResult.posterUrl}
-                    alt={selectedResult.name}
-                    width={56}
-                    height={80}
-                    className="h-20 w-14 rounded object-cover"
+                  <TitleDetailsDialog
+                    title={{
+                      name: selectedResult.name,
+                      posterUrl: selectedResult.posterUrl,
+                      backdropUrl: selectedResult.backdropUrl,
+                      description: selectedResult.description,
+                      tmdbId: selectedResult.id,
+                      mediaType: selectedResult.mediaType,
+                      releaseDate: selectedResult.releaseDate,
+                      genres: selectedResult.genres,
+                    }}
+                    triggerImage={{
+                      width: 56,
+                      height: 80,
+                      className: "h-20 w-14 rounded object-cover",
+                    }}
                   />
                 )}
                 <div>
@@ -356,13 +366,6 @@ export function AddTitleDialog({
                 >
                   Change
                 </Button>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className="font-medium">Description</span>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {selectedResult.description}
-                </p>
               </div>
 
               {isLoadingDetails && (

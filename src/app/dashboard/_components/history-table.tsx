@@ -7,7 +7,7 @@ import * as React from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import ImageModal from "@/components/image-modal";
+import { TitleDetailsDialog } from "@/components/title-details-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,13 +86,24 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
           return (
             <div className="flex min-w-50 items-center gap-3 truncate text-pretty">
               {title?.posterUrl && (
-                <ImageModal
-                  url={title.posterUrl}
-                  alt={title.name}
-                  width={32}
-                  height={48}
-                  loading="lazy"
-                  className="h-20 w-14"
+                <TitleDetailsDialog
+                  title={{
+                    name: title.name,
+                    posterUrl: title.posterUrl,
+                    backdropUrl: title.backdropUrl,
+                    description: title.description,
+                    directors: title.directors,
+                    tmdbId: title.tmdbId,
+                    mediaType: title.mediaType,
+                    releaseDate: title.releaseDate,
+                    genres: title.genres,
+                  }}
+                  triggerImage={{
+                    width: 32,
+                    height: 48,
+                    loading: "lazy",
+                    className: "h-20 w-14",
+                  }}
                 />
               )}
               <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -263,10 +274,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
     "status",
     parseAsArrayOf(parseAsString).withDefault([])
   );
-  const [titleFilter] = useQueryState(
-    "title",
-    parseAsString.withDefault("")
-  );
+  const [titleFilter] = useQueryState("title", parseAsString.withDefault(""));
   const [sortParam] = useQueryState("sort", {
     parse: (value) => {
       if (!value) return [];

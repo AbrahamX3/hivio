@@ -58,11 +58,11 @@ export default function PrivacyPolicy() {
                 1. Introduction
               </h2>
               <p>
-                Welcome to Hivio (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to
-                protecting your privacy and being transparent about how we
-                collect, use, and protect your personal information. This
-                Privacy Policy explains our practices regarding your data when
-                you use our media tracking application.
+                Welcome to Hivio (&quot;we,&quot; &quot;our,&quot; or
+                &quot;us&quot;). We are committed to protecting your privacy and
+                being transparent about how we collect, use, and protect your
+                personal information. This Privacy Policy explains our practices
+                regarding your data when you use our media tracking application.
               </p>
             </section>
 
@@ -391,9 +391,9 @@ export default function PrivacyPolicy() {
               <p>
                 We may update this Privacy Policy from time to time. We will
                 notify you of any material changes by posting the new policy on
-                this page and updating the &quot;Last updated&quot; date. Your continued
-                use of our service after such changes constitutes acceptance of
-                the updated policy.
+                this page and updating the &quot;Last updated&quot; date. Your
+                continued use of our service after such changes constitutes
+                acceptance of the updated policy.
               </p>
             </section>
 
