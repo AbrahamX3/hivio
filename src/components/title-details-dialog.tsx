@@ -437,7 +437,7 @@ export function TitleDetailsDialog({
                                         {episodes.map((episode) => (
                                           <div
                                             key={episode.episodeNumber}
-                                            className="hover:bg-primary/5 group/episode rounded-xl border border-transparent p-4 transition-all hover:border-primary/10"
+                                            className="hover:bg-primary/5 group/episode hover:border-primary/10 rounded-xl border border-transparent p-4 transition-all"
                                           >
                                             <div className="flex items-start gap-4">
                                               <span className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold">
@@ -446,7 +446,7 @@ export function TitleDetailsDialog({
                                               <div className="flex-1 space-y-2">
                                                 <div className="flex items-start justify-between gap-4">
                                                   <div className="flex-1">
-                                                    <h4 className="font-semibold leading-tight">
+                                                    <h4 className="leading-tight font-semibold">
                                                       {episode.name}
                                                     </h4>
                                                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-3 text-xs">
@@ -480,7 +480,7 @@ export function TitleDetailsDialog({
                                                   </div>
                                                 </div>
                                                 {episode.overview && (
-                                                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 group-hover/episode:line-clamp-none">
+                                                  <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed group-hover/episode:line-clamp-none">
                                                     {episode.overview}
                                                   </p>
                                                 )}
@@ -636,7 +636,7 @@ export function TitleDetailsDialog({
                                 xlinkHref="#c"
                                 fillOpacity="0"
                                 stroke="#000"
-                                    strokeOpacity="0"
+                                strokeOpacity="0"
                               />
                               <use xlinkHref="#d" />
                               <use

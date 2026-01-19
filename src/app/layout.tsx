@@ -36,7 +36,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const token = await getToken();
-  
+
   return (
     <html lang="en" suppressHydrationWarning style={{ colorScheme: "dark" }}>
       <body

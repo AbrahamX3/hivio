@@ -11,15 +11,17 @@ declare global {
         eventName?: string | object | ((props: object) => object),
         eventData?: object
       ) => void;
-      identify: (
-        userId?: string | object,
-        userData?: object
-      ) => void;
+      identify: (userId?: string | object, userData?: object) => void;
     };
   }
 }
 
-function identifyUser(user: { _id: string; email: string; name: string; image?: string | null }) {
+function identifyUser(user: {
+  _id: string;
+  email: string;
+  name: string;
+  image?: string | null;
+}) {
   if (typeof window === "undefined" || !window.umami) {
     return;
   }
