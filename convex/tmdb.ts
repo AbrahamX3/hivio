@@ -49,8 +49,6 @@ export const search = action({
         .slice(0, 25)
         .map((item) => {
           if (item.media_type === "movie") {
-            // We need to cast because the MultiSearchResult type in tmdb-ts might be broad
-            // but we know it has movie properties if media_type is movie
             return mapMovieToResult(item);
           } else {
             return mapShowToResult(item);
@@ -329,7 +327,7 @@ export const getTrendingTitles = action({
         .map((movie) => ({
           id: movie.id,
           name: movie.title,
-          posterUrl: movie.poster_path ? movie.poster_path : null, // explicit null
+          posterUrl: movie.poster_path ? movie.poster_path : null,
           mediaType: "MOVIE" as const,
           tmdbId: movie.id,
         }));
@@ -337,12 +335,11 @@ export const getTrendingTitles = action({
       const series = (popularTv.results || []).slice(0, limit).map((show) => ({
         id: show.id,
         name: show.name,
-        posterUrl: show.poster_path ? show.poster_path : null, // explicit null
+        posterUrl: show.poster_path ? show.poster_path : null,
         mediaType: "SERIES" as const,
         tmdbId: show.id,
       }));
 
-      // Interleave results
       const allTrending = [];
       const maxLength = Math.max(movies.length, series.length);
       for (let i = 0; i < maxLength; i++) {

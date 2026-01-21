@@ -7,7 +7,13 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertMinutesToHrMin } from "@/lib/utils";
 import type { HistoryItem } from "@/types/history";
-import { useAction, useMutation } from "convex/react";
+import {
+  Preloaded,
+  useAction,
+  useMutation,
+  usePreloadedQuery,
+  useQuery,
+} from "convex/react";
 import { Calendar, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
@@ -362,32 +368,103 @@ export function CurrentlyWatchingWithData({
   items,
   emptyState,
   onUpdate,
+  watchingItemsPreloaded,
 }: {
-  items: HistoryItem[];
+  items?: HistoryItem[];
   emptyState?: {
     title: string;
     description: string;
   };
   onUpdate?: () => void;
+  watchingItemsPreloaded?: Preloaded<typeof api.history.getWatchingItems>;
 }) {
-  if (emptyState) {
+  if (items) {
+    return (
+      <CurrentlyWatchingSection
+        itemsToUse={items}
+        emptyState={emptyState}
+        onUpdate={onUpdate}
+      />
+    );
+  }
+
+  if (watchingItemsPreloaded) {
+    return (
+      <CurrentlyWatchingFromPreloaded
+        watchingItemsPreloaded={watchingItemsPreloaded}
+        emptyState={emptyState}
+        onUpdate={onUpdate}
+      />
+    );
+  }
+
+  return (
+    <CurrentlyWatchingFromQuery emptyState={emptyState} onUpdate={onUpdate} />
+  );
+}
+
+function CurrentlyWatchingFromPreloaded({
+  watchingItemsPreloaded,
+  emptyState,
+  onUpdate,
+}: {
+  watchingItemsPreloaded: Preloaded<typeof api.history.getWatchingItems>;
+  emptyState?: { title: string; description: string };
+  onUpdate?: () => void;
+}) {
+  const itemsToUse = usePreloadedQuery(watchingItemsPreloaded) ?? [];
+  return (
+    <CurrentlyWatchingSection
+      itemsToUse={itemsToUse}
+      emptyState={emptyState}
+      onUpdate={onUpdate}
+    />
+  );
+}
+
+function CurrentlyWatchingFromQuery({
+  emptyState,
+  onUpdate,
+}: {
+  emptyState?: { title: string; description: string };
+  onUpdate?: () => void;
+}) {
+  const itemsToUse = useQuery(api.history.getWatchingItems) ?? [];
+  return (
+    <CurrentlyWatchingSection
+      itemsToUse={itemsToUse}
+      emptyState={emptyState}
+      onUpdate={onUpdate}
+    />
+  );
+}
+
+function CurrentlyWatchingSection({
+  itemsToUse,
+  emptyState,
+  onUpdate,
+}: {
+  itemsToUse: HistoryItem[];
+  emptyState?: { title: string; description: string };
+  onUpdate?: () => void;
+}) {
+  if (emptyState || itemsToUse.length === 0) {
     return (
       <Card className="bg-card rounded-2xl border p-6">
         <div className="space-y-3">
           <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently watching
           </p>
-          <h3 className="text-xl font-semibold">{emptyState.title}</h3>
+          <h3 className="text-xl font-semibold">
+            {emptyState?.title ?? "No titles in progress"}
+          </h3>
           <p className="text-muted-foreground text-sm">
-            {emptyState.description}
+            {emptyState?.description ??
+              "Start watching something to see it here with progress and release dates."}
           </p>
         </div>
       </Card>
     );
-  }
-
-  if (items.length === 0) {
-    return null;
   }
 
   return (
@@ -398,11 +475,11 @@ export function CurrentlyWatchingWithData({
             Currently watching
           </p>
           <h3 className="mt-1 text-xl font-semibold">
-            {items.length} {items.length === 1 ? "title" : "titles"}
+            {itemsToUse.length} {itemsToUse.length === 1 ? "title" : "titles"}
           </h3>
         </div>
 
-        <CurrentlyWatchingDataFetcher items={items} onUpdate={onUpdate} />
+        <CurrentlyWatchingDataFetcher items={itemsToUse} onUpdate={onUpdate} />
       </div>
     </Card>
   );

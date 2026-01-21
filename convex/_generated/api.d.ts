@@ -9,9 +9,12 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as data from "../data.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as history from "../history.js";
 import type * as http from "../http.js";
+import type * as seed from "../seed.js";
+import type * as seedInternal from "../seedInternal.js";
 import type * as tmdb from "../tmdb.js";
 import type * as types from "../types.js";
 
@@ -23,9 +26,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  data: typeof data;
   healthCheck: typeof healthCheck;
   history: typeof history;
   http: typeof http;
+  seed: typeof seed;
+  seedInternal: typeof seedInternal;
   tmdb: typeof tmdb;
   types: typeof types;
 }>;

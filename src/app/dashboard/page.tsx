@@ -1,6 +1,7 @@
-import { isAuthenticated } from "@/lib/auth-server";
+import { isAuthenticated, preloadAuthQuery } from "@/lib/auth-server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { api } from "../../../convex/_generated/api";
 import View from "./_components/view";
 
 export const metadata: Metadata = {
@@ -16,5 +17,15 @@ export default async function DashboardIndex() {
     redirect("/auth/sign-in");
   }
 
-  return <View />;
+  const [allItemsPreloaded, watchingItemsPreloaded] = await Promise.all([
+    preloadAuthQuery(api.history.getAllItems, {}),
+    preloadAuthQuery(api.history.getWatchingItems, {}),
+  ]);
+
+  return (
+    <View
+      allItemsPreloaded={allItemsPreloaded}
+      watchingItemsPreloaded={watchingItemsPreloaded}
+    />
+  );
 }

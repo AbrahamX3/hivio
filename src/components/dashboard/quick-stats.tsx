@@ -16,7 +16,7 @@ export function QuickStats({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick stats</CardTitle>
+        <CardTitle>Overview</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-3 sm:grid-cols-2">
         <div className="bg-muted/30 rounded-xl border p-4">
@@ -42,7 +42,7 @@ export function QuickStats({
           <p className="text-muted-foreground text-xs uppercase">Favorites</p>
           <p className="mt-2 text-2xl font-semibold">{favourites}</p>
           <p className="text-muted-foreground text-xs">
-            Saved highlights you love.
+            Saved titles you love.
           </p>
         </div>
       </CardContent>

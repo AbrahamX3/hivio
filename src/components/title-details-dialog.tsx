@@ -272,7 +272,6 @@ export function TitleDetailsDialog({
         </DialogDescription>
         <ScrollArea className="flex-1">
           <div className="relative pb-20">
-            {/* Optional Backdrop */}
             {title.backdropUrl && (
               <div className="absolute inset-0 -z-10 h-[500px] overflow-hidden">
                 <Image
@@ -280,6 +279,7 @@ export function TitleDetailsDialog({
                   src={title.backdropUrl}
                   alt=""
                   fill
+                  sizes="100vw"
                   className="object-cover opacity-40 blur-sm"
                   priority
                 />
@@ -287,13 +287,11 @@ export function TitleDetailsDialog({
               </div>
             )}
 
-            {/* Fallback Gradient if no backdrop */}
             {!title.backdropUrl && (
               <div className="from-primary/5 via-background to-background absolute inset-0 -z-10 bg-linear-to-b" />
             )}
 
             <div className="p-6 md:p-10">
-              {/* Hero section: Poster + Basic Info */}
               <div className="mb-12 flex flex-col items-start gap-10 md:flex-row">
                 {title.posterUrl && (
                   <div className="relative aspect-2/3 w-full shrink-0 overflow-hidden rounded-2xl shadow-2xl md:w-64 lg:w-72">
@@ -302,6 +300,7 @@ export function TitleDetailsDialog({
                       src={title.posterUrl}
                       alt={title.name}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 16rem, 18rem"
                       className="object-cover"
                       priority
                     />
@@ -345,11 +344,8 @@ export function TitleDetailsDialog({
                 </div>
               </div>
 
-              {/* Main Content Grid */}
               <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_320px]">
-                {/* Left Column: Trailer and Seasons */}
                 <div className="space-y-12">
-                  {/* Trailer Section */}
                   {isLoadingVideos ? (
                     <div className="space-y-6">
                       <div className="flex items-center gap-3">
@@ -380,7 +376,6 @@ export function TitleDetailsDialog({
                     )
                   )}
 
-                  {/* Seasons Section */}
                   {title.mediaType === "SERIES" && (
                     <div className="space-y-6">
                       <h3 className="text-2xl font-bold">Explore Seasons</h3>
@@ -509,9 +504,7 @@ export function TitleDetailsDialog({
                   )}
                 </div>
 
-                {/* Right Column: Metadata Sidebar */}
                 <div className="space-y-12">
-                  {/* Metadata */}
                   <div className="bg-muted/10 space-y-8 rounded-3xl border p-8 shadow-sm">
                     {displayDirectors.length > 0 && (
                       <div>
@@ -541,7 +534,6 @@ export function TitleDetailsDialog({
                       </div>
                     )}
 
-                    {/* Providers */}
                     <div className="space-y-4">
                       <h3 className="text-primary/70 text-xs font-bold tracking-[0.2em] uppercase">
                         Where to Watch
@@ -577,7 +569,6 @@ export function TitleDetailsDialog({
                       )}
                     </div>
 
-                    {/* External Links */}
                     {details?.imdbId && (
                       <div className="pt-4">
                         <Button
@@ -702,7 +693,6 @@ export function TitleDetailsDialog({
   );
 }
 
-// Genre mapping helper (TMDB genre IDs)
 function getGenreName(genreId: number, mediaType: "MOVIE" | "SERIES"): string {
   const movieGenres: Record<number, string> = {
     28: "Action",

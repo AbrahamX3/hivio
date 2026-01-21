@@ -18,7 +18,7 @@ import type {
   HistoryItem,
   HistoryUpdateData,
 } from "@/types/history";
-import { useMutation } from "convex/react";
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
@@ -50,7 +50,15 @@ const EditHistoryDialog = dynamic(
   { ssr: false }
 );
 
-export default function View() {
+interface ViewProps {
+  allItemsPreloaded: Preloaded<typeof api.history.getAllItems>;
+  watchingItemsPreloaded: Preloaded<typeof api.history.getWatchingItems>;
+}
+
+export default function View({
+  allItemsPreloaded,
+  watchingItemsPreloaded,
+}: ViewProps) {
   const [editingItem, setEditingItem] = useState<HistoryItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -60,6 +68,8 @@ export default function View() {
   const updateHistory = useMutation(api.history.update);
   const deleteHistory = useMutation(api.history.remove);
   const setHistoryItems = useHistoryStore((state) => state.setHistoryItems);
+
+  const allItems = usePreloadedQuery(allItemsPreloaded);
 
   const handleEdit = (item: HistoryItem) => {
     setEditingItem(item);
@@ -98,11 +108,10 @@ export default function View() {
     }
   };
 
-  const { table, data } = useHistoryTable({
+  const { table, data, isLoading, hasData } = useHistoryTable({
     onEdit: handleEdit,
     onDelete: handleDelete,
   });
-  const isLoading = data === undefined;
 
   useEffect(() => {
     if (data) {
@@ -111,20 +120,16 @@ export default function View() {
   }, [data, setHistoryItems]);
 
   const overview = useMemo(() => {
-    const historyItems = data ?? [];
+    const historyItems = allItems ?? [];
     let watching = 0;
     let finished = 0;
     let planned = 0;
     let favourites = 0;
-    const watchingItems: typeof historyItems = [];
 
     for (const item of historyItems) {
       switch (item.status) {
         case "WATCHING":
           watching++;
-          if (item.title) {
-            watchingItems.push(item);
-          }
           break;
         case "FINISHED":
           finished++;
@@ -152,11 +157,10 @@ export default function View() {
       finished,
       planned,
       favourites,
-      watchingItems,
       progressValue,
       watchlistDescription,
     };
-  }, [data]);
+  }, [allItems]);
 
   return (
     <>
@@ -194,28 +198,21 @@ export default function View() {
           </AccordionItem>
         </Accordion>
 
-        {overview.watchingItems.length > 0 && (
-          <CurrentlyWatchingWithData
-            items={overview.watchingItems}
-            emptyState={
-              overview.watchingItems.length === 0
-                ? {
-                    title: "No titles in progress",
-                    description:
-                      "Start watching something to see it here with progress and release dates.",
-                  }
-                : undefined
-            }
-          />
-        )}
+        <CurrentlyWatchingWithData
+          watchingItemsPreloaded={watchingItemsPreloaded}
+        />
 
         <Card>
           <CardHeader>
-            <CardTitle>History table</CardTitle>
+            <CardTitle>Your Library</CardTitle>
           </CardHeader>
           <CardContent className="min-w-0">
             <TooltipProvider>
-              <HistoryTable table={table} isLoading={isLoading} />
+              <HistoryTable
+                table={table}
+                isLoading={isLoading}
+                hasData={hasData}
+              />
             </TooltipProvider>
           </CardContent>
         </Card>

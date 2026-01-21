@@ -9,6 +9,35 @@ import { authComponent } from "./auth";
 type HistoryWithTitle = Doc<"history"> & { title: Doc<"title"> | null };
 type HistoryWithRequiredTitle = Doc<"history"> & { title: Doc<"title"> };
 
+type Filter = {
+  id: string;
+  value: string | string[];
+  operator: string;
+};
+
+type Sort = {
+  id: string;
+  desc: boolean;
+};
+
+type UserRecord = {
+  _id: Id<"users">;
+  _creationTime: number;
+  email: string;
+  name?: string | undefined;
+  defaultStatus?:
+    | "FINISHED"
+    | "WATCHING"
+    | "PLANNED"
+    | "ON_HOLD"
+    | "DROPPED"
+    | "REWATCHING"
+    | undefined;
+  authId: string;
+  createdAt: number;
+  updatedAt?: number | undefined;
+};
+
 const historyStatusValidator = v.union(
   v.literal("FINISHED"),
   v.literal("WATCHING"),
@@ -20,7 +49,130 @@ const historyStatusValidator = v.union(
 
 const mediaTypeValidator = v.union(v.literal("MOVIE"), v.literal("SERIES"));
 
-export const getAll = query({
+async function attachTitles(
+  ctx: {
+    db: {
+      get: (table: "title", id: Id<"title">) => Promise<Doc<"title"> | null>;
+    };
+  },
+  historyItems: Doc<"history">[]
+): Promise<HistoryWithTitle[]> {
+  const uniqueTitleIds = Array.from(
+    new Set(historyItems.map((item) => item.titleId))
+  );
+
+  const titles = await Promise.all(
+    uniqueTitleIds.map(async (titleId) => {
+      const title = await ctx.db.get("title", titleId);
+      return [titleId, title] as const;
+    })
+  );
+
+  const titleById = new Map<Id<"title">, Doc<"title"> | null>(titles);
+
+  return historyItems.map((item) => ({
+    ...item,
+    title: titleById.get(item.titleId) ?? null,
+  }));
+}
+
+function applyFilters(
+  items: HistoryWithTitle[],
+  filters: Filter[]
+): HistoryWithTitle[] {
+  let filtered = items;
+
+  for (const filter of filters) {
+    if (filter.id === "title" && typeof filter.value === "string") {
+      const searchValue = filter.value.toLowerCase();
+      filtered = filtered.filter((item) =>
+        item.title?.name?.toLowerCase().includes(searchValue)
+      );
+    } else if (filter.id === "status" && Array.isArray(filter.value)) {
+      const statusValues = filter.value as string[];
+      filtered = filtered.filter((item) => statusValues.includes(item.status));
+    } else if (filter.id === "type" && Array.isArray(filter.value)) {
+      const typeValues = filter.value as string[];
+      filtered = filtered.filter(
+        (item) =>
+          item.title?.mediaType && typeValues.includes(item.title.mediaType)
+      );
+    }
+  }
+
+  return filtered;
+}
+
+function applySorting(
+  items: HistoryWithTitle[],
+  sort: Sort[]
+): HistoryWithTitle[] {
+  if (sort.length === 0) {
+    return items;
+  }
+
+  const sortItem = sort[0];
+  const sorted = [...items];
+
+  sorted.sort((a, b) => {
+    const aValue = getSortValue(a, sortItem.id);
+    const bValue = getSortValue(b, sortItem.id);
+
+    if (aValue < bValue) return sortItem.desc ? 1 : -1;
+    if (aValue > bValue) return sortItem.desc ? -1 : 1;
+    return 0;
+  });
+
+  return sorted;
+}
+
+function getSortValue(item: HistoryWithTitle, sortId: string): string | number {
+  if (sortId === "title") {
+    return item.title?.name || "";
+  } else if (sortId === "type") {
+    return item.title?.mediaType || "";
+  } else if (sortId === "status") {
+    return item.status;
+  } else if (sortId === "releaseDate") {
+    return item.title?.releaseDate
+      ? new Date(item.title.releaseDate).getFullYear()
+      : 0;
+  }
+  return 0;
+}
+
+async function getAuthenticatedUserId(ctx: unknown): Promise<Id<"users">> {
+  const authCtx = ctx as {
+    db: {
+      query: (table: "users") => {
+        withIndex: (
+          index: "by_auth_id",
+          cb: (q: {
+            eq: (field: "authId", value: string) => unknown;
+          }) => unknown
+        ) => { first: () => Promise<UserRecord | null> };
+      };
+    };
+  };
+
+  const authUser = await authComponent.safeGetAuthUser(authCtx as never);
+  if (!authUser) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await authCtx.db
+    .query("users")
+    .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
+    .first();
+
+  if (!user) {
+    throw new Error("User record not found");
+  }
+
+  return (user as UserRecord)._id;
+}
+
+export const getAllItems = query({
   args: {
     filters: v.optional(
       v.array(
@@ -41,24 +193,51 @@ export const getAll = query({
     ),
     _refresh: v.optional(v.string()),
   },
+  returns: v.array(
+    v.object({
+      _id: v.id("history"),
+      _creationTime: v.number(),
+      titleId: v.id("title"),
+      userId: v.id("users"),
+      status: v.union(
+        v.literal("FINISHED"),
+        v.literal("WATCHING"),
+        v.literal("PLANNED"),
+        v.literal("ON_HOLD"),
+        v.literal("DROPPED"),
+        v.literal("REWATCHING")
+      ),
+      currentEpisode: v.optional(v.number()),
+      currentSeason: v.optional(v.number()),
+      currentRuntime: v.optional(v.number()),
+      isFavourite: v.boolean(),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+      title: v.union(
+        v.object({
+          _id: v.id("title"),
+          _creationTime: v.number(),
+          name: v.string(),
+          posterUrl: v.optional(v.string()),
+          backdropUrl: v.optional(v.string()),
+          description: v.optional(v.string()),
+          directors: v.optional(v.array(v.string())),
+          tmdbId: v.number(),
+          imdbId: v.string(),
+          mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+          releaseDate: v.string(),
+          genres: v.string(),
+          createdAt: v.number(),
+          updatedAt: v.number(),
+        }),
+        v.null()
+      ),
+    })
+  ),
   handler: async (ctx, args): Promise<HistoryWithTitle[]> => {
-    const currentUser: {
-      _id: Id<"users">;
-      _creationTime: number;
-      email: string;
-      name?: string | undefined;
-      defaultStatus?:
-        | "FINISHED"
-        | "WATCHING"
-        | "PLANNED"
-        | "ON_HOLD"
-        | "DROPPED"
-        | "REWATCHING"
-        | undefined;
-      authId: string;
-      createdAt: number;
-      updatedAt?: number | undefined;
-    } | null = await ctx.runQuery(internal.auth.getCurrentUserRecord);
+    const currentUser: UserRecord | null = await ctx.runQuery(
+      internal.auth.getCurrentUserRecord
+    );
     if (!currentUser) {
       return [];
     }
@@ -82,68 +261,212 @@ export const getAll = query({
 
     const historyItems = await query.collect();
 
-    let historyWithTitles: HistoryWithTitle[] = await Promise.all(
-      historyItems.map(async (item) => {
-        const title = await ctx.db.get("title", item.titleId);
-        return {
-          ...item,
-          title: title || null,
-        };
-      })
+    let historyWithTitles: HistoryWithTitle[] = await attachTitles(
+      ctx,
+      historyItems
     );
 
     if (args.filters && args.filters.length > 0) {
-      for (const filter of args.filters) {
-        if (filter.id === "title" && typeof filter.value === "string") {
-          const searchValue = filter.value as string;
-          historyWithTitles = historyWithTitles.filter((item) =>
-            item.title?.name?.toLowerCase().includes(searchValue.toLowerCase())
-          );
-        } else if (filter.id === "status" && Array.isArray(filter.value)) {
-          historyWithTitles = historyWithTitles.filter((item) =>
-            (filter.value as string[]).includes(item.status)
-          );
-        } else if (filter.id === "type" && Array.isArray(filter.value)) {
-          historyWithTitles = historyWithTitles.filter(
-            (item) =>
-              item.title?.mediaType &&
-              (filter.value as string[]).includes(item.title.mediaType)
-          );
-        }
-      }
+      historyWithTitles = applyFilters(historyWithTitles, args.filters);
     }
 
     if (args.sort && args.sort.length > 0) {
-      const sortItem = args.sort[0];
-
-      historyWithTitles.sort((a, b) => {
-        const aValue = getSortValue(a, sortItem.id);
-        const bValue = getSortValue(b, sortItem.id);
-
-        if (aValue < bValue) return sortItem.desc ? 1 : -1;
-        if (aValue > bValue) return sortItem.desc ? -1 : 1;
-        return 0;
-      });
+      historyWithTitles = applySorting(historyWithTitles, args.sort);
     }
 
     return historyWithTitles;
   },
 });
 
-function getSortValue(item: HistoryWithTitle, sortId: string): string | number {
-  if (sortId === "title") {
-    return item.title?.name || "";
-  } else if (sortId === "type") {
-    return item.title?.mediaType || "";
-  } else if (sortId === "status") {
-    return item.status;
-  } else if (sortId === "releaseDate") {
-    return item.title?.releaseDate
-      ? new Date(item.title.releaseDate).getFullYear()
-      : 0;
-  }
-  return 0;
-}
+export const getWatchingItems = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("history"),
+      _creationTime: v.number(),
+      titleId: v.id("title"),
+      userId: v.id("users"),
+      status: v.union(
+        v.literal("FINISHED"),
+        v.literal("WATCHING"),
+        v.literal("PLANNED"),
+        v.literal("ON_HOLD"),
+        v.literal("DROPPED"),
+        v.literal("REWATCHING")
+      ),
+      currentEpisode: v.optional(v.number()),
+      currentSeason: v.optional(v.number()),
+      currentRuntime: v.optional(v.number()),
+      isFavourite: v.boolean(),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+      title: v.union(
+        v.object({
+          _id: v.id("title"),
+          _creationTime: v.number(),
+          name: v.string(),
+          posterUrl: v.optional(v.string()),
+          backdropUrl: v.optional(v.string()),
+          description: v.optional(v.string()),
+          directors: v.optional(v.array(v.string())),
+          tmdbId: v.number(),
+          imdbId: v.string(),
+          mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+          releaseDate: v.string(),
+          genres: v.string(),
+          createdAt: v.number(),
+          updatedAt: v.number(),
+        }),
+        v.null()
+      ),
+    })
+  ),
+  handler: async (ctx): Promise<HistoryWithTitle[]> => {
+    const currentUser: UserRecord | null = await ctx.runQuery(
+      internal.auth.getCurrentUserRecord
+    );
+    if (!currentUser) {
+      return [];
+    }
+
+    const userId: Id<"users"> = currentUser._id;
+
+    const watchingItems = await ctx.db
+      .query("history")
+      .withIndex("by_user_id_and_status", (q) =>
+        q.eq("userId", userId).eq("status", "WATCHING")
+      )
+      .collect();
+
+    const historyWithTitles: HistoryWithTitle[] = await attachTitles(
+      ctx,
+      watchingItems
+    );
+
+    return historyWithTitles.filter((item) => item.title !== null);
+  },
+});
+
+export const getAll = query({
+  args: {
+    filters: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          value: v.union(v.string(), v.array(v.string())),
+          operator: v.string(),
+        })
+      )
+    ),
+    sort: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          desc: v.boolean(),
+        })
+      )
+    ),
+    page: v.optional(v.number()),
+    perPage: v.optional(v.number()),
+    _refresh: v.optional(v.string()),
+  },
+  returns: v.object({
+    data: v.array(
+      v.object({
+        _id: v.id("history"),
+        _creationTime: v.number(),
+        titleId: v.id("title"),
+        userId: v.id("users"),
+        status: v.union(
+          v.literal("FINISHED"),
+          v.literal("WATCHING"),
+          v.literal("PLANNED"),
+          v.literal("ON_HOLD"),
+          v.literal("DROPPED"),
+          v.literal("REWATCHING")
+        ),
+        currentEpisode: v.optional(v.number()),
+        currentSeason: v.optional(v.number()),
+        currentRuntime: v.optional(v.number()),
+        isFavourite: v.boolean(),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+        title: v.union(
+          v.object({
+            _id: v.id("title"),
+            _creationTime: v.number(),
+            name: v.string(),
+            posterUrl: v.optional(v.string()),
+            backdropUrl: v.optional(v.string()),
+            description: v.optional(v.string()),
+            directors: v.optional(v.array(v.string())),
+            tmdbId: v.number(),
+            imdbId: v.string(),
+            mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+            releaseDate: v.string(),
+            genres: v.string(),
+            createdAt: v.number(),
+            updatedAt: v.number(),
+          }),
+          v.null()
+        ),
+      })
+    ),
+    total: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    const currentUser: UserRecord | null = await ctx.runQuery(
+      internal.auth.getCurrentUserRecord
+    );
+    if (!currentUser) {
+      return { data: [], total: 0 };
+    }
+
+    const userId: Id<"users"> = currentUser._id;
+    let sortDirection: "asc" | "desc" = "desc";
+
+    if (args.sort && args.sort.length > 0) {
+      for (const sortItem of args.sort) {
+        if (sortItem.id === "status") {
+          sortDirection = sortItem.desc ? "desc" : "asc";
+          break;
+        }
+      }
+    }
+
+    const query = ctx.db
+      .query("history")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .order(sortDirection);
+
+    const historyItems = await query.collect();
+
+    let historyWithTitles: HistoryWithTitle[] = await attachTitles(
+      ctx,
+      historyItems
+    );
+
+    if (args.filters && args.filters.length > 0) {
+      historyWithTitles = applyFilters(historyWithTitles, args.filters);
+    }
+
+    if (args.sort && args.sort.length > 0) {
+      historyWithTitles = applySorting(historyWithTitles, args.sort);
+    }
+
+    const total = historyWithTitles.length;
+    const page = args.page ?? 1;
+    const perPage = args.perPage ?? 10;
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+    const paginatedData = historyWithTitles.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedData,
+      total,
+    };
+  },
+});
 
 export const add = mutation({
   args: {
@@ -168,21 +491,7 @@ export const add = mutation({
     updatedAt: v.number(),
   }),
   handler: async (ctx, args) => {
-    const authUser = await authComponent.safeGetAuthUser(ctx);
-    if (!authUser) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
-      .first();
-
-    if (!user) {
-      throw new Error("User record not found");
-    }
-
-    const dbUserId = user._id;
+    const dbUserId = await getAuthenticatedUserId(ctx);
     const existingHistory = await ctx.db
       .query("history")
       .withIndex("by_user_id_title_id", (q) =>
@@ -266,27 +575,13 @@ export const update = mutation({
     updatedAt: v.number(),
   }),
   handler: async (ctx, args) => {
-    const authUser = await authComponent.safeGetAuthUser(ctx);
-    if (!authUser) {
-      throw new Error("Not authenticated");
-    }
+    const dbUserId = await getAuthenticatedUserId(ctx);
 
     const historyItem = await ctx.db.get("history", args.id);
-
     if (!historyItem) {
       throw new Error("History item not found");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
-      .first();
-
-    if (!user) {
-      throw new Error("User record not found");
-    }
-
-    const dbUserId = user._id;
     if (historyItem.userId !== dbUserId) {
       throw new Error("Unauthorized");
     }
@@ -327,27 +622,13 @@ export const remove = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const authUser = await authComponent.safeGetAuthUser(ctx);
-    if (!authUser) {
-      throw new Error("Not authenticated");
-    }
+    const dbUserId = await getAuthenticatedUserId(ctx);
 
     const historyItem = await ctx.db.get("history", args.id);
-
     if (!historyItem) {
       throw new Error("History item not found");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
-      .first();
-
-    if (!user) {
-      throw new Error("User record not found");
-    }
-
-    const dbUserId = user._id;
     if (historyItem.userId !== dbUserId) {
       throw new Error("Unauthorized");
     }
@@ -404,10 +685,7 @@ export const addFromTmdbInternal = mutation({
     }),
   }),
   handler: async (ctx, args) => {
-    const authUser = await authComponent.safeGetAuthUser(ctx);
-    if (!authUser) {
-      throw new Error("Not authenticated");
-    }
+    const dbUserId = await getAuthenticatedUserId(ctx);
 
     const existingTitle = await ctx.db
       .query("title")
@@ -441,17 +719,6 @@ export const addFromTmdbInternal = mutation({
     if (!title) {
       throw new Error("Failed to create or get title");
     }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
-      .first();
-
-    if (!user) {
-      throw new Error("User record not found");
-    }
-
-    const dbUserId = user._id;
 
     const existingHistory = await ctx.db
       .query("history")

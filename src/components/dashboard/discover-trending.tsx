@@ -99,7 +99,7 @@ export function DiscoverTrending() {
   const addToHistory = useAction(api.history.addFromTmdb);
   const isTitleAdded = useHistoryStore((state) => state.isTitleAdded);
 
-  const historyData = useQuery(api.history.getAll, {
+  const historyData = useQuery(api.history.getAllItems, {
     filters: [],
     sort: [],
     _refresh: "discover-trending",

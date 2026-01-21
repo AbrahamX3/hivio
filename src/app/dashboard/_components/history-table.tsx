@@ -20,6 +20,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -41,7 +49,12 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import {
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsString,
+  useQueryState,
+} from "nuqs";
 import { api } from "../../../../convex/_generated/api";
 
 export type { HistoryItem };
@@ -63,6 +76,7 @@ export const typeColors: Record<MediaType, string> = {
 interface HistoryTableProps {
   table: TanstackTable<HistoryItem>;
   isLoading: boolean;
+  hasData: boolean;
 }
 
 interface HistoryTableStateProps {
@@ -84,7 +98,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
           const title = row.original.title;
           const isFavourite = row.original.isFavourite;
           return (
-            <div className="flex min-w-50 items-center gap-3 truncate text-pretty">
+            <div className="flex min-w-50 items-center gap-2 truncate text-pretty">
               {title?.posterUrl && (
                 <TitleDetailsDialog
                   title={{
@@ -99,19 +113,19 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
                     genres: title.genres,
                   }}
                   triggerImage={{
-                    width: 32,
-                    height: 48,
+                    width: 28,
+                    height: 40,
                     loading: "lazy",
-                    className: "h-20 w-14",
+                    className: "h-14 w-10",
                   }}
                 />
               )}
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <div className="truncate font-medium">
+              <div className="flex min-w-0 flex-1 items-center gap-1.5">
+                <div className="truncate text-sm font-medium">
                   {title?.name || "Unknown"}
                 </div>
                 {isFavourite && (
-                  <Star className="h-4 w-4 shrink-0 fill-yellow-500 text-yellow-500" />
+                  <Star className="h-3.5 w-3.5 shrink-0 fill-yellow-500 text-yellow-500" />
                 )}
               </div>
             </div>
@@ -293,6 +307,9 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
     defaultValue: [],
   });
 
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10));
+
   const queryArgs = React.useMemo(() => {
     const filters = [];
 
@@ -322,31 +339,47 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 
     const parsedSort = sortParam;
 
-    const queryKey = JSON.stringify({ filters, sort: parsedSort });
+    const queryKey = JSON.stringify({
+      filters,
+      sort: parsedSort,
+      page,
+      perPage,
+    });
 
     return {
       filters,
       sort: parsedSort,
+      page,
+      perPage,
       queryKey,
     };
-  }, [typeFilter, statusFilter, titleFilter, sortParam]);
+  }, [typeFilter, statusFilter, titleFilter, sortParam, page, perPage]);
 
   const queryKey = React.useMemo(
     () =>
-      `filters:${JSON.stringify(queryArgs.filters)}|sort:${JSON.stringify(queryArgs.sort)}`,
-    [queryArgs.filters, queryArgs.sort]
+      `filters:${JSON.stringify(queryArgs.filters)}|sort:${JSON.stringify(queryArgs.sort)}|page:${queryArgs.page}|perPage:${queryArgs.perPage}`,
+    [queryArgs.filters, queryArgs.sort, queryArgs.page, queryArgs.perPage]
   );
 
-  const data = useQuery(api.history.getAll, {
+  const result = useQuery(api.history.getAll, {
     filters: queryArgs.filters,
     sort: queryArgs.sort,
+    page: queryArgs.page,
+    perPage: queryArgs.perPage,
     _refresh: queryKey,
   });
+  const dataArray = result?.data ?? [];
+  const total = result?.total ?? 0;
+  const pageCount =
+    total > 0 ? Math.ceil(total / (queryArgs.perPage || 10)) : 1;
+
+  const isLoading = result === undefined;
+  const hasData = dataArray.length > 0;
 
   const { table } = useDataTable({
-    data: data ?? [],
+    data: dataArray,
     columns,
-    pageCount: 1,
+    pageCount,
     queryKeys: {
       page: "page",
       perPage: "perPage",
@@ -357,24 +390,116 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
     initialState: {
       sorting: [{ id: "title", desc: false }],
       columnPinning: { right: ["actions"] },
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+      },
     },
     getRowId: (row) => row._id,
   });
 
   return {
     table,
-    data,
+    data: dataArray,
+    isLoading,
+    hasData,
   };
 }
 
-export function HistoryTable({ table, isLoading }: HistoryTableProps) {
+export function HistoryTable({ table, isLoading, hasData }: HistoryTableProps) {
   if (isLoading) {
     return (
       <div className="w-full min-w-0 space-y-4">
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-64 w-full" />
+        <div className="flex w-full items-start justify-between gap-2 p-1">
+          <div className="flex flex-1 flex-wrap items-center gap-2">
+            <Skeleton className="h-9 w-32 border-dashed" />
+            <Skeleton className="h-9 w-28 border-dashed" />
+            <Skeleton className="h-9 w-36 border-dashed" />
+          </div>
+          <Skeleton className="ml-auto hidden h-9 w-9 lg:flex" />
         </div>
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="h-10 px-3 py-2">
+                  <Skeleton className="h-4 w-16" />
+                </TableHead>
+                <TableHead className="h-10 px-3 py-2">
+                  <Skeleton className="h-4 w-12" />
+                </TableHead>
+                <TableHead className="h-10 px-3 py-2">
+                  <Skeleton className="h-4 w-16" />
+                </TableHead>
+                <TableHead className="h-10 px-3 py-2">
+                  <Skeleton className="h-4 w-20" />
+                </TableHead>
+                <TableHead className="h-10 px-3 py-2">
+                  <Skeleton className="h-4 w-24" />
+                </TableHead>
+                <TableHead className="h-10 px-3 py-2">
+                  <Skeleton className="h-4 w-16" />
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 10 }).map((_, i) => (
+                <TableRow key={i} className="hover:bg-transparent">
+                  <TableCell className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-14 w-10 shrink-0 rounded" />
+                      <div className="flex-1 space-y-1.5">
+                        <Skeleton className="h-3.5 w-48" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-3 py-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-3 py-2">
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-3 py-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-3 py-2">
+                    <Skeleton className="h-3.5 w-12" />
+                  </TableCell>
+                  <TableCell className="px-3 py-2">
+                    <Skeleton className="h-7 w-7 rounded" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8">
+          <Skeleton className="h-7 w-40 shrink-0" />
+          <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-7 w-24" />
+              <Skeleton className="h-9 w-18" />
+            </div>
+            <Skeleton className="h-7 w-20" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="hidden size-9 lg:block" />
+              <Skeleton className="size-9" />
+              <Skeleton className="size-9" />
+              <Skeleton className="hidden size-9 lg:block" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasData) {
+    return (
+      <div className="text-muted-foreground rounded-md border p-8 text-center text-sm">
+        No results found. Try adjusting your filters or add a new title.
       </div>
     );
   }
