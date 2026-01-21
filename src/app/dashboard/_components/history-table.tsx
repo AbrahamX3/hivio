@@ -406,7 +406,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
   };
 }
 
-export function HistoryTable({ table, isLoading, hasData }: HistoryTableProps) {
+export function HistoryTable({ table, isLoading }: HistoryTableProps) {
   if (isLoading) {
     return (
       <div className="w-full min-w-0 space-y-4">
@@ -492,14 +492,6 @@ export function HistoryTable({ table, isLoading, hasData }: HistoryTableProps) {
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (!hasData) {
-    return (
-      <div className="text-muted-foreground rounded-md border p-8 text-center text-sm">
-        No results found. Try adjusting your filters or add a new title.
       </div>
     );
   }
