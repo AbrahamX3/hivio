@@ -1,7 +1,9 @@
 "use client";
 
 import { useQuery } from "convex/react";
+import { useState } from "react";
 
+import { SettingsDialog } from "@/components/settings-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "../../convex/_generated/api";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -22,6 +24,7 @@ import { Skeleton } from "./ui/skeleton";
 export default function UserMenu() {
   const user = useQuery(api.auth.getCurrentUser);
   const router = useRouter();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   if (!user) {
     return (
@@ -98,6 +101,14 @@ export default function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          onClick={() => {
+            setSettingsOpen(true);
+          }}
+        >
+          <Settings />
+          Settings
+        </DropdownMenuItem>
+        <DropdownMenuItem
           className="bg-destructive text-destructive-foreground"
           onClick={() => {
             handleSignOut();
@@ -107,6 +118,7 @@ export default function UserMenu() {
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </DropdownMenu>
   );
 }

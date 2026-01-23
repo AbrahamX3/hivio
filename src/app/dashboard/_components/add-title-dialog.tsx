@@ -1,6 +1,6 @@
 "use client";
 
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -86,11 +86,12 @@ export function AddTitleDialog({
   const getDetails = useAction(api.tmdb.getDetails);
   const getSeasonEpisodes = useAction(api.tmdb.getSeasonEpisodes);
   const addToHistory = useAction(api.history.addFromTmdb);
+  const currentUser = useQuery(api.auth.getCurrentUser);
 
   const form = useForm<AddTitleFormValues>({
     resolver: zodResolver(addTitleFormSchema),
     defaultValues: {
-      status: "PLANNED",
+      status: currentUser?.defaultStatus || "PLANNED",
       currentEpisode: "",
       currentSeason: "",
       currentRuntime: "",
@@ -213,7 +214,12 @@ export function AddTitleDialog({
     form.setValue("currentRuntime", "");
   };
 
-  // Load details if initialTitle is provided but details are not
+  useEffect(() => {
+    if (currentUser?.defaultStatus && open) {
+      form.setValue("status", currentUser.defaultStatus);
+    }
+  }, [currentUser?.defaultStatus, open, form]);
+
   useEffect(() => {
     if (open && initialTitle && !initialDetails && !titleDetails) {
       setIsLoadingDetails(true);
@@ -236,7 +242,6 @@ export function AddTitleDialog({
     }
   }, [open, initialTitle, initialDetails, titleDetails, getDetails]);
 
-  // Reset to initial values when dialog closes
   useEffect(() => {
     if (!open) {
       setSelectedResult(initialTitle || null);
@@ -246,9 +251,15 @@ export function AddTitleDialog({
       setMediaTypeFilter("all");
       setSelectedSeason(null);
       setEpisodes([]);
-      form.reset();
+      form.reset({
+        status: currentUser?.defaultStatus || "PLANNED",
+        currentEpisode: "",
+        currentSeason: "",
+        currentRuntime: "",
+        isFavourite: false,
+      });
     }
-  }, [open, initialTitle, initialDetails, form]);
+  }, [open, initialTitle, initialDetails, form, currentUser?.defaultStatus]);
 
   const isSeries = selectedResult?.mediaType === "SERIES";
 

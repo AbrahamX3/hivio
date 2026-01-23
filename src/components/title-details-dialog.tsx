@@ -702,4 +702,3 @@ export function TitleDetailsDialog({
     </Dialog>
   );
 }
-

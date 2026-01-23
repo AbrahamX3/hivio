@@ -299,7 +299,7 @@ export const getTrendingTitles = action({
   args: {
     limit: v.optional(v.number()),
   },
-      returns: v.array(
+  returns: v.array(
     v.object({
       id: v.number(),
       name: v.string(),

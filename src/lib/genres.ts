@@ -1,4 +1,7 @@
-export function getGenreName(genreId: number, mediaType: "MOVIE" | "SERIES"): string {
+export function getGenreName(
+  genreId: number,
+  mediaType: "MOVIE" | "SERIES"
+): string {
   const movieGenres: Record<number, string> = {
     28: "Action",
     12: "Adventure",
@@ -44,7 +47,9 @@ export function getGenreName(genreId: number, mediaType: "MOVIE" | "SERIES"): st
   return genres[genreId] || `Genre ${genreId}`;
 }
 
-export function getAllGenres(mediaType: "MOVIE" | "SERIES"): Array<{ id: number; name: string }> {
+export function getAllGenres(
+  mediaType: "MOVIE" | "SERIES"
+): Array<{ id: number; name: string }> {
   const movieGenres: Record<number, string> = {
     28: "Action",
     12: "Adventure",

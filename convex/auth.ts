@@ -8,7 +8,7 @@ import { betterAuth } from "better-auth/minimal";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api";
 import { DataModel, Id } from "./_generated/dataModel";
-import { internalQuery, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL!;
@@ -71,21 +71,58 @@ const authUserValidator = v.object({
   email: v.string(),
   name: v.string(),
   image: v.optional(v.union(v.string(), v.null())),
+  imageStorageId: v.optional(v.id("_storage")),
+  defaultStatus: v.optional(
+    v.union(
+      v.literal("FINISHED"),
+      v.literal("WATCHING"),
+      v.literal("PLANNED"),
+      v.literal("ON_HOLD"),
+      v.literal("DROPPED"),
+      v.literal("REWATCHING")
+    )
+  ),
 });
 
 export const getCurrentUser = query({
   args: {},
   returns: v.union(v.null(), authUserValidator),
   handler: async (ctx) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
-    if (!user) {
+    const authUser = await authComponent.safeGetAuthUser(ctx);
+    if (!authUser) {
       return null;
     }
+
+    const userRecord = await ctx.db
+      .query("users")
+      .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
+      .first();
+
+    let image: string | null | undefined = authUser.image;
+    let imageStorageId: Id<"_storage"> | undefined = undefined;
+
+    if (
+      typeof image === "string" &&
+      !image.startsWith("http://") &&
+      !image.startsWith("https://") &&
+      !image.startsWith("data:")
+    ) {
+      imageStorageId = image as Id<"_storage">;
+      const url = await ctx.storage.getUrl(imageStorageId);
+      if (url) {
+        image = url;
+      } else {
+        imageStorageId = undefined;
+      }
+    }
+
     return {
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      image: user.image,
+      _id: authUser._id,
+      email: authUser.email,
+      name: authUser.name,
+      image,
+      imageStorageId,
+      defaultStatus: userRecord?.defaultStatus,
     };
   },
 });
@@ -130,5 +167,113 @@ export const getCurrentUserRecord = internalQuery({
     }
 
     return user;
+  },
+});
+
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const updateDefaultStatus = mutation({
+  args: {
+    defaultStatus: v.union(
+      v.literal("FINISHED"),
+      v.literal("WATCHING"),
+      v.literal("PLANNED"),
+      v.literal("ON_HOLD"),
+      v.literal("DROPPED"),
+      v.literal("REWATCHING")
+    ),
+  },
+  handler: async (ctx, { defaultStatus }) => {
+    const authUser = await authComponent.safeGetAuthUser(ctx);
+    if (!authUser) {
+      throw new Error("Not authenticated");
+    }
+
+    const userRecord = await ctx.db
+      .query("users")
+      .withIndex("by_auth_id", (q) => q.eq("authId", authUser._id))
+      .first();
+
+    if (!userRecord) {
+      throw new Error("User record not found");
+    }
+
+    await ctx.db.patch(userRecord._id, {
+      defaultStatus,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const getStorageUrl = query({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, { storageId }) => {
+    return await ctx.storage.getUrl(storageId);
+  },
+});
+
+export const updateAuthProfile = mutation({
+  args: {
+    name: v.optional(v.string()),
+    image: v.optional(v.union(v.string(), v.null())),
+  },
+  handler: async (ctx, { name, image }) => {
+    const authUser = await authComponent.safeGetAuthUser(ctx);
+    if (!authUser) {
+      throw new Error("Not authenticated");
+    }
+
+    const oldImage = authUser.image;
+    if (
+      typeof oldImage === "string" &&
+      !oldImage.startsWith("http://") &&
+      !oldImage.startsWith("https://") &&
+      !oldImage.startsWith("data:") &&
+      typeof image === "string" &&
+      !image.startsWith("http://") &&
+      !image.startsWith("https://") &&
+      !image.startsWith("data:") &&
+      image !== oldImage
+    ) {
+      try {
+        await ctx.storage.delete(oldImage as Id<"_storage">);
+      } catch (error) {
+        console.error("Failed to delete old image", error);
+      }
+    }
+
+    await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+      input: {
+        model: "user",
+        update: {
+          ...(name !== undefined ? { name } : {}),
+          ...(image !== undefined ? { image } : {}),
+          updatedAt: Date.now(),
+        },
+        where: [
+          {
+            field: "_id",
+            operator: "eq",
+            value: authUser._id,
+          },
+        ],
+      },
+    });
+  },
+});
+
+export const deleteStorageFile = mutation({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, { storageId }) => {
+    const authUser = await authComponent.safeGetAuthUser(ctx);
+    if (!authUser) throw new Error("Not authenticated");
+    await ctx.storage.delete(storageId);
   },
 });

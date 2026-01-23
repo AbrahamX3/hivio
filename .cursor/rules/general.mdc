@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+- Do not write any type of comments in the code.
+- Do not add, remove, or modify existing comments unless explicitly asked.
+- Prefer self-documenting code over comments.
+- Do not write docstrings.
