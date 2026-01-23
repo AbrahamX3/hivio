@@ -96,7 +96,8 @@ export function HeroShowcase() {
     const fetchTrending = async () => {
       try {
         const titles = await getTrendingTitles({ limit: 1 });
-        setTrendingTitles(titles);
+        const randomTitles = titles.sort(() => Math.random() - 0.5).slice(0, 3);
+        setTrendingTitles(randomTitles);
       } catch (error) {
         console.error("Failed to load trending titles:", error);
       } finally {
