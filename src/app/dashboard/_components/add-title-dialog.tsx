@@ -2,7 +2,7 @@
 
 import { useAction } from "convex/react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { TitleDetailsDialog } from "@/components/title-details-dialog";
@@ -52,12 +52,16 @@ interface AddTitleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  initialTitle?: SearchResult;
+  initialDetails?: TitleDetails;
 }
 
 export function AddTitleDialog({
   open,
   onOpenChange,
   onSuccess,
+  initialTitle,
+  initialDetails,
 }: AddTitleDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -66,12 +70,14 @@ export function AddTitleDialog({
     "all"
   );
   const [selectedResult, setSelectedResult] = useState<SearchResult | null>(
-    null
+    initialTitle || null
   );
 
   const [isAdding, setIsAdding] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [titleDetails, setTitleDetails] = useState<TitleDetails | null>(null);
+  const [titleDetails, setTitleDetails] = useState<TitleDetails | null>(
+    initialDetails || null
+  );
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
@@ -197,8 +203,8 @@ export function AddTitleDialog({
   };
 
   const handleChangeTitle = () => {
-    setSelectedResult(null);
-    setTitleDetails(null);
+    setSelectedResult(initialTitle || null);
+    setTitleDetails(initialDetails || null);
     setSelectedSeason(null);
     setEpisodes([]);
     setSearchResults([]);
@@ -206,6 +212,43 @@ export function AddTitleDialog({
     form.setValue("currentEpisode", "");
     form.setValue("currentRuntime", "");
   };
+
+  // Load details if initialTitle is provided but details are not
+  useEffect(() => {
+    if (open && initialTitle && !initialDetails && !titleDetails) {
+      setIsLoadingDetails(true);
+      getDetails({
+        tmdbId: initialTitle.id,
+        mediaType: initialTitle.mediaType,
+      })
+        .then((details) => {
+          setTitleDetails(details);
+        })
+        .catch((error) => {
+          toast.error("Failed to load title details");
+          if (error instanceof Error) {
+            console.error("Load details error:", error.message);
+          }
+        })
+        .finally(() => {
+          setIsLoadingDetails(false);
+        });
+    }
+  }, [open, initialTitle, initialDetails, titleDetails, getDetails]);
+
+  // Reset to initial values when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setSelectedResult(initialTitle || null);
+      setTitleDetails(initialDetails || null);
+      setSearchQuery("");
+      setSearchResults([]);
+      setMediaTypeFilter("all");
+      setSelectedSeason(null);
+      setEpisodes([]);
+      form.reset();
+    }
+  }, [open, initialTitle, initialDetails, form]);
 
   const isSeries = selectedResult?.mediaType === "SERIES";
 

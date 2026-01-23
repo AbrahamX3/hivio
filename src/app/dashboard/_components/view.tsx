@@ -108,7 +108,7 @@ export default function View({
     }
   };
 
-  const { table, data, isLoading, hasData } = useHistoryTable({
+  const { table, data, isLoading, isSearching, hasData } = useHistoryTable({
     onEdit: handleEdit,
     onDelete: handleDelete,
   });
@@ -211,6 +211,7 @@ export default function View({
               <HistoryTable
                 table={table}
                 isLoading={isLoading}
+                isSearching={isSearching}
                 hasData={hasData}
               />
             </TooltipProvider>

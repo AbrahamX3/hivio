@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getGenreName } from "@/lib/genres";
 import { cn, tmdbImageLoader } from "@/lib/utils";
 import { useAction } from "convex/react";
 import { ChevronDown, ExternalLink, Play, Plus } from "lucide-react";
@@ -47,6 +48,7 @@ interface TitleDetailsDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onAddToWatchlist?: (tmdbId: number) => void | Promise<void>;
+  onOpenAddTitleDialog?: (title: TitleData) => void;
   showAddToWatchlist?: boolean;
 }
 
@@ -75,6 +77,7 @@ export function TitleDetailsDialog({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   onAddToWatchlist,
+  onOpenAddTitleDialog,
   showAddToWatchlist = false,
 }: TitleDetailsDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
@@ -316,7 +319,9 @@ export function TitleDetailsDialog({
                   </h2>
                   <div className="text-muted-foreground mb-8 flex items-center gap-4 text-base font-medium">
                     {releaseYear && <span>{releaseYear}</span>}
-                    {releaseYear && <span className="text-primary/40">•</span>}
+                    {releaseYear && title.mediaType === "MOVIE" && (
+                      <span className="text-primary/40">•</span>
+                    )}
                     {title.mediaType === "MOVIE" && (
                       <>
                         {isLoadingDetails ? (
@@ -657,18 +662,23 @@ export function TitleDetailsDialog({
           </div>
         </ScrollArea>
 
-        {showAddToWatchlist && onAddToWatchlist && (
+        {showAddToWatchlist && (onAddToWatchlist || onOpenAddTitleDialog) && (
           <div className="bg-background/80 sticky bottom-0 flex justify-end border-t p-6 backdrop-blur-md">
             <Button
               onClick={async () => {
-                setIsAdding(true);
-                try {
-                  await onAddToWatchlist(title.tmdbId);
+                if (onOpenAddTitleDialog) {
+                  onOpenAddTitleDialog(title);
                   setOpen(false);
-                } catch (error) {
-                  console.error("Failed to add to watchlist:", error);
-                } finally {
-                  setIsAdding(false);
+                } else if (onAddToWatchlist) {
+                  setIsAdding(true);
+                  try {
+                    await onAddToWatchlist(title.tmdbId);
+                    setOpen(false);
+                  } catch (error) {
+                    console.error("Failed to add to watchlist:", error);
+                  } finally {
+                    setIsAdding(false);
+                  }
                 }
               }}
               disabled={isAdding}
@@ -693,48 +703,3 @@ export function TitleDetailsDialog({
   );
 }
 
-function getGenreName(genreId: number, mediaType: "MOVIE" | "SERIES"): string {
-  const movieGenres: Record<number, string> = {
-    28: "Action",
-    12: "Adventure",
-    16: "Animation",
-    35: "Comedy",
-    80: "Crime",
-    99: "Documentary",
-    18: "Drama",
-    10751: "Family",
-    14: "Fantasy",
-    36: "History",
-    27: "Horror",
-    10402: "Music",
-    9648: "Mystery",
-    10749: "Romance",
-    878: "Science Fiction",
-    10770: "TV Movie",
-    53: "Thriller",
-    10752: "War",
-    37: "Western",
-  };
-
-  const tvGenres: Record<number, string> = {
-    10759: "Action & Adventure",
-    16: "Animation",
-    35: "Comedy",
-    80: "Crime",
-    99: "Documentary",
-    18: "Drama",
-    10751: "Family",
-    10762: "Kids",
-    9648: "Mystery",
-    10763: "News",
-    10764: "Reality",
-    10765: "Sci-Fi & Fantasy",
-    10766: "Soap",
-    10767: "Talk",
-    10768: "War & Politics",
-    37: "Western",
-  };
-
-  const genres = mediaType === "MOVIE" ? movieGenres : tvGenres;
-  return genres[genreId] || `Genre ${genreId}`;
-}

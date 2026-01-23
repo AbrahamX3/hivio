@@ -1,5 +1,6 @@
 "use client";
 
+import { AddTitleDialog } from "@/app/dashboard/_components/add-title-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { tmdbImageLoader } from "@/lib/utils";
@@ -8,7 +9,6 @@ import { useAction, useQuery } from "convex/react";
 import { Film, Tv } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import { TitleDetailsDialog } from "../title-details-dialog";
 
@@ -16,9 +16,13 @@ type TrendingTitle = {
   id: number;
   name: string;
   posterUrl: string | null;
+  backdropUrl: string | null;
   mediaType: "MOVIE" | "SERIES";
   tmdbId: number;
   providers: string[];
+  description: string | null;
+  releaseDate: string | null;
+  genres: string | null;
 };
 
 function TrendingTitleCard({
@@ -95,8 +99,11 @@ export function DiscoverTrending() {
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddTitleDialogOpen, setIsAddTitleDialogOpen] = useState(false);
+  const [addTitleInitialData, setAddTitleInitialData] = useState<{
+    title: TrendingTitle;
+  } | null>(null);
   const getTrendingTitles = useAction(api.tmdb.getTrendingTitles);
-  const addToHistory = useAction(api.history.addFromTmdb);
   const isTitleAdded = useHistoryStore((state) => state.isTitleAdded);
 
   const historyData = useQuery(api.history.getAllItems, {
@@ -117,7 +124,7 @@ export function DiscoverTrending() {
   useEffect(() => {
     const fetchTitles = async () => {
       try {
-        const titles = await getTrendingTitles({ limit: 100 });
+        const titles = await getTrendingTitles({ limit: 3 });
         setAllTrendingTitles(titles);
       } catch (error) {
         if (error instanceof Error) {
@@ -168,7 +175,7 @@ export function DiscoverTrending() {
         <CardContent className="p-0">
           {isLoading ? (
             <div className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted flex gap-3 overflow-x-auto px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+              {Array.from({ length: 20 }, (_, i) => i + 1).map((i) => (
                 <div key={i} className="w-24 shrink-0 space-y-2">
                   <Skeleton className="aspect-2/3 w-full rounded-lg" />
                   <Skeleton className="h-3 w-full" />
@@ -179,7 +186,7 @@ export function DiscoverTrending() {
             <div className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted flex gap-3 overflow-x-auto px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full">
               {trendingTitles.map((title) => (
                 <TrendingTitleCard
-                  key={title.id}
+                  key={`${title.id}-${title.mediaType}`}
                   title={title}
                   onClick={() => handleTitleClick(title)}
                 />
@@ -202,23 +209,57 @@ export function DiscoverTrending() {
           title={{
             name: selectedTitle.name,
             posterUrl: selectedTitle.posterUrl || undefined,
+            backdropUrl: selectedTitle.backdropUrl || undefined,
             tmdbId: selectedTitle.tmdbId,
             mediaType: selectedTitle.mediaType,
+            description: selectedTitle.description || undefined,
+            releaseDate: selectedTitle.releaseDate || undefined,
+            genres: selectedTitle.genres || undefined,
           }}
           showAddToWatchlist
-          onAddToWatchlist={async (tmdbId) => {
-            try {
-              await addToHistory({
-                tmdbId,
-                mediaType: selectedTitle.mediaType,
-                status: "PLANNED",
-              });
-              toast.success("Added to watchlist!");
-              handleTitleAdded(tmdbId);
-            } catch (error) {
-              toast.error("Failed to add to watchlist");
-              throw error;
+          onOpenAddTitleDialog={(title) => {
+            setAddTitleInitialData({
+              title: {
+                id: title.tmdbId,
+                name: title.name,
+                posterUrl: title.posterUrl || null,
+                backdropUrl: title.backdropUrl || null,
+                mediaType: title.mediaType,
+                tmdbId: title.tmdbId,
+                providers: [],
+                description: title.description || null,
+                releaseDate: title.releaseDate || null,
+                genres: title.genres || null,
+              },
+            });
+            setIsAddTitleDialogOpen(true);
+          }}
+        />
+      )}
+
+      {addTitleInitialData && (
+        <AddTitleDialog
+          open={isAddTitleDialogOpen}
+          onOpenChange={(open) => {
+            setIsAddTitleDialogOpen(open);
+            if (!open) {
+              setAddTitleInitialData(null);
             }
+          }}
+          initialTitle={{
+            id: addTitleInitialData.title.tmdbId,
+            name: addTitleInitialData.title.name,
+            posterUrl: addTitleInitialData.title.posterUrl || undefined,
+            backdropUrl: addTitleInitialData.title.backdropUrl || undefined,
+            description: addTitleInitialData.title.description || undefined,
+            mediaType: addTitleInitialData.title.mediaType,
+            releaseDate:
+              addTitleInitialData.title.releaseDate ||
+              new Date().toISOString().split("T")[0],
+            genres: addTitleInitialData.title.genres || "[]",
+          }}
+          onSuccess={() => {
+            handleTitleAdded(addTitleInitialData.title.tmdbId);
           }}
         />
       )}

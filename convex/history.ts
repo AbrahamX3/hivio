@@ -97,6 +97,23 @@ function applyFilters(
         (item) =>
           item.title?.mediaType && typeValues.includes(item.title.mediaType)
       );
+    } else if (filter.id === "isFavourite" && Array.isArray(filter.value)) {
+      const favouriteValues = filter.value as string[];
+      filtered = filtered.filter((item) => {
+        const isFavourite = item.isFavourite ? "true" : "false";
+        return favouriteValues.includes(isFavourite);
+      });
+    } else if (filter.id === "genre" && Array.isArray(filter.value)) {
+      const genreIds = filter.value.map((v) => Number(v));
+      filtered = filtered.filter((item) => {
+        if (!item.title?.genres) return false;
+        try {
+          const itemGenres = JSON.parse(item.title.genres) as number[];
+          return genreIds.every((genreId) => itemGenres.includes(genreId));
+        } catch {
+          return false;
+        }
+      });
     }
   }
 
@@ -107,19 +124,55 @@ function applySorting(
   items: HistoryWithTitle[],
   sort: Sort[]
 ): HistoryWithTitle[] {
-  if (sort.length === 0) {
-    return items;
-  }
-
-  const sortItem = sort[0];
   const sorted = [...items];
+  const hasStatusSort = sort.some((s) => s.id === "status");
+  const statusOrder: Record<string, number> = {
+    WATCHING: 0,
+    REWATCHING: 1,
+    PLANNED: 2,
+    ON_HOLD: 3,
+    FINISHED: 4,
+    DROPPED: 5,
+  };
 
   sorted.sort((a, b) => {
-    const aValue = getSortValue(a, sortItem.id);
-    const bValue = getSortValue(b, sortItem.id);
+    if (!hasStatusSort && sort.length === 0) {
+      const aStatusOrder = statusOrder[a.status] ?? 999;
+      const bStatusOrder = statusOrder[b.status] ?? 999;
 
-    if (aValue < bValue) return sortItem.desc ? 1 : -1;
-    if (aValue > bValue) return sortItem.desc ? -1 : 1;
+      if (aStatusOrder !== bStatusOrder) {
+        return aStatusOrder - bStatusOrder;
+      }
+
+      const aDate = a.title?.releaseDate
+        ? new Date(a.title.releaseDate).getTime()
+        : 0;
+      const bDate = b.title?.releaseDate
+        ? new Date(b.title.releaseDate).getTime()
+        : 0;
+
+      if (aDate !== bDate) {
+        return bDate - aDate;
+      }
+    }
+
+    if (sort.length > 0) {
+      for (const sortItem of sort) {
+        const aValue = getSortValue(a, sortItem.id);
+        const bValue = getSortValue(b, sortItem.id);
+
+        if (aValue !== bValue) {
+          return aValue < bValue
+            ? sortItem.desc
+              ? 1
+              : -1
+            : sortItem.desc
+              ? -1
+              : 1;
+        }
+      }
+    }
+
     return 0;
   });
 
@@ -129,13 +182,24 @@ function applySorting(
 function getSortValue(item: HistoryWithTitle, sortId: string): string | number {
   if (sortId === "title") {
     return item.title?.name || "";
-  } else if (sortId === "type") {
+  }
+  if (sortId === "type") {
     return item.title?.mediaType || "";
-  } else if (sortId === "status") {
-    return item.status;
-  } else if (sortId === "releaseDate") {
+  }
+  if (sortId === "status") {
+    const statusOrder: Record<string, number> = {
+      WATCHING: 0,
+      REWATCHING: 1,
+      PLANNED: 2,
+      ON_HOLD: 3,
+      FINISHED: 4,
+      DROPPED: 5,
+    };
+    return statusOrder[item.status] ?? 999;
+  }
+  if (sortId === "releaseDate" || sortId === "Release Date") {
     return item.title?.releaseDate
-      ? new Date(item.title.releaseDate).getFullYear()
+      ? new Date(item.title.releaseDate).getTime()
       : 0;
   }
   return 0;
@@ -270,9 +334,7 @@ export const getAllItems = query({
       historyWithTitles = applyFilters(historyWithTitles, args.filters);
     }
 
-    if (args.sort && args.sort.length > 0) {
-      historyWithTitles = applySorting(historyWithTitles, args.sort);
-    }
+    historyWithTitles = applySorting(historyWithTitles, args.sort || []);
 
     return historyWithTitles;
   },
@@ -450,9 +512,7 @@ export const getAll = query({
       historyWithTitles = applyFilters(historyWithTitles, args.filters);
     }
 
-    if (args.sort && args.sort.length > 0) {
-      historyWithTitles = applySorting(historyWithTitles, args.sort);
-    }
+    historyWithTitles = applySorting(historyWithTitles, args.sort || []);
 
     const total = historyWithTitles.length;
     const page = args.page ?? 1;

@@ -299,58 +299,90 @@ export const getTrendingTitles = action({
   args: {
     limit: v.optional(v.number()),
   },
-  returns: v.array(
+      returns: v.array(
     v.object({
       id: v.number(),
       name: v.string(),
       posterUrl: v.union(v.string(), v.null()),
+      backdropUrl: v.union(v.string(), v.null()),
       mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
       tmdbId: v.number(),
       providers: v.array(v.string()),
+      description: v.union(v.string(), v.null()),
+      releaseDate: v.union(v.string(), v.null()),
+      genres: v.union(v.string(), v.null()),
     })
   ),
   handler: async (ctx, args) => {
     try {
-      const limit = args.limit ?? 3;
+      const pageLimit = args.limit ?? 1;
 
-      const [popularMovies, popularTv] = await Promise.all([
-        tmdb.discover.movie({
-          sort_by: "popularity.desc",
-        }),
-        tmdb.discover.tvShow({
-          sort_by: "popularity.desc",
-        }),
-      ]);
+      const trendingPages = await Promise.all(
+        Array.from({ length: pageLimit }, (_, i) =>
+          tmdb.trending.trending("all", "week", {
+            page: i + 1,
+          })
+        )
+      );
 
-      const movies = (popularMovies.results || [])
-        .slice(0, limit)
-        .map((movie) => ({
-          id: movie.id,
-          name: movie.title,
-          posterUrl: movie.poster_path ? movie.poster_path : null,
-          mediaType: "MOVIE" as const,
-          tmdbId: movie.id,
-        }));
+      const allTrendingResults = trendingPages.flatMap(
+        (page) => page.results || []
+      );
 
-      const series = (popularTv.results || []).slice(0, limit).map((show) => ({
-        id: show.id,
-        name: show.name,
-        posterUrl: show.poster_path ? show.poster_path : null,
-        mediaType: "SERIES" as const,
-        tmdbId: show.id,
-      }));
+      const trendingItemsMap = new Map<
+        string,
+        {
+          id: number;
+          name: string;
+          posterUrl: string | null;
+          backdropUrl: string | null;
+          mediaType: "MOVIE" | "SERIES";
+          tmdbId: number;
+          description: string | null;
+          releaseDate: string | null;
+          genres: string | null;
+        }
+      >();
 
-      const allTrending = [];
-      const maxLength = Math.max(movies.length, series.length);
-      for (let i = 0; i < maxLength; i++) {
-        if (i < movies.length) allTrending.push(movies[i]);
-        if (i < series.length) allTrending.push(series[i]);
+      for (const item of allTrendingResults) {
+        if (item.media_type !== "movie" && item.media_type !== "tv") continue;
+
+        const key = `${item.id}-${item.media_type.toUpperCase()}`;
+        if (trendingItemsMap.has(key)) continue;
+
+        if (item.media_type === "movie") {
+          const movie = item as Movie;
+          trendingItemsMap.set(key, {
+            id: movie.id,
+            name: movie.title,
+            posterUrl: movie.poster_path ? movie.poster_path : null,
+            backdropUrl: movie.backdrop_path ? movie.backdrop_path : null,
+            mediaType: "MOVIE",
+            tmdbId: movie.id,
+            description: movie.overview,
+            releaseDate: movie.release_date,
+            genres: JSON.stringify(movie.genre_ids || []),
+          });
+        } else {
+          const tv = item as TV;
+          trendingItemsMap.set(key, {
+            id: tv.id,
+            name: tv.name,
+            posterUrl: tv.poster_path ? tv.poster_path : null,
+            backdropUrl: tv.backdrop_path ? tv.backdrop_path : null,
+            mediaType: "SERIES",
+            tmdbId: tv.id,
+            description: tv.overview,
+            releaseDate: tv.first_air_date,
+            genres: JSON.stringify(tv.genre_ids || []),
+          });
+        }
       }
 
-      const trendingSlice = allTrending.slice(0, limit);
+      const trendingItems = Array.from(trendingItemsMap.values());
 
       const resultsWithProviders = await Promise.all(
-        trendingSlice.map(async (item) => {
+        trendingItems.map(async (item) => {
           try {
             const providersResults =
               item.mediaType === "MOVIE"

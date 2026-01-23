@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData>({
@@ -23,6 +24,7 @@ export function DataTable<TData>({
   actionBar,
   children,
   className,
+  isLoading = false,
   ...props
 }: DataTableProps<TData>) {
   return (
@@ -79,6 +81,15 @@ export function DataTable<TData>({
                   ))}
                 </TableRow>
               ))
+            ) : isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="h-24 text-center"
+                >
+                  <p className="text-muted-foreground">Searching...</p>
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

@@ -95,7 +95,7 @@ export function HeroShowcase() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const titles = await getTrendingTitles({ limit: 3 });
+        const titles = await getTrendingTitles({ limit: 1 });
         setTrendingTitles(titles);
       } catch (error) {
         console.error("Failed to load trending titles:", error);
