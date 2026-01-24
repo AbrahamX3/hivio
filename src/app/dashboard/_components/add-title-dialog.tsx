@@ -2,7 +2,7 @@
 
 import { useAction, useQuery } from "convex/react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { TitleDetailsDialog } from "@/components/title-details-dialog";
@@ -63,6 +63,7 @@ export function AddTitleDialog({
   initialTitle,
   initialDetails,
 }: AddTitleDialogProps) {
+  const [isPending, startTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -123,11 +124,13 @@ export function AddTitleDialog({
       });
       toast.success("Title added to history");
       onOpenChange(false);
-      setSearchQuery("");
-      setSearchResults([]);
-      setMediaTypeFilter("all");
-      setSelectedResult(null);
-      form.reset();
+      startTransition(() => {
+        setSearchQuery("");
+        setSearchResults([]);
+        setMediaTypeFilter("all");
+        setSelectedResult(null);
+        form.reset();
+      });
       onSuccess?.();
     } catch (error) {
       toast.error("Failed to add title");
@@ -148,7 +151,9 @@ export function AddTitleDialog({
         query: searchQuery,
         mediaType: mediaTypeFilter === "all" ? undefined : mediaTypeFilter,
       });
-      setSearchResults(results);
+      startTransition(() => {
+        setSearchResults(results);
+      });
     } catch (error) {
       toast.error("Failed to search");
       if (error instanceof Error) {
@@ -204,14 +209,16 @@ export function AddTitleDialog({
   };
 
   const handleChangeTitle = () => {
-    setSelectedResult(initialTitle || null);
-    setTitleDetails(initialDetails || null);
-    setSelectedSeason(null);
-    setEpisodes([]);
-    setSearchResults([]);
-    form.setValue("currentSeason", "");
-    form.setValue("currentEpisode", "");
-    form.setValue("currentRuntime", "");
+    startTransition(() => {
+      setSelectedResult(initialTitle || null);
+      setTitleDetails(initialDetails || null);
+      setSelectedSeason(null);
+      setEpisodes([]);
+      setSearchResults([]);
+      form.setValue("currentSeason", "");
+      form.setValue("currentEpisode", "");
+      form.setValue("currentRuntime", "");
+    });
   };
 
   useEffect(() => {
@@ -244,22 +251,24 @@ export function AddTitleDialog({
 
   useEffect(() => {
     if (!open) {
-      setSelectedResult(initialTitle || null);
-      setTitleDetails(initialDetails || null);
-      setSearchQuery("");
-      setSearchResults([]);
-      setMediaTypeFilter("all");
-      setSelectedSeason(null);
-      setEpisodes([]);
-      form.reset({
-        status: currentUser?.defaultStatus || "PLANNED",
-        currentEpisode: "",
-        currentSeason: "",
-        currentRuntime: "",
-        isFavourite: false,
+      startTransition(() => {
+        setSelectedResult(initialTitle || null);
+        setTitleDetails(initialDetails || null);
+        setSearchQuery("");
+        setSearchResults([]);
+        setMediaTypeFilter("all");
+        setSelectedSeason(null);
+        setEpisodes([]);
+        form.reset({
+          status: currentUser?.defaultStatus || "PLANNED",
+          currentEpisode: "",
+          currentSeason: "",
+          currentRuntime: "",
+          isFavourite: false,
+        });
       });
     }
-  }, [open, initialTitle, initialDetails, form, currentUser?.defaultStatus]);
+  }, [open, initialTitle, initialDetails, form, currentUser?.defaultStatus, startTransition]);
 
   const isSeries = selectedResult?.mediaType === "SERIES";
 
@@ -317,10 +326,11 @@ export function AddTitleDialog({
                 <Select
                   value={mediaTypeFilter}
                   onValueChange={(value: "all" | MediaType) =>
-                    setMediaTypeFilter(value)
+                    startTransition(() => setMediaTypeFilter(value))
                   }
+                  disabled={isPending}
                 >
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[140px]" disabled={isPending}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -331,7 +341,7 @@ export function AddTitleDialog({
                 </Select>
                 <Button
                   onClick={handleSearch}
-                  disabled={isSearching || !searchQuery.trim()}
+                  disabled={isSearching || isPending || !searchQuery.trim()}
                 >
                   {isSearching ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -416,6 +426,7 @@ export function AddTitleDialog({
                   variant="ghost"
                   size="sm"
                   onClick={handleChangeTitle}
+                  disabled={isPending}
                   className="ml-auto"
                 >
                   Change
@@ -622,10 +633,13 @@ export function AddTitleDialog({
                       onClick={() => {
                         onOpenChange(false);
                         handleChangeTitle();
-                        setSearchQuery("");
-                        setMediaTypeFilter("all");
-                        form.reset();
+                        startTransition(() => {
+                          setSearchQuery("");
+                          setMediaTypeFilter("all");
+                          form.reset();
+                        });
                       }}
+                      disabled={isPending}
                     >
                       Cancel
                     </Button>

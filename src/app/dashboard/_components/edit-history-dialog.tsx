@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "convex/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -57,6 +57,7 @@ export function EditHistoryDialog({
   item,
   onSave,
 }: EditHistoryDialogProps) {
+  const [isPending, startTransition] = useTransition();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [titleDetails, setTitleDetails] = useState<TitleDetails | null>(null);
@@ -72,9 +73,11 @@ export function EditHistoryDialog({
 
     const loadDetails = async () => {
       setIsLoadingDetails(true);
-      setTitleDetails(null);
-      setSelectedSeason(item.currentSeason ?? null);
-      setEpisodes([]);
+      startTransition(() => {
+        setTitleDetails(null);
+        setSelectedSeason(item.currentSeason ?? null);
+        setEpisodes([]);
+      });
 
       const title = item.title;
       if (!title) return;
@@ -84,7 +87,9 @@ export function EditHistoryDialog({
           tmdbId: title.tmdbId,
           mediaType: title.mediaType,
         });
-        setTitleDetails(details);
+        startTransition(() => {
+          setTitleDetails(details);
+        });
 
         if (item.currentSeason !== undefined) {
           setIsLoadingEpisodes(true);
@@ -93,7 +98,9 @@ export function EditHistoryDialog({
               tmdbId: title.tmdbId,
               seasonNumber: item.currentSeason,
             });
-            setEpisodes(episodeList);
+            startTransition(() => {
+              setEpisodes(episodeList);
+            });
           } catch (error) {
             if (error instanceof Error) {
               console.error("Failed to load episodes:", error.message);
@@ -126,16 +133,20 @@ export function EditHistoryDialog({
   const handleSelectSeason = async (seasonNumber: number) => {
     if (!item?.title) return;
 
-    setSelectedSeason(seasonNumber);
+    startTransition(() => {
+      setSelectedSeason(seasonNumber);
+      setEpisodes([]);
+    });
     setIsLoadingEpisodes(true);
-    setEpisodes([]);
 
     try {
       const episodeList = await getSeasonEpisodes({
         tmdbId: item.title.tmdbId,
         seasonNumber,
       });
-      setEpisodes(episodeList);
+      startTransition(() => {
+        setEpisodes(episodeList);
+      });
     } catch (error) {
       toast.error("Failed to load episodes");
       if (error instanceof Error) {
@@ -159,16 +170,18 @@ export function EditHistoryDialog({
 
   useEffect(() => {
     if (item) {
-      form.reset({
-        status: item.status ?? "PLANNED",
-        currentEpisode: item.currentEpisode?.toString() ?? "",
-        currentSeason: item.currentSeason?.toString() ?? "",
-        currentRuntime: item.currentRuntime?.toString() ?? "",
-        isFavourite: item.isFavourite ?? false,
+      startTransition(() => {
+        form.reset({
+          status: item.status ?? "PLANNED",
+          currentEpisode: item.currentEpisode?.toString() ?? "",
+          currentSeason: item.currentSeason?.toString() ?? "",
+          currentRuntime: item.currentRuntime?.toString() ?? "",
+          isFavourite: item.isFavourite ?? false,
+        });
+        setSelectedSeason(item.currentSeason ?? null);
       });
-      setSelectedSeason(item.currentSeason ?? null);
     }
-  }, [item, form]);
+  }, [item, form, startTransition]);
 
   const onSubmit = async (data: EditHistoryFormValues) => {
     if (!item) return;
@@ -246,9 +259,13 @@ export function EditHistoryDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isPending}
+                  >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger disabled={isPending}>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                     </FormControl>
@@ -291,14 +308,16 @@ export function EditHistoryDialog({
                             }
                             onValueChange={(value: string) => {
                               const seasonNum = parseInt(value, 10);
-                              setSelectedSeason(seasonNum);
                               field.onChange(value);
                               handleSelectSeason(seasonNum);
-                              form.setValue("currentEpisode", "");
+                              startTransition(() => {
+                                form.setValue("currentEpisode", "");
+                              });
                             }}
+                            disabled={isPending}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger disabled={isPending}>
                                 <SelectValue placeholder="Select season" />
                               </SelectTrigger>
                             </FormControl>
@@ -337,9 +356,10 @@ export function EditHistoryDialog({
                               <Select
                                 value={field.value ?? ""}
                                 onValueChange={field.onChange}
+                                disabled={isPending}
                               >
                                 <FormControl>
-                                  <SelectTrigger>
+                                  <SelectTrigger disabled={isPending}>
                                     <SelectValue placeholder="Select episode" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -424,10 +444,11 @@ export function EditHistoryDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSaving}>
+              <Button type="submit" disabled={isSaving || isPending}>
                 {isSaving ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
