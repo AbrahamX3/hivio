@@ -123,6 +123,7 @@ All available variables are documented in `.env.example`. Here is a quick refere
   ```bash
   openssl rand -base64 32
   ```
+
 - **`DISCORD_CLIENT_ID`**: Discord OAuth client ID from the [Discord Developer Portal](https://discord.com/developers/applications).
 - **`DISCORD_CLIENT_SECRET`**: Discord OAuth client secret from the [Discord Developer Portal](https://discord.com/developers/applications).
 

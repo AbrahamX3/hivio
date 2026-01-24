@@ -8,7 +8,7 @@ export default defineConfig([
     ignores: [
       ".cursor/**",
       ".gemini/**",
-      ".agent/**",
+      ".agents/**",
       "convex/_generated/**",
       ".next/**",
     ],
