@@ -11,8 +11,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm run lint && pnpm run typecheck && pnpm run format",
-    "format": "prettier --write .",
+    "check": "pnpm run format && pnpm run typecheck && pnpm run lint",
+    "format": "prettier --check --write .",
     "deploy": "convex deploy"
   },
   "dependencies": {

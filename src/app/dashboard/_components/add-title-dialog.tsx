@@ -268,7 +268,14 @@ export function AddTitleDialog({
         });
       });
     }
-  }, [open, initialTitle, initialDetails, form, currentUser?.defaultStatus, startTransition]);
+  }, [
+    open,
+    initialTitle,
+    initialDetails,
+    form,
+    currentUser?.defaultStatus,
+    startTransition,
+  ]);
 
   const isSeries = selectedResult?.mediaType === "SERIES";
 

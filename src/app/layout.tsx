@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { UmamiAnalytics } from "@/components/umami-analytics";
 import { UmamiScript } from "@/components/umami-script";
+import { cn } from "@/lib/utils";
 import { getToken } from "@/lib/auth-server";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -42,7 +43,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning style={{ colorScheme: "dark" }}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(geistSans.variable, geistMono.variable, "antialiased")}
       >
         <ConvexClientProvider initialToken={token}>
           <NuqsAdapter>

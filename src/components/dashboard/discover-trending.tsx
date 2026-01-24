@@ -3,7 +3,7 @@
 import { AddTitleDialog } from "@/app/dashboard/_components/add-title-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { tmdbImageLoader } from "@/lib/utils";
+import { cn, tmdbImageLoader } from "@/lib/utils";
 import { useHistoryStore } from "@/stores/history-store";
 import { useAction, useQuery } from "convex/react";
 import { Film, Tv } from "lucide-react";
@@ -36,9 +36,10 @@ function TrendingTitleCard({
 }) {
   return (
     <Card
-      className={`group w-24 shrink-0 transition-transform hover:scale-105 hover:shadow-md ${
+      className={cn(
+        "group w-24 shrink-0 transition-transform hover:scale-105 hover:shadow-md",
         disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-      }`}
+      )}
       onClick={disabled ? undefined : onClick}
     >
       <div className="relative aspect-2/3 overflow-hidden rounded-t-lg">

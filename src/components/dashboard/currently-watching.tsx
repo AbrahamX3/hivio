@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { convertMinutesToHrMin } from "@/lib/utils";
+import { cn, convertMinutesToHrMin } from "@/lib/utils";
 import type { HistoryItem } from "@/types/history";
 import {
   Preloaded,
@@ -361,7 +361,12 @@ function CurrentlyWatchingDataFetcher({
   }
 
   return (
-    <div className="space-y-3">
+    <div
+      className={cn(
+        "space-y-3 transition-opacity duration-200",
+        isPending ? "pointer-events-none opacity-60" : "opacity-100"
+      )}
+    >
       {showData.map((show) => (
         <WatchingShowCard key={show.item._id} show={show} onUpdate={onUpdate} />
       ))}

@@ -32,7 +32,9 @@ export function QuickActionDialog({
   onUpdate,
 }: QuickActionDialogProps) {
   const [isPending, startTransition] = useTransition();
-  const [isFavourite, setIsFavourite] = useState(() => item?.isFavourite ?? false);
+  const [isFavourite, setIsFavourite] = useState(
+    () => item?.isFavourite ?? false
+  );
   const [originalFavourite, setOriginalFavourite] = useState(
     () => item?.isFavourite ?? false
   );
@@ -135,7 +137,9 @@ export function QuickActionDialog({
             </div>
             <Button
               onClick={handleSaveFavorite}
-              disabled={!hasFavoriteChanges || isSubmittingFavorite || isPending}
+              disabled={
+                !hasFavoriteChanges || isSubmittingFavorite || isPending
+              }
               className="w-full"
               size="sm"
             >

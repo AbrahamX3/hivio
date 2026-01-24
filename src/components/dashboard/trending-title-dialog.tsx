@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { useAction } from "convex/react";
 
 import { ChevronDown, Plus } from "lucide-react";
@@ -185,9 +186,10 @@ export function TrendingTitleDialog({
                       <p className="text-sm font-medium">Seasons</p>
                       <CollapsibleTrigger className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-sm p-1 text-sm transition-colors">
                         <ChevronDown
-                          className={`h-4 w-4 transition-transform duration-200 ${
-                            isSeasonsOpen ? "rotate-180" : ""
-                          }`}
+                          className={cn(
+                            "h-4 w-4 transition-transform duration-200",
+                            isSeasonsOpen && "rotate-180"
+                          )}
                         />
                       </CollapsibleTrigger>
                     </div>
