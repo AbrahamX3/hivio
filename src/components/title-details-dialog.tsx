@@ -22,6 +22,8 @@ import { useAction } from "convex/react";
 import { ChevronDown, ExternalLink, Play, Plus } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import LiteYouTubeEmbed from "react-lite-youtube-embed";
+import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
 import { api } from "../../convex/_generated/api";
 
 type TitleData = {
@@ -135,6 +137,7 @@ export function TitleDetailsDialog({
     if (!open) {
       setDetails(null);
       setProviders([]);
+      setVideos([]);
       return;
     }
 
@@ -369,12 +372,12 @@ export function TitleDetailsDialog({
                           Official Trailer
                         </h3>
                         <div className="group border-primary/10 hover:border-primary/30 relative aspect-video w-full overflow-hidden rounded-3xl border bg-black shadow-2xl transition-all">
-                          <iframe
-                            src={`https://www.youtube.com/embed/${videos[0].key}`}
+                          <LiteYouTubeEmbed
+                            id={videos[0].key}
                             title={videos[0].name}
-                            className="absolute inset-0 h-full w-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
+                            poster="maxresdefault"
+                            wrapperClass="yt-lite rounded-3xl"
+                            lazyLoad={true}
                           />
                         </div>
                       </div>

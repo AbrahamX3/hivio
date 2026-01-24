@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import type { HistoryItem } from "@/types/history";
 import { useMutation } from "convex/react";
 import { CheckCircle2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 
@@ -31,9 +31,10 @@ export function QuickActionDialog({
   item,
   onUpdate,
 }: QuickActionDialogProps) {
-  const [isFavourite, setIsFavourite] = useState(item?.isFavourite ?? false);
+  const [isPending, startTransition] = useTransition();
+  const [isFavourite, setIsFavourite] = useState(() => item?.isFavourite ?? false);
   const [originalFavourite, setOriginalFavourite] = useState(
-    item?.isFavourite ?? false
+    () => item?.isFavourite ?? false
   );
   const [isSubmittingFavorite, setIsSubmittingFavorite] = useState(false);
   const [isSubmittingFinished, setIsSubmittingFinished] = useState(false);
@@ -41,10 +42,12 @@ export function QuickActionDialog({
 
   useEffect(() => {
     if (item) {
-      setIsFavourite(item.isFavourite);
-      setOriginalFavourite(item.isFavourite);
+      startTransition(() => {
+        setIsFavourite(item.isFavourite);
+        setOriginalFavourite(item.isFavourite);
+      });
     }
-  }, [item]);
+  }, [item, startTransition]);
 
   const hasFavoriteChanges = isFavourite !== originalFavourite;
 
@@ -132,7 +135,7 @@ export function QuickActionDialog({
             </div>
             <Button
               onClick={handleSaveFavorite}
-              disabled={!hasFavoriteChanges || isSubmittingFavorite}
+              disabled={!hasFavoriteChanges || isSubmittingFavorite || isPending}
               className="w-full"
               size="sm"
             >
@@ -147,7 +150,7 @@ export function QuickActionDialog({
             </p>
             <Button
               onClick={handleMarkFinished}
-              disabled={isSubmittingFinished}
+              disabled={isSubmittingFinished || isPending}
               className="w-full"
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -157,7 +160,11 @@ export function QuickActionDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Close
           </Button>
         </DialogFooter>

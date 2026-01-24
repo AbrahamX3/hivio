@@ -29,7 +29,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "convex/react";
 import { Loader2, Upload } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -65,6 +65,7 @@ const STATUS_OPTIONS = [
 ] as const;
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
+  const [isPending, startTransition] = useTransition();
   const user = useQuery(api.auth.getCurrentUser);
   const generateUploadUrl = useMutation(api.auth.generateUploadUrl);
   const updateDefaultStatus = useMutation(api.auth.updateDefaultStatus);
@@ -102,15 +103,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   useEffect(() => {
     if (open && user) {
-      form.reset({
-        name: user.name,
-        defaultStatus: user.defaultStatus || "PLANNED",
+      startTransition(() => {
+        form.reset({
+          name: user.name,
+          defaultStatus: user.defaultStatus || "PLANNED",
+        });
+        setPreviewImage(user.image || null);
+        setUploadedStorageId(null);
+        setImageRemoved(false);
       });
-      setPreviewImage(user.image || null);
-      setUploadedStorageId(null);
-      setImageRemoved(false);
     }
-  }, [form, open, user, user?._id]);
+  }, [form, open, user, user?._id, startTransition]);
 
   const uploadedImageUrl = useQuery(
     api.auth.getStorageUrl,
@@ -120,9 +123,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   useEffect(() => {
     if (uploadedImageUrl) {
       revokePreviewObjectUrl();
-      setPreviewImage(uploadedImageUrl);
+      startTransition(() => {
+        setPreviewImage(uploadedImageUrl);
+      });
     }
-  }, [uploadedImageUrl, revokePreviewObjectUrl]);
+  }, [uploadedImageUrl, revokePreviewObjectUrl, startTransition]);
 
   const handleImageUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -223,12 +228,19 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   );
 
   const canSave = useMemo(
-    () => !isSaving && !isUploading,
-    [isSaving, isUploading]
+    () => !isSaving && !isUploading && !isPending,
+    [isSaving, isUploading, isPending]
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!isPending) {
+          onOpenChange(open);
+        }
+      }}
+    >
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
@@ -259,7 +271,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
+                  disabled={isUploading || isPending}
                 >
                   {isUploading ? (
                     <>
@@ -279,20 +291,23 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      if (uploadedStorageId) {
-                        revokePreviewObjectUrl();
-                        setPreviewImage(user?.image || null);
-                        setUploadedStorageId(null);
-                        setImageRemoved(false);
-                      } else {
-                        revokePreviewObjectUrl();
-                        setPreviewImage(null);
-                        setImageRemoved(true);
-                      }
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = "";
+                      if (!isPending) {
+                        if (uploadedStorageId) {
+                          revokePreviewObjectUrl();
+                          setPreviewImage(user?.image || null);
+                          setUploadedStorageId(null);
+                          setImageRemoved(false);
+                        } else {
+                          revokePreviewObjectUrl();
+                          setPreviewImage(null);
+                          setImageRemoved(true);
+                        }
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = "";
+                        }
                       }
                     }}
+                    disabled={isPending}
                   >
                     {uploadedStorageId ? "Cancel" : "Remove"}
                   </Button>
@@ -315,7 +330,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Your name" />
+                    <Input
+                      {...field}
+                      placeholder="Your name"
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -329,9 +348,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Default Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isPending}
+                  >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger disabled={isPending}>
                         <SelectValue placeholder="Select default status" />
                       </SelectTrigger>
                     </FormControl>
@@ -353,11 +376,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSaving || isUploading}
+                disabled={isSaving || isUploading || isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={!canSave}>
+              <Button type="submit" disabled={!canSave || isPending}>
                 {isSaving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

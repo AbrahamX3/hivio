@@ -8,7 +8,7 @@ import { useHistoryStore } from "@/stores/history-store";
 import { useAction, useQuery } from "convex/react";
 import { Film, Tv } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { api } from "../../../convex/_generated/api";
 import { TitleDetailsDialog } from "../title-details-dialog";
 
@@ -28,14 +28,18 @@ type TrendingTitle = {
 function TrendingTitleCard({
   title,
   onClick,
+  disabled,
 }: {
   title: TrendingTitle;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <Card
-      className="group w-24 shrink-0 cursor-pointer transition-transform hover:scale-105 hover:shadow-md"
-      onClick={onClick}
+      className={`group w-24 shrink-0 transition-transform hover:scale-105 hover:shadow-md ${
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+      }`}
+      onClick={disabled ? undefined : onClick}
     >
       <div className="relative aspect-2/3 overflow-hidden rounded-t-lg">
         {title.posterUrl ? (
@@ -88,11 +92,12 @@ function TrendingTitleCard({
 }
 
 export function DiscoverTrending() {
+  const [isPending, startTransition] = useTransition();
   const [allTrendingTitles, setAllTrendingTitles] = useState<TrendingTitle[]>(
     []
   );
   const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<number>>(
-    new Set()
+    () => new Set()
   );
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTitle, setSelectedTitle] = useState<TrendingTitle | null>(
@@ -125,7 +130,9 @@ export function DiscoverTrending() {
     const fetchTitles = async () => {
       try {
         const titles = await getTrendingTitles({ limit: 3 });
-        setAllTrendingTitles(titles);
+        startTransition(() => {
+          setAllTrendingTitles(titles);
+        });
       } catch (error) {
         if (error instanceof Error) {
           console.error("Failed to load trending titles:", error.message);
@@ -163,7 +170,9 @@ export function DiscoverTrending() {
   };
 
   const handleTitleAdded = (tmdbId: number) => {
-    setRecentlyAddedIds((prev) => new Set(prev).add(tmdbId));
+    startTransition(() => {
+      setRecentlyAddedIds((prev) => new Set(prev).add(tmdbId));
+    });
   };
 
   return (
@@ -189,6 +198,7 @@ export function DiscoverTrending() {
                   key={`${title.id}-${title.mediaType}`}
                   title={title}
                   onClick={() => handleTitleClick(title)}
+                  disabled={isPending}
                 />
               ))}
             </div>
@@ -205,7 +215,11 @@ export function DiscoverTrending() {
       {selectedTitle && (
         <TitleDetailsDialog
           open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
+          onOpenChange={(open) => {
+            if (!isPending) {
+              setIsDialogOpen(open);
+            }
+          }}
           title={{
             name: selectedTitle.name,
             posterUrl: selectedTitle.posterUrl || undefined,
@@ -218,21 +232,23 @@ export function DiscoverTrending() {
           }}
           showAddToWatchlist
           onOpenAddTitleDialog={(title) => {
-            setAddTitleInitialData({
-              title: {
-                id: title.tmdbId,
-                name: title.name,
-                posterUrl: title.posterUrl || null,
-                backdropUrl: title.backdropUrl || null,
-                mediaType: title.mediaType,
-                tmdbId: title.tmdbId,
-                providers: [],
-                description: title.description || null,
-                releaseDate: title.releaseDate || null,
-                genres: title.genres || null,
-              },
-            });
-            setIsAddTitleDialogOpen(true);
+            if (!isPending) {
+              setAddTitleInitialData({
+                title: {
+                  id: title.tmdbId,
+                  name: title.name,
+                  posterUrl: title.posterUrl || null,
+                  backdropUrl: title.backdropUrl || null,
+                  mediaType: title.mediaType,
+                  tmdbId: title.tmdbId,
+                  providers: [],
+                  description: title.description || null,
+                  releaseDate: title.releaseDate || null,
+                  genres: title.genres || null,
+                },
+              });
+              setIsAddTitleDialogOpen(true);
+            }
           }}
         />
       )}
@@ -241,9 +257,11 @@ export function DiscoverTrending() {
         <AddTitleDialog
           open={isAddTitleDialogOpen}
           onOpenChange={(open) => {
-            setIsAddTitleDialogOpen(open);
-            if (!open) {
-              setAddTitleInitialData(null);
+            if (!isPending) {
+              setIsAddTitleDialogOpen(open);
+              if (!open) {
+                setAddTitleInitialData(null);
+              }
             }
           }}
           initialTitle={{

@@ -80,6 +80,10 @@ function applyFilters(
   items: HistoryWithTitle[],
   filters: Filter[]
 ): HistoryWithTitle[] {
+  if (filters.length === 0) {
+    return items;
+  }
+
   let filtered = items;
 
   for (const filter of filters) {
@@ -109,7 +113,7 @@ function applyFilters(
         if (!item.title?.genres) return false;
         try {
           const itemGenres = JSON.parse(item.title.genres) as number[];
-          return genreIds.every((genreId) => itemGenres.includes(genreId));
+          return genreIds.some((genreId) => itemGenres.includes(genreId));
         } catch {
           return false;
         }
@@ -405,7 +409,9 @@ export const getWatchingItems = query({
       watchingItems
     );
 
-    return historyWithTitles.filter((item) => item.title !== null);
+    return historyWithTitles.filter(
+      (item): item is HistoryWithRequiredTitle => item.title !== null
+    );
   },
 });
 
@@ -585,11 +591,11 @@ export const add = mutation({
 
       await ctx.db.patch(existingHistory._id, updates);
 
-      const history = await ctx.db.get("history", existingHistory._id);
-      if (!history) {
+      const updatedHistory = await ctx.db.get("history", existingHistory._id);
+      if (!updatedHistory) {
         throw new Error("History item not found after update");
       }
-      return history;
+      return updatedHistory;
     }
 
     const historyId = await ctx.db.insert("history", {
@@ -604,11 +610,11 @@ export const add = mutation({
       updatedAt: now,
     });
 
-    const history = await ctx.db.get("history", historyId);
-    if (!history) {
+    const newHistory = await ctx.db.get("history", historyId);
+    if (!newHistory) {
       throw new Error("Failed to create history item");
     }
-    return history;
+    return newHistory;
   },
 });
 
@@ -668,11 +674,11 @@ export const update = mutation({
 
     await ctx.db.patch(args.id, updates);
 
-    const history = await ctx.db.get("history", args.id);
-    if (!history) {
+    const updatedHistory = await ctx.db.get("history", args.id);
+    if (!updatedHistory) {
       throw new Error("History item not found after update");
     }
-    return history;
+    return updatedHistory;
   },
 });
 
@@ -809,9 +815,12 @@ export const addFromTmdbInternal = mutation({
         updates.isFavourite = args.isFavourite;
 
       await ctx.db.patch(existingHistory._id, updates);
-      const updated = await ctx.db.get("history", existingHistory._id);
+      const updatedHistory = await ctx.db.get("history", existingHistory._id);
+      if (!updatedHistory) {
+        throw new Error("History item not found after update");
+      }
       return {
-        ...updated!,
+        ...updatedHistory,
         title,
       };
     }
@@ -828,12 +837,12 @@ export const addFromTmdbInternal = mutation({
       updatedAt: now,
     });
 
-    const history = await ctx.db.get("history", historyId);
-    if (!history) {
+    const newHistory = await ctx.db.get("history", historyId);
+    if (!newHistory) {
       throw new Error("Failed to create history item");
     }
     return {
-      ...history,
+      ...newHistory,
       title,
     };
   },
@@ -882,7 +891,11 @@ export const addFromTmdb = action({
   },
   returns: addFromTmdbReturnValidator,
   handler: async (ctx, args): Promise<HistoryWithRequiredTitle> => {
-    const tmdb = new TMDB(process.env.TMDB_API_KEY!);
+    const apiKey = process.env.TMDB_API_KEY;
+    if (!apiKey) {
+      throw new Error("TMDB_API_KEY environment variable is not set");
+    }
+    const tmdb = new TMDB(apiKey);
 
     let titleData;
     if (args.mediaType === "MOVIE") {

@@ -185,18 +185,6 @@
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
 }
 
-body {
-  letter-spacing: var(--tracking-normal);
-}
-
-body {
-  letter-spacing: var(--tracking-normal);
-}
-
-body {
-  letter-spacing: var(--tracking-normal);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -211,9 +199,9 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    /* Touch handling */
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-normal);
     touch-action: manipulation;
-    /* Safe area insets for modern devices */
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }

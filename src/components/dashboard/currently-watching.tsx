@@ -15,7 +15,7 @@ import {
   useQuery,
 } from "convex/react";
 import { Calendar, MoreHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { api } from "../../../convex/_generated/api";
 import { EditHistoryDialog } from "../../app/dashboard/_components/edit-history-dialog";
 import { TitleDetailsDialog } from "../title-details-dialog";
@@ -248,6 +248,7 @@ function CurrentlyWatchingDataFetcher({
   items: HistoryItem[];
   onUpdate?: () => void;
 }) {
+  const [isPending, startTransition] = useTransition();
   const [showData, setShowData] = useState<WatchingShowData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -315,18 +316,22 @@ function CurrentlyWatchingDataFetcher({
         });
 
         const results = await Promise.all(dataPromises);
-        setShowData(results);
+        startTransition(() => {
+          setShowData(results);
+        });
       } catch (error) {
         console.error("Failed to fetch watching data:", error);
-        setShowData(
-          items.map((item) => ({
-            item,
-            nextEpisode: undefined,
-            seasonProgress: undefined,
-            movieRuntime: undefined,
-            isLoading: false,
-          }))
-        );
+        startTransition(() => {
+          setShowData(
+            items.map((item) => ({
+              item,
+              nextEpisode: undefined,
+              seasonProgress: undefined,
+              movieRuntime: undefined,
+              isLoading: false,
+            }))
+          );
+        });
       } finally {
         setIsLoading(false);
       }
