@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Sign In | Hivio",
+  title: "Sign In",
   description: "Sign in to your Hivio account to manage your watch history",
 };
 

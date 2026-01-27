@@ -60,7 +60,7 @@ export function TrendingTitleDialog({
   const [isSeasonsOpen, setIsSeasonsOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const getDetails = useAction(api.tmdb.getDetails);
-  const addToHistory = useAction(api.history.addFromTmdb);
+  const addToHistory = useAction(api.history.add);
 
   useEffect(() => {
     if (!title || !open) {

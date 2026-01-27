@@ -170,6 +170,46 @@ export const getCurrentUserRecord = internalQuery({
   },
 });
 
+export const getCurrentUserRecordByAuthId = internalQuery({
+  args: {
+    authId: v.string(),
+  },
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("users"),
+      _creationTime: v.number(),
+      email: v.string(),
+      name: v.optional(v.string()),
+      defaultStatus: v.optional(
+        v.union(
+          v.literal("FINISHED"),
+          v.literal("WATCHING"),
+          v.literal("PLANNED"),
+          v.literal("ON_HOLD"),
+          v.literal("DROPPED"),
+          v.literal("REWATCHING")
+        )
+      ),
+      authId: v.string(),
+      createdAt: v.number(),
+      updatedAt: v.optional(v.number()),
+    })
+  ),
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_auth_id", (q) => q.eq("authId", args.authId))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  },
+});
+
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {

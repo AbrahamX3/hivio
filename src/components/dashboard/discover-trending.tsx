@@ -1,14 +1,12 @@
 "use client";
 
-import { AddTitleDialog } from "@/app/dashboard/_components/add-title-dialog";
+import { AddHistoryDialog } from "@/app/dashboard/_components/user-actions/add-history-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { fetchAuthAction } from "@/lib/auth-server";
 import { cn, tmdbImageLoader } from "@/lib/utils";
-import { useHistoryStore } from "@/stores/history-store";
-import { useAction, useQuery } from "convex/react";
 import { Film, Tv } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { api } from "../../../convex/_generated/api";
 import { TitleDetailsDialog } from "../title-details-dialog";
 
@@ -92,15 +90,18 @@ function TrendingTitleCard({
   );
 }
 
-export function DiscoverTrending() {
+export function DiscoverTrending({
+  trendingTitles: allTrendingTitles,
+}: {
+  trendingTitles: Awaited<
+    ReturnType<typeof fetchAuthAction<typeof api.tmdb.getUserTrendingTitles>>
+  >;
+}) {
   const [isPending, startTransition] = useTransition();
-  const [allTrendingTitles, setAllTrendingTitles] = useState<TrendingTitle[]>(
-    []
-  );
+
   const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<number>>(
     () => new Set()
   );
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedTitle, setSelectedTitle] = useState<TrendingTitle | null>(
     null
   );
@@ -109,61 +110,10 @@ export function DiscoverTrending() {
   const [addTitleInitialData, setAddTitleInitialData] = useState<{
     title: TrendingTitle;
   } | null>(null);
-  const getTrendingTitles = useAction(api.tmdb.getTrendingTitles);
-  const isTitleAdded = useHistoryStore((state) => state.isTitleAdded);
 
-  const historyData = useQuery(api.history.getAllItems, {
-    filters: [],
-    sort: [],
-    _refresh: "discover-trending",
+  const trendingTitles = allTrendingTitles.filter((title) => {
+    return !recentlyAddedIds.has(title.tmdbId);
   });
-
-  const addedTmdbIds = useMemo(() => {
-    if (!historyData) return new Set<string>();
-    return new Set(
-      historyData
-        .map((item) => item.title?.tmdbId?.toString())
-        .filter((id): id is string => id !== undefined)
-    );
-  }, [historyData]);
-
-  useEffect(() => {
-    const fetchTitles = async () => {
-      try {
-        const titles = await getTrendingTitles({ limit: 3 });
-        startTransition(() => {
-          setAllTrendingTitles(titles);
-        });
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Failed to load trending titles:", error.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTitles();
-  }, [getTrendingTitles]);
-
-  const trendingTitles = useMemo(() => {
-    if (allTrendingTitles.length === 0) return [];
-
-    if (historyData === undefined) return allTrendingTitles;
-
-    return allTrendingTitles.filter((title) => {
-      if (recentlyAddedIds.has(title.tmdbId)) return false;
-
-      const tmdbIdStr = title.tmdbId.toString();
-      return !addedTmdbIds.has(tmdbIdStr) && !isTitleAdded(title.tmdbId);
-    });
-  }, [
-    allTrendingTitles,
-    historyData,
-    addedTmdbIds,
-    isTitleAdded,
-    recentlyAddedIds,
-  ]);
 
   const handleTitleClick = (title: TrendingTitle) => {
     setSelectedTitle(title);
@@ -183,16 +133,7 @@ export function DiscoverTrending() {
           <CardTitle>Discover what&apos;s trending</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {isLoading ? (
-            <div className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted flex gap-3 overflow-x-auto px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full">
-              {Array.from({ length: 20 }, (_, i) => i + 1).map((i) => (
-                <div key={i} className="w-24 shrink-0 space-y-2">
-                  <Skeleton className="aspect-2/3 w-full rounded-lg" />
-                  <Skeleton className="h-3 w-full" />
-                </div>
-              ))}
-            </div>
-          ) : trendingTitles.length > 0 ? (
+          {trendingTitles.length > 0 ? (
             <div className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted flex gap-3 overflow-x-auto px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full">
               {trendingTitles.map((title) => (
                 <TrendingTitleCard
@@ -255,7 +196,7 @@ export function DiscoverTrending() {
       )}
 
       {addTitleInitialData && (
-        <AddTitleDialog
+        <AddHistoryDialog
           open={isAddTitleDialogOpen}
           onOpenChange={(open) => {
             if (!isPending) {

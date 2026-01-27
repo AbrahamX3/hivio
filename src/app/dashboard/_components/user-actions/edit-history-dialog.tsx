@@ -42,7 +42,7 @@ import type {
   TitleDetails,
 } from "@/types/history";
 import { editHistoryFormSchema } from "@/types/history";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 
 interface EditHistoryDialogProps {
   open: boolean;

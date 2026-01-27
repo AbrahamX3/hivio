@@ -4,7 +4,7 @@ import { HivioLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Privacy Policy | Hivio",
+  title: "Privacy Policy",
   description:
     "Learn how Hivio collects, uses, and protects your personal information.",
 };

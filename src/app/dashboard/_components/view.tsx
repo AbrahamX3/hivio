@@ -2,7 +2,7 @@
 
 import { CurrentlyWatchingWithData } from "@/components/dashboard/currently-watching";
 import { DiscoverTrending } from "@/components/dashboard/discover-trending";
-import { QuickStats } from "@/components/dashboard/quick-stats";
+import { StatsOverview } from "@/components/dashboard/quick-stats";
 import {
   Accordion,
   AccordionContent,
@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useHistoryStore } from "@/stores/history-store";
+import type { fetchAuthAction } from "@/lib/auth-server";
 import type {
   HistoryId,
   HistoryItem,
@@ -21,22 +21,22 @@ import type {
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
 import { HistoryTable, useHistoryTable } from "./history-table";
 
 const AddTitleDialog = dynamic(
   () =>
-    import("./add-title-dialog").then((mod) => ({
-      default: mod.AddTitleDialog,
+    import("./user-actions/add-history-dialog").then((mod) => ({
+      default: mod.AddHistoryDialog,
     })),
   { ssr: false }
 );
 
 const DeleteHistoryDialog = dynamic(
   () =>
-    import("./delete-history-dialog").then((mod) => ({
+    import("./user-actions/delete-history-dialog").then((mod) => ({
       default: mod.DeleteHistoryDialog,
     })),
   { ssr: false }
@@ -44,20 +44,22 @@ const DeleteHistoryDialog = dynamic(
 
 const EditHistoryDialog = dynamic(
   () =>
-    import("./edit-history-dialog").then((mod) => ({
+    import("./user-actions/edit-history-dialog").then((mod) => ({
       default: mod.EditHistoryDialog,
     })),
   { ssr: false }
 );
 
 interface ViewProps {
-  allItemsPreloaded: Preloaded<typeof api.history.getAllItems>;
-  watchingItemsPreloaded: Preloaded<typeof api.history.getWatchingItems>;
+  dashboardDataPreloaded: Preloaded<typeof api.history.getDashboardData>;
+  trendingTitles: Awaited<
+    ReturnType<typeof fetchAuthAction<typeof api.tmdb.getUserTrendingTitles>>
+  >;
 }
 
 export default function View({
-  allItemsPreloaded,
-  watchingItemsPreloaded,
+  dashboardDataPreloaded,
+  trendingTitles,
 }: ViewProps) {
   const [editingItem, setEditingItem] = useState<HistoryItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -67,9 +69,10 @@ export default function View({
 
   const updateHistory = useMutation(api.history.update);
   const deleteHistory = useMutation(api.history.remove);
-  const setHistoryItems = useHistoryStore((state) => state.setHistoryItems);
 
-  const allItems = usePreloadedQuery(allItemsPreloaded);
+  const { stats: overview, watchingItems } = usePreloadedQuery(
+    dashboardDataPreloaded
+  );
 
   const handleEdit = (item: HistoryItem) => {
     setEditingItem(item);
@@ -81,9 +84,7 @@ export default function View({
       await updateHistory({ id, ...data });
     } catch (error) {
       toast.error("Failed to update history");
-      if (error instanceof Error) {
-        console.error("Update error:", error.message);
-      }
+      console.error("Update error:", error);
     }
   };
 
@@ -102,65 +103,14 @@ export default function View({
       setDeleteItemId(null);
     } catch (error) {
       toast.error("Failed to delete history item");
-      if (error instanceof Error) {
-        console.error("Delete error:", error.message);
-      }
+      console.error("Delete error:", error);
     }
   };
 
-  const { table, data, isLoading, isSearching, hasData } = useHistoryTable({
+  const { table, isLoading, isSearching, hasData } = useHistoryTable({
     onEdit: handleEdit,
     onDelete: handleDelete,
   });
-
-  useEffect(() => {
-    if (data) {
-      setHistoryItems(data);
-    }
-  }, [data, setHistoryItems]);
-
-  const overview = useMemo(() => {
-    const historyItems = allItems ?? [];
-    let watching = 0;
-    let finished = 0;
-    let planned = 0;
-    let favourites = 0;
-
-    for (const item of historyItems) {
-      switch (item.status) {
-        case "WATCHING":
-          watching++;
-          break;
-        case "FINISHED":
-          finished++;
-          break;
-        case "PLANNED":
-          planned++;
-          break;
-      }
-      if (item.isFavourite) {
-        favourites++;
-      }
-    }
-
-    const total = historyItems.length;
-    const progressValue = total > 0 ? Math.round((finished / total) * 100) : 0;
-
-    const watchlistDescription =
-      planned > 0
-        ? `${planned} title${planned === 1 ? "" : "s"} ready to start.`
-        : "Save titles to watch later.";
-
-    return {
-      total,
-      watching,
-      finished,
-      planned,
-      favourites,
-      progressValue,
-      watchlistDescription,
-    };
-  }, [allItems]);
 
   return (
     <>
@@ -184,23 +134,21 @@ export default function View({
             <AccordionTrigger>Overview & Discovery</AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-                <QuickStats
+                <StatsOverview
                   watching={overview.watching}
                   finished={overview.finished}
                   planned={overview.planned}
                   favourites={overview.favourites}
                 />
                 <div className="min-w-0">
-                  <DiscoverTrending />
+                  <DiscoverTrending trendingTitles={trendingTitles} />
                 </div>
               </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
-        <CurrentlyWatchingWithData
-          watchingItemsPreloaded={watchingItemsPreloaded}
-        />
+        <CurrentlyWatchingWithData items={watchingItems} />
 
         <Card>
           <CardHeader>

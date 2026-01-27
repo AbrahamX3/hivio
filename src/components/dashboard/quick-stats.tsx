@@ -1,18 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface QuickStatsProps {
+interface StatsOverviewProps {
   watching: number;
   finished: number;
   planned: number;
   favourites: number;
 }
 
-export function QuickStats({
+export function StatsOverview({
   watching,
   finished,
   planned,
   favourites,
-}: QuickStatsProps) {
+}: StatsOverviewProps) {
   return (
     <Card>
       <CardHeader>

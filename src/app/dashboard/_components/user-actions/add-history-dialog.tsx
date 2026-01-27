@@ -46,9 +46,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Search } from "lucide-react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 
-interface AddTitleDialogProps {
+interface AddHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -56,13 +56,13 @@ interface AddTitleDialogProps {
   initialDetails?: TitleDetails;
 }
 
-export function AddTitleDialog({
+export function AddHistoryDialog({
   open,
   onOpenChange,
   onSuccess,
   initialTitle,
   initialDetails,
-}: AddTitleDialogProps) {
+}: AddHistoryDialogProps) {
   const [isPending, startTransition] = useTransition();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -86,7 +86,7 @@ export function AddTitleDialog({
   const searchTmdb = useAction(api.tmdb.search);
   const getDetails = useAction(api.tmdb.getDetails);
   const getSeasonEpisodes = useAction(api.tmdb.getSeasonEpisodes);
-  const addToHistory = useAction(api.history.addFromTmdb);
+  const addToHistory = useAction(api.history.add);
   const currentUser = useQuery(api.auth.getCurrentUser);
 
   const form = useForm<AddTitleFormValues>({

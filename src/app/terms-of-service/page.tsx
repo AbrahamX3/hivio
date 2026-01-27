@@ -4,7 +4,7 @@ import { HivioLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Terms of Service | Hivio",
+  title: "Terms of Service",
   description: "Terms of service and usage guidelines for Hivio.",
 };
 

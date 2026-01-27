@@ -1,7 +1,10 @@
 import { v } from "convex/values";
 import { Movie, TMDB, TV } from "tmdb-ts";
 
-import { action } from "./_generated/server";
+import { ActionCache } from "@convex-dev/action-cache";
+import { components, internal } from "./_generated/api";
+import { action, internalAction } from "./_generated/server";
+import { authComponent } from "./auth";
 
 const tmdb = new TMDB(process.env.TMDB_API_KEY!);
 
@@ -295,7 +298,7 @@ export const getNextEpisodeInfo = action({
   },
 });
 
-export const getTrendingTitles = action({
+export const internalGetTrendingTitles = internalAction({
   args: {
     limit: v.optional(v.number()),
   },
@@ -417,6 +420,51 @@ export const getTrendingTitles = action({
   },
 });
 
+const trendingCache = new ActionCache(components.actionCache, {
+  action: internal.tmdb.internalGetTrendingTitles,
+  name: "getTrendingTitlesV1",
+  ttl: 1000 * 60 * 60 * 24 * 7,
+});
+
+export const getTrendingTitles = action({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      id: v.number(),
+      name: v.string(),
+      posterUrl: v.union(v.string(), v.null()),
+      backdropUrl: v.union(v.string(), v.null()),
+      mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+      tmdbId: v.number(),
+      providers: v.array(v.string()),
+      description: v.union(v.string(), v.null()),
+      releaseDate: v.union(v.string(), v.null()),
+      genres: v.union(v.string(), v.null()),
+    })
+  ),
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    Array<{
+      id: number;
+      name: string;
+      posterUrl: string | null;
+      backdropUrl: string | null;
+      mediaType: "MOVIE" | "SERIES";
+      tmdbId: number;
+      providers: string[];
+      description: string | null;
+      releaseDate: string | null;
+      genres: string | null;
+    }>
+  > => {
+    return await trendingCache.fetch(ctx, { limit: args.limit });
+  },
+});
+
 export const getWatchProviders = action({
   args: {
     tmdbId: v.number(),
@@ -483,5 +531,69 @@ export const getVideos = action({
     } catch {
       return [];
     }
+  },
+});
+
+export const getUserTrendingTitles = action({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      id: v.number(),
+      name: v.string(),
+      posterUrl: v.union(v.string(), v.null()),
+      backdropUrl: v.union(v.string(), v.null()),
+      mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+      tmdbId: v.number(),
+      providers: v.array(v.string()),
+      description: v.union(v.string(), v.null()),
+      releaseDate: v.union(v.string(), v.null()),
+      genres: v.union(v.string(), v.null()),
+    })
+  ),
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    Array<{
+      id: number;
+      name: string;
+      posterUrl: string | null;
+      backdropUrl: string | null;
+      mediaType: "MOVIE" | "SERIES";
+      tmdbId: number;
+      providers: string[];
+      description: string | null;
+      releaseDate: string | null;
+      genres: string | null;
+    }>
+  > => {
+    const authUser = await authComponent.safeGetAuthUser(ctx);
+
+    if (!authUser) {
+      return [];
+    }
+
+    const items = await ctx.runQuery(internal.history.getHistoryItems, {
+      authId: authUser._id,
+    });
+
+    const addedTmdbIds = new Set(
+      items
+        .map((item) => item.title?.tmdbId?.toString())
+        .filter((id): id is string => id !== undefined)
+    );
+
+    const data = await trendingCache.fetch(ctx, { limit: args.limit });
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    return data.filter((title) => {
+      const tmdbIdStr = title.tmdbId.toString();
+      return !addedTmdbIds.has(tmdbIdStr);
+    });
   },
 });

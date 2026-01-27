@@ -3,7 +3,7 @@ import { TMDB } from "tmdb-ts";
 
 import { api, internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
-import { action, mutation, query } from "./_generated/server";
+import { action, internalQuery, mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
 
 type HistoryWithTitle = Doc<"history"> & { title: Doc<"title"> | null };
@@ -20,7 +20,7 @@ type Sort = {
   desc: boolean;
 };
 
-type UserRecord = {
+export type UserRecord = {
   _id: Id<"users">;
   _creationTime: number;
   email: string;
@@ -240,49 +240,40 @@ async function getAuthenticatedUserId(ctx: unknown): Promise<Id<"users">> {
   return (user as UserRecord)._id;
 }
 
-export const getAllItems = query({
+export const getDashboardData = query({
   args: {
-    filters: v.optional(
-      v.array(
-        v.object({
-          id: v.string(),
-          value: v.union(v.string(), v.array(v.string())),
-          operator: v.string(),
-        })
-      )
-    ),
-    sort: v.optional(
-      v.array(
-        v.object({
-          id: v.string(),
-          desc: v.boolean(),
-        })
-      )
-    ),
     _refresh: v.optional(v.string()),
   },
-  returns: v.array(
-    v.object({
-      _id: v.id("history"),
-      _creationTime: v.number(),
-      titleId: v.id("title"),
-      userId: v.id("users"),
-      status: v.union(
-        v.literal("FINISHED"),
-        v.literal("WATCHING"),
-        v.literal("PLANNED"),
-        v.literal("ON_HOLD"),
-        v.literal("DROPPED"),
-        v.literal("REWATCHING")
-      ),
-      currentEpisode: v.optional(v.number()),
-      currentSeason: v.optional(v.number()),
-      currentRuntime: v.optional(v.number()),
-      isFavourite: v.boolean(),
-      createdAt: v.number(),
-      updatedAt: v.number(),
-      title: v.union(
-        v.object({
+  returns: v.object({
+    stats: v.object({
+      total: v.number(),
+      watching: v.number(),
+      finished: v.number(),
+      planned: v.number(),
+      favourites: v.number(),
+      progressValue: v.number(),
+    }),
+    watchingItems: v.array(
+      v.object({
+        _id: v.id("history"),
+        _creationTime: v.number(),
+        titleId: v.id("title"),
+        userId: v.id("users"),
+        status: v.union(
+          v.literal("FINISHED"),
+          v.literal("WATCHING"),
+          v.literal("PLANNED"),
+          v.literal("ON_HOLD"),
+          v.literal("DROPPED"),
+          v.literal("REWATCHING")
+        ),
+        currentEpisode: v.optional(v.number()),
+        currentSeason: v.optional(v.number()),
+        currentRuntime: v.optional(v.number()),
+        isFavourite: v.boolean(),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+        title: v.object({
           _id: v.id("title"),
           _creationTime: v.number(),
           name: v.string(),
@@ -298,120 +289,80 @@ export const getAllItems = query({
           createdAt: v.number(),
           updatedAt: v.number(),
         }),
-        v.null()
-      ),
-    })
-  ),
-  handler: async (ctx, args): Promise<HistoryWithTitle[]> => {
+      })
+    ),
+  }),
+  handler: async (ctx) => {
     const currentUser: UserRecord | null = await ctx.runQuery(
       internal.auth.getCurrentUserRecord
     );
     if (!currentUser) {
-      return [];
+      return {
+        stats: {
+          total: 0,
+          watching: 0,
+          finished: 0,
+          planned: 0,
+          favourites: 0,
+          progressValue: 0,
+        },
+        watchingItems: [],
+      };
     }
 
     const userId: Id<"users"> = currentUser._id;
-    let sortDirection: "asc" | "desc" = "desc";
 
-    if (args.sort && args.sort.length > 0) {
-      for (const sortItem of args.sort) {
-        if (sortItem.id === "status") {
-          sortDirection = sortItem.desc ? "desc" : "asc";
-          break;
-        }
-      }
-    }
-
-    const query = ctx.db
+    const historyItems = await ctx.db
       .query("history")
       .withIndex("by_user_id", (q) => q.eq("userId", userId))
-      .order(sortDirection);
-
-    const historyItems = await query.collect();
-
-    let historyWithTitles: HistoryWithTitle[] = await attachTitles(
-      ctx,
-      historyItems
-    );
-
-    if (args.filters && args.filters.length > 0) {
-      historyWithTitles = applyFilters(historyWithTitles, args.filters);
-    }
-
-    historyWithTitles = applySorting(historyWithTitles, args.sort || []);
-
-    return historyWithTitles;
-  },
-});
-
-export const getWatchingItems = query({
-  args: {},
-  returns: v.array(
-    v.object({
-      _id: v.id("history"),
-      _creationTime: v.number(),
-      titleId: v.id("title"),
-      userId: v.id("users"),
-      status: v.union(
-        v.literal("FINISHED"),
-        v.literal("WATCHING"),
-        v.literal("PLANNED"),
-        v.literal("ON_HOLD"),
-        v.literal("DROPPED"),
-        v.literal("REWATCHING")
-      ),
-      currentEpisode: v.optional(v.number()),
-      currentSeason: v.optional(v.number()),
-      currentRuntime: v.optional(v.number()),
-      isFavourite: v.boolean(),
-      createdAt: v.number(),
-      updatedAt: v.number(),
-      title: v.union(
-        v.object({
-          _id: v.id("title"),
-          _creationTime: v.number(),
-          name: v.string(),
-          posterUrl: v.optional(v.string()),
-          backdropUrl: v.optional(v.string()),
-          description: v.optional(v.string()),
-          directors: v.optional(v.array(v.string())),
-          tmdbId: v.number(),
-          imdbId: v.string(),
-          mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
-          releaseDate: v.string(),
-          genres: v.string(),
-          createdAt: v.number(),
-          updatedAt: v.number(),
-        }),
-        v.null()
-      ),
-    })
-  ),
-  handler: async (ctx): Promise<HistoryWithTitle[]> => {
-    const currentUser: UserRecord | null = await ctx.runQuery(
-      internal.auth.getCurrentUserRecord
-    );
-    if (!currentUser) {
-      return [];
-    }
-
-    const userId: Id<"users"> = currentUser._id;
-
-    const watchingItems = await ctx.db
-      .query("history")
-      .withIndex("by_user_id_and_status", (q) =>
-        q.eq("userId", userId).eq("status", "WATCHING")
-      )
       .collect();
 
     const historyWithTitles: HistoryWithTitle[] = await attachTitles(
       ctx,
-      watchingItems
+      historyItems
     );
 
-    return historyWithTitles.filter(
-      (item): item is HistoryWithRequiredTitle => item.title !== null
+    let watching = 0;
+    let finished = 0;
+    let planned = 0;
+    let favourites = 0;
+
+    for (const item of historyWithTitles) {
+      switch (item.status) {
+        case "WATCHING":
+          watching++;
+          break;
+        case "FINISHED":
+          finished++;
+          break;
+        case "PLANNED":
+          planned++;
+          break;
+      }
+      if (item.isFavourite) {
+        favourites++;
+      }
+    }
+
+    const total = historyWithTitles.length;
+    const progressValue = total > 0 ? Math.round((finished / total) * 100) : 0;
+
+    const watchingItems = historyWithTitles.filter(
+      (item): item is HistoryWithRequiredTitle =>
+        item.status === "WATCHING" && item.title !== null
     );
+
+    return {
+      stats: {
+        total,
+        watching,
+        finished,
+        planned,
+        favourites,
+        progressValue,
+      },
+      watchingItems,
+    };
   },
 });
 
@@ -531,90 +482,6 @@ export const getAll = query({
       data: paginatedData,
       total,
     };
-  },
-});
-
-export const add = mutation({
-  args: {
-    titleId: v.id("title"),
-    status: historyStatusValidator,
-    currentEpisode: v.optional(v.number()),
-    currentSeason: v.optional(v.number()),
-    currentRuntime: v.optional(v.number()),
-    isFavourite: v.optional(v.boolean()),
-  },
-  returns: v.object({
-    _id: v.id("history"),
-    _creationTime: v.number(),
-    titleId: v.id("title"),
-    userId: v.id("users"),
-    status: historyStatusValidator,
-    currentEpisode: v.optional(v.number()),
-    currentSeason: v.optional(v.number()),
-    currentRuntime: v.optional(v.number()),
-    isFavourite: v.boolean(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }),
-  handler: async (ctx, args) => {
-    const dbUserId = await getAuthenticatedUserId(ctx);
-    const existingHistory = await ctx.db
-      .query("history")
-      .withIndex("by_user_id_title_id", (q) =>
-        q.eq("userId", dbUserId).eq("titleId", args.titleId)
-      )
-      .first();
-
-    const now = Date.now();
-
-    if (existingHistory) {
-      const updates: {
-        status: typeof args.status;
-        currentEpisode?: number;
-        currentSeason?: number;
-        currentRuntime?: number;
-        isFavourite?: boolean;
-        updatedAt: number;
-      } = {
-        status: args.status,
-        updatedAt: now,
-      };
-
-      if (args.currentEpisode !== undefined)
-        updates.currentEpisode = args.currentEpisode;
-      if (args.currentSeason !== undefined)
-        updates.currentSeason = args.currentSeason;
-      if (args.currentRuntime !== undefined)
-        updates.currentRuntime = args.currentRuntime;
-      if (args.isFavourite !== undefined)
-        updates.isFavourite = args.isFavourite;
-
-      await ctx.db.patch(existingHistory._id, updates);
-
-      const updatedHistory = await ctx.db.get("history", existingHistory._id);
-      if (!updatedHistory) {
-        throw new Error("History item not found after update");
-      }
-      return updatedHistory;
-    }
-
-    const historyId = await ctx.db.insert("history", {
-      titleId: args.titleId,
-      userId: dbUserId,
-      status: args.status,
-      currentEpisode: args.currentEpisode,
-      currentSeason: args.currentSeason,
-      currentRuntime: args.currentRuntime,
-      isFavourite: args.isFavourite ?? false,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    const newHistory = await ctx.db.get("history", historyId);
-    if (!newHistory) {
-      throw new Error("Failed to create history item");
-    }
-    return newHistory;
   },
 });
 
@@ -880,7 +747,7 @@ const addFromTmdbReturnValidator = v.object({
   title: titleValidator,
 });
 
-export const addFromTmdb = action({
+export const add = action({
   args: {
     tmdbId: v.number(),
     mediaType: mediaTypeValidator,
@@ -943,5 +810,75 @@ export const addFromTmdb = action({
       ...args,
       ...titleData,
     });
+  },
+});
+
+export const getHistoryItems = internalQuery({
+  args: {
+    authId: v.string(),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("history"),
+      _creationTime: v.number(),
+      titleId: v.id("title"),
+      userId: v.id("users"),
+      status: v.union(
+        v.literal("FINISHED"),
+        v.literal("WATCHING"),
+        v.literal("PLANNED"),
+        v.literal("ON_HOLD"),
+        v.literal("DROPPED"),
+        v.literal("REWATCHING")
+      ),
+      currentEpisode: v.optional(v.number()),
+      currentSeason: v.optional(v.number()),
+      currentRuntime: v.optional(v.number()),
+      isFavourite: v.boolean(),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+      title: v.union(
+        v.object({
+          _id: v.id("title"),
+          _creationTime: v.number(),
+          name: v.string(),
+          posterUrl: v.optional(v.string()),
+          backdropUrl: v.optional(v.string()),
+          description: v.optional(v.string()),
+          directors: v.optional(v.array(v.string())),
+          tmdbId: v.number(),
+          imdbId: v.string(),
+          mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
+          releaseDate: v.string(),
+          genres: v.string(),
+          createdAt: v.number(),
+          updatedAt: v.number(),
+        }),
+        v.null()
+      ),
+    })
+  ),
+  handler: async (ctx, args): Promise<HistoryWithTitle[]> => {
+    const userRecord = await ctx.runQuery(
+      internal.auth.getCurrentUserRecordByAuthId,
+      { authId: args.authId }
+    );
+
+    if (!userRecord) {
+      return [];
+    }
+
+    const query = ctx.db
+      .query("history")
+      .withIndex("by_user_id", (q) => q.eq("userId", userRecord._id));
+
+    const historyItems = await query.collect();
+
+    const historyWithTitles: HistoryWithTitle[] = await attachTitles(
+      ctx,
+      historyItems
+    );
+
+    return historyWithTitles;
   },
 });
