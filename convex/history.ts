@@ -312,44 +312,78 @@ export const getDashboardData = query({
 
     const userId: Id<"users"> = currentUser._id;
 
-    const historyItems = await ctx.db
-      .query("history")
-      .withIndex("by_user_id", (q) => q.eq("userId", userId))
-      .collect();
+    const [
+      watchingItems,
+      finishedItems,
+      plannedItems,
+      onHoldItems,
+      droppedItems,
+      rewatchingItems,
+    ] = await Promise.all([
+      ctx.db
+        .query("history")
+        .withIndex("by_user_id_and_status", (q) =>
+          q.eq("userId", userId).eq("status", "WATCHING")
+        )
+        .collect(),
+      ctx.db
+        .query("history")
+        .withIndex("by_user_id_and_status", (q) =>
+          q.eq("userId", userId).eq("status", "FINISHED")
+        )
+        .collect(),
+      ctx.db
+        .query("history")
+        .withIndex("by_user_id_and_status", (q) =>
+          q.eq("userId", userId).eq("status", "PLANNED")
+        )
+        .collect(),
+      ctx.db
+        .query("history")
+        .withIndex("by_user_id_and_status", (q) =>
+          q.eq("userId", userId).eq("status", "ON_HOLD")
+        )
+        .collect(),
+      ctx.db
+        .query("history")
+        .withIndex("by_user_id_and_status", (q) =>
+          q.eq("userId", userId).eq("status", "DROPPED")
+        )
+        .collect(),
+      ctx.db
+        .query("history")
+        .withIndex("by_user_id_and_status", (q) =>
+          q.eq("userId", userId).eq("status", "REWATCHING")
+        )
+        .collect(),
+    ]);
 
-    const historyWithTitles: HistoryWithTitle[] = await attachTitles(
-      ctx,
-      historyItems
-    );
-
-    let watching = 0;
-    let finished = 0;
-    let planned = 0;
-    let favourites = 0;
-
-    for (const item of historyWithTitles) {
-      switch (item.status) {
-        case "WATCHING":
-          watching++;
-          break;
-        case "FINISHED":
-          finished++;
-          break;
-        case "PLANNED":
-          planned++;
-          break;
-      }
-      if (item.isFavourite) {
-        favourites++;
-      }
-    }
-
-    const total = historyWithTitles.length;
+    const watching = watchingItems.length;
+    const finished = finishedItems.length;
+    const planned = plannedItems.length;
+    const total =
+      watching +
+      finished +
+      planned +
+      onHoldItems.length +
+      droppedItems.length +
+      rewatchingItems.length;
+    const favourites =
+      watchingItems.filter((item) => item.isFavourite).length +
+      finishedItems.filter((item) => item.isFavourite).length +
+      plannedItems.filter((item) => item.isFavourite).length +
+      onHoldItems.filter((item) => item.isFavourite).length +
+      droppedItems.filter((item) => item.isFavourite).length +
+      rewatchingItems.filter((item) => item.isFavourite).length;
     const progressValue = total > 0 ? Math.round((finished / total) * 100) : 0;
 
-    const watchingItems = historyWithTitles.filter(
-      (item): item is HistoryWithRequiredTitle =>
-        item.status === "WATCHING" && item.title !== null
+    const watchingWithTitles: HistoryWithTitle[] = await attachTitles(
+      ctx,
+      watchingItems
+    );
+
+    const watchingItemsResult = watchingWithTitles.filter(
+      (item): item is HistoryWithRequiredTitle => item.title !== null
     );
 
     return {
@@ -361,7 +395,7 @@ export const getDashboardData = query({
         favourites,
         progressValue,
       },
-      watchingItems,
+      watchingItems: watchingItemsResult,
     };
   },
 });
@@ -810,6 +844,41 @@ export const add = action({
       ...args,
       ...titleData,
     });
+  },
+});
+
+export const getUserWatchedTmdbIds = internalQuery({
+  args: {
+    authId: v.string(),
+  },
+  returns: v.array(v.number()),
+  handler: async (ctx, args): Promise<number[]> => {
+    const userRecord = await ctx.runQuery(
+      internal.auth.getCurrentUserRecordByAuthId,
+      { authId: args.authId }
+    );
+
+    if (!userRecord) {
+      return [];
+    }
+
+    const historyItems = await ctx.db
+      .query("history")
+      .withIndex("by_user_id", (q) => q.eq("userId", userRecord._id))
+      .collect();
+
+    const uniqueTitleIds = Array.from(
+      new Set(historyItems.map((item) => item.titleId))
+    );
+
+    const titles = await Promise.all(
+      uniqueTitleIds.map(async (titleId) => {
+        const title = await ctx.db.get("title", titleId);
+        return title?.tmdbId;
+      })
+    );
+
+    return titles.filter((tmdbId): tmdbId is number => tmdbId !== undefined);
   },
 });
 

@@ -575,21 +575,20 @@ export const getUserTrendingTitles = action({
       return [];
     }
 
-    const items = await ctx.runQuery(internal.history.getHistoryItems, {
-      authId: authUser._id,
-    });
-
-    const addedTmdbIds = new Set(
-      items
-        .map((item) => item.title?.tmdbId?.toString())
-        .filter((id): id is string => id !== undefined)
-    );
-
-    const data = await trendingCache.fetch(ctx, { limit: args.limit });
+    const [watchedTmdbIds, data] = await Promise.all([
+      ctx.runQuery(internal.history.getUserWatchedTmdbIds, {
+        authId: authUser._id,
+      }),
+      trendingCache.fetch(ctx, { limit: args.limit }),
+    ]);
 
     if (!data || data.length === 0) {
       return [];
     }
+
+    const addedTmdbIds = new Set(
+      watchedTmdbIds.map((tmdbId) => tmdbId.toString())
+    );
 
     return data.filter((title) => {
       const tmdbIdStr = title.tmdbId.toString();
