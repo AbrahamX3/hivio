@@ -30,7 +30,7 @@ export default defineSchema({
     imdbId: v.string(),
     mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
     releaseDate: v.string(),
-    genres: v.string(),
+    genres: v.array(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

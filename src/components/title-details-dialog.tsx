@@ -35,7 +35,7 @@ type TitleData = {
   tmdbId: number;
   mediaType: "MOVIE" | "SERIES";
   releaseDate?: string;
-  genres?: string;
+  genres?: number[];
 };
 
 interface TitleDetailsDialogProps {
@@ -122,16 +122,7 @@ export function TitleDetailsDialog({
   const getSeasonEpisodes = useAction(api.tmdb.getSeasonEpisodes);
   const getVideos = useAction(api.tmdb.getVideos);
 
-  const genresList = title.genres
-    ? (() => {
-        try {
-          const parsed = JSON.parse(title.genres);
-          return Array.isArray(parsed) ? parsed : [];
-        } catch {
-          return [];
-        }
-      })()
-    : [];
+  const genresList = Array.isArray(title.genres) ? title.genres : [];
 
   useEffect(() => {
     if (!open) {

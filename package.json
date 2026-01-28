@@ -18,6 +18,8 @@
   "dependencies": {
     "@convex-dev/action-cache": "^0.3.0",
     "@convex-dev/better-auth": "^0.10.10",
+    "@convex-dev/crons": "^0.2.0",
+    "@convex-dev/migrations": "^0.3.1",
     "@convex-dev/rate-limiter": "^0.3.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",

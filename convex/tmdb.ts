@@ -24,7 +24,7 @@ export const search = action({
       description: v.optional(v.string()),
       mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
       releaseDate: v.string(),
-      genres: v.string(),
+      genres: v.array(v.number()),
     })
   ),
   handler: async (ctx, args) => {
@@ -72,7 +72,7 @@ function mapMovieToResult(movie: Movie) {
     description: movie.overview || undefined,
     mediaType: "MOVIE" as const,
     releaseDate: movie.release_date || "",
-    genres: JSON.stringify(movie.genre_ids || []),
+    genres: movie.genre_ids || [],
   };
 }
 
@@ -85,7 +85,7 @@ function mapShowToResult(show: TV) {
     description: show.overview || undefined,
     mediaType: "SERIES" as const,
     releaseDate: show.first_air_date || "",
-    genres: JSON.stringify(show.genre_ids || []),
+    genres: show.genre_ids || [],
   };
 }
 
@@ -313,7 +313,7 @@ export const internalGetTrendingTitles = internalAction({
       providers: v.array(v.string()),
       description: v.union(v.string(), v.null()),
       releaseDate: v.union(v.string(), v.null()),
-      genres: v.union(v.string(), v.null()),
+      genres: v.union(v.array(v.number()), v.null()),
     })
   ),
   handler: async (ctx, args) => {
@@ -343,7 +343,7 @@ export const internalGetTrendingTitles = internalAction({
           tmdbId: number;
           description: string | null;
           releaseDate: string | null;
-          genres: string | null;
+          genres: number[] | null;
         }
       >();
 
@@ -364,7 +364,7 @@ export const internalGetTrendingTitles = internalAction({
             tmdbId: movie.id,
             description: movie.overview,
             releaseDate: movie.release_date,
-            genres: JSON.stringify(movie.genre_ids || []),
+            genres: movie.genre_ids || [],
           });
         } else {
           const tv = item as TV;
@@ -377,7 +377,7 @@ export const internalGetTrendingTitles = internalAction({
             tmdbId: tv.id,
             description: tv.overview,
             releaseDate: tv.first_air_date,
-            genres: JSON.stringify(tv.genre_ids || []),
+            genres: tv.genre_ids || [],
           });
         }
       }
@@ -441,7 +441,7 @@ export const getTrendingTitles = action({
       providers: v.array(v.string()),
       description: v.union(v.string(), v.null()),
       releaseDate: v.union(v.string(), v.null()),
-      genres: v.union(v.string(), v.null()),
+      genres: v.union(v.array(v.number()), v.null()),
     })
   ),
   handler: async (
@@ -458,7 +458,7 @@ export const getTrendingTitles = action({
       providers: string[];
       description: string | null;
       releaseDate: string | null;
-      genres: string | null;
+      genres: number[] | null;
     }>
   > => {
     return await trendingCache.fetch(ctx, { limit: args.limit });
@@ -549,7 +549,7 @@ export const getUserTrendingTitles = action({
       providers: v.array(v.string()),
       description: v.union(v.string(), v.null()),
       releaseDate: v.union(v.string(), v.null()),
-      genres: v.union(v.string(), v.null()),
+      genres: v.union(v.array(v.number()), v.null()),
     })
   ),
   handler: async (
@@ -566,7 +566,7 @@ export const getUserTrendingTitles = action({
       providers: string[];
       description: string | null;
       releaseDate: string | null;
-      genres: string | null;
+      genres: number[] | null;
     }>
   > => {
     const authUser = await authComponent.safeGetAuthUser(ctx);

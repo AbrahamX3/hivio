@@ -54,7 +54,7 @@ export type SearchResult = {
   description: string | undefined;
   mediaType: MediaType;
   releaseDate: string;
-  genres: string;
+  genres: number[];
 };
 
 export type TitleDetails = {

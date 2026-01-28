@@ -285,37 +285,28 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
       {
         id: "genre",
         accessorFn: (row) => {
-          if (!row.title?.genres) return [];
-          try {
-            return JSON.parse(row.title.genres) as number[];
-          } catch {
-            return [];
-          }
+          return Array.isArray(row.title?.genres) ? row.title?.genres : [];
         },
         header: ({ column }) => {
           return <DataTableColumnHeader column={column} label="Genre" />;
         },
         cell: ({ row }) => {
           const item = row.original;
-          if (!item.title?.genres) return null;
-          try {
-            const genreIds = JSON.parse(item.title.genres) as number[];
-            return (
-              <div className="flex flex-wrap gap-1">
-                {genreIds.map((genreId) => (
-                  <Badge
-                    key={genreId}
-                    variant="outline"
-                    className="w-full rounded-md text-center text-[0.70rem] text-balance md:w-fit"
-                  >
-                    {getGenreName(genreId, item.title!.mediaType)}
-                  </Badge>
-                ))}
-              </div>
-            );
-          } catch {
-            return null;
-          }
+          if (!Array.isArray(item.title?.genres)) return null;
+          const genreIds = item.title.genres;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {genreIds.map((genreId) => (
+                <Badge
+                  key={genreId}
+                  variant="outline"
+                  className="w-full rounded-md text-center text-[0.70rem] text-balance md:w-fit"
+                >
+                  {getGenreName(genreId, item.title!.mediaType)}
+                </Badge>
+              ))}
+            </div>
+          );
         },
         meta: {
           label: "Genre",

@@ -112,7 +112,7 @@ function applyFilters(
       filtered = filtered.filter((item) => {
         if (!item.title?.genres) return false;
         try {
-          const itemGenres = JSON.parse(item.title.genres) as number[];
+          const itemGenres = item.title.genres;
           return genreIds.some((genreId) => itemGenres.includes(genreId));
         } catch {
           return false;
@@ -285,7 +285,7 @@ export const getDashboardData = query({
           imdbId: v.string(),
           mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
           releaseDate: v.string(),
-          genres: v.string(),
+          genres: v.array(v.number()),
           createdAt: v.number(),
           updatedAt: v.number(),
         }),
@@ -457,7 +457,7 @@ export const getAll = query({
             imdbId: v.string(),
             mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
             releaseDate: v.string(),
-            genres: v.string(),
+            genres: v.array(v.number()),
             createdAt: v.number(),
             updatedAt: v.number(),
           }),
@@ -616,7 +616,7 @@ export const addFromTmdbInternal = mutation({
     directors: v.array(v.string()),
     mediaType: mediaTypeValidator,
     releaseDate: v.string(),
-    genres: v.string(),
+    genres: v.array(v.number()),
     status: historyStatusValidator,
     currentEpisode: v.optional(v.number()),
     currentSeason: v.optional(v.number()),
@@ -646,7 +646,7 @@ export const addFromTmdbInternal = mutation({
       imdbId: v.string(),
       mediaType: mediaTypeValidator,
       releaseDate: v.string(),
-      genres: v.string(),
+      genres: v.array(v.number()),
       createdAt: v.number(),
       updatedAt: v.number(),
     }),
@@ -761,7 +761,7 @@ const titleValidator = v.object({
   imdbId: v.string(),
   mediaType: mediaTypeValidator,
   releaseDate: v.string(),
-  genres: v.string(),
+  genres: v.array(v.number()),
   createdAt: v.number(),
   updatedAt: v.number(),
 });
@@ -819,7 +819,7 @@ export const add = action({
         imdbId: movie.external_ids?.imdb_id || "",
         mediaType: args.mediaType,
         releaseDate: movie.release_date || "",
-        genres: JSON.stringify(movie.genres?.map((g) => g.id) || []),
+        genres: movie.genres?.map((g) => g.id) || [],
       };
     } else {
       const tvShow = await tmdb.tvShows.details(args.tmdbId, ["external_ids"]);
@@ -836,7 +836,7 @@ export const add = action({
         imdbId: tvShow.external_ids?.imdb_id || "",
         mediaType: args.mediaType,
         releaseDate: tvShow.first_air_date || "",
-        genres: JSON.stringify(tvShow.genres?.map((g) => g.id) || []),
+        genres: tvShow.genres?.map((g) => g.id) || [],
       };
     }
 
@@ -919,7 +919,7 @@ export const getHistoryItems = internalQuery({
           imdbId: v.string(),
           mediaType: v.union(v.literal("MOVIE"), v.literal("SERIES")),
           releaseDate: v.string(),
-          genres: v.string(),
+          genres: v.array(v.number()),
           createdAt: v.number(),
           updatedAt: v.number(),
         }),

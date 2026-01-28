@@ -20,7 +20,7 @@ type TrendingTitle = {
   providers: string[];
   description: string | null;
   releaseDate: string | null;
-  genres: string | null;
+  genres: number[] | null;
 };
 
 function TrendingTitleCard({
@@ -170,7 +170,7 @@ export function DiscoverTrending({
             mediaType: selectedTitle.mediaType,
             description: selectedTitle.description || undefined,
             releaseDate: selectedTitle.releaseDate || undefined,
-            genres: selectedTitle.genres || undefined,
+            genres: selectedTitle.genres || [],
           }}
           showAddToWatchlist
           onOpenAddTitleDialog={(title) => {
@@ -186,7 +186,7 @@ export function DiscoverTrending({
                   providers: [],
                   description: title.description || null,
                   releaseDate: title.releaseDate || null,
-                  genres: title.genres || null,
+                  genres: title.genres || [],
                 },
               });
               setIsAddTitleDialogOpen(true);
@@ -216,7 +216,7 @@ export function DiscoverTrending({
             releaseDate:
               addTitleInitialData.title.releaseDate ||
               new Date().toISOString().split("T")[0],
-            genres: addTitleInitialData.title.genres || "[]",
+            genres: addTitleInitialData.title.genres || [],
           }}
           onSuccess={() => {
             handleTitleAdded(addTitleInitialData.title.tmdbId);
