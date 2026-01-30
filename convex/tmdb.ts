@@ -89,7 +89,7 @@ function mapShowToResult(show: TV) {
   };
 }
 
-export const getDetails = action({
+export const internalGetDetails = internalAction({
   args: {
     tmdbId: v.number(),
     mediaType: mediaTypeValidator,
@@ -160,7 +160,56 @@ export const getDetails = action({
   },
 });
 
-export const getSeasonEpisodes = action({
+const detailsCache = new ActionCache(components.actionCache, {
+  action: internal.tmdb.internalGetDetails,
+  name: "getDetailsV1",
+  ttl: 1000 * 60 * 60 * 24 * 7,
+});
+
+export const getDetails = action({
+  args: {
+    tmdbId: v.number(),
+    mediaType: mediaTypeValidator,
+  },
+  returns: v.object({
+    directors: v.array(v.string()),
+    imdbId: v.union(v.string(), v.null()),
+    runtime: v.union(v.number(), v.null()),
+    seasons: v.union(
+      v.array(
+        v.object({
+          seasonNumber: v.number(),
+          episodeCount: v.number(),
+          name: v.string(),
+          airDate: v.union(v.string(), v.null()),
+        })
+      ),
+      v.null()
+    ),
+    episodes: v.null(),
+    description: v.union(v.string(), v.null()),
+  }),
+  handler: async (ctx, args): Promise<{
+    directors: string[];
+    imdbId: string | null;
+    runtime: number | null;
+    seasons: Array<{
+      seasonNumber: number;
+      episodeCount: number;
+      name: string;
+      airDate: string | null;
+    }> | null;
+    episodes: null;
+    description: string | null;
+  }> => {
+    return await detailsCache.fetch(ctx, {
+      tmdbId: args.tmdbId,
+      mediaType: args.mediaType,
+    });
+  },
+});
+
+export const internalGetSeasonEpisodes = internalAction({
   args: {
     tmdbId: v.number(),
     seasonNumber: v.number(),
@@ -188,6 +237,40 @@ export const getSeasonEpisodes = action({
         overview: ep.overview || null,
       })) || []
     );
+  },
+});
+
+const seasonEpisodesCache = new ActionCache(components.actionCache, {
+  action: internal.tmdb.internalGetSeasonEpisodes,
+  name: "getSeasonEpisodesV1",
+  ttl: 1000 * 60 * 60 * 24 * 7,
+});
+
+export const getSeasonEpisodes = action({
+  args: {
+    tmdbId: v.number(),
+    seasonNumber: v.number(),
+  },
+  returns: v.array(
+    v.object({
+      episodeNumber: v.number(),
+      name: v.string(),
+      airDate: v.union(v.string(), v.null()),
+      runtime: v.union(v.number(), v.null()),
+      overview: v.union(v.string(), v.null()),
+    })
+  ),
+  handler: async (ctx, args): Promise<Array<{
+    episodeNumber: number;
+    name: string;
+    airDate: string | null;
+    runtime: number | null;
+    overview: string | null;
+  }>> => {
+    return await seasonEpisodesCache.fetch(ctx, {
+      tmdbId: args.tmdbId,
+      seasonNumber: args.seasonNumber,
+    });
   },
 });
 
@@ -384,36 +467,46 @@ export const internalGetTrendingTitles = internalAction({
 
       const trendingItems = Array.from(trendingItemsMap.values());
 
-      const resultsWithProviders = await Promise.all(
-        trendingItems.map(async (item) => {
-          try {
-            const providersResults =
-              item.mediaType === "MOVIE"
-                ? await tmdb.movies.watchProviders(item.tmdbId)
-                : await tmdb.tvShows.watchProviders(item.tmdbId);
+      const providerPromises = trendingItems.map(async (item: {
+        id: number;
+        name: string;
+        posterUrl: string | null;
+        backdropUrl: string | null;
+        mediaType: "MOVIE" | "SERIES";
+        tmdbId: number;
+        description: string | null;
+        releaseDate: string | null;
+        genres: number[] | null;
+      }) => {
+        try {
+          const providersResults =
+            item.mediaType === "MOVIE"
+              ? await tmdb.movies.watchProviders(item.tmdbId)
+              : await tmdb.tvShows.watchProviders(item.tmdbId);
 
-            const usProviders = providersResults.results?.US;
-            const flatrate = usProviders?.flatrate || [];
+          const usProviders = providersResults.results?.US;
+          const flatrate = usProviders?.flatrate || [];
 
-            const providerLogos = flatrate
-              .slice(0, 3)
-              .map((p) => p.logo_path)
-              .filter(Boolean);
+          const providerLogos = flatrate
+            .slice(0, 3)
+            .map((p) => p.logo_path)
+            .filter(Boolean);
 
-            return {
-              ...item,
-              providers: providerLogos,
-            };
-          } catch {
-            return {
-              ...item,
-              providers: [],
-            };
-          }
-        })
-      );
+          return providerLogos;
+        } catch {
+          return [];
+        }
+      });
 
-      return resultsWithProviders;
+      const providerResults = await Promise.allSettled(providerPromises);
+
+      return trendingItems.map((item, index) => ({
+        ...item,
+        providers:
+          providerResults[index].status === "fulfilled"
+            ? providerResults[index].value
+            : [],
+      }));
     } catch {
       return [];
     }
@@ -465,7 +558,7 @@ export const getTrendingTitles = action({
   },
 });
 
-export const getWatchProviders = action({
+export const internalGetWatchProviders = internalAction({
   args: {
     tmdbId: v.number(),
     mediaType: mediaTypeValidator,
@@ -496,7 +589,35 @@ export const getWatchProviders = action({
   },
 });
 
-export const getVideos = action({
+const watchProvidersCache = new ActionCache(components.actionCache, {
+  action: internal.tmdb.internalGetWatchProviders,
+  name: "getWatchProvidersV1",
+  ttl: 1000 * 60 * 60 * 24,
+});
+
+export const getWatchProviders = action({
+  args: {
+    tmdbId: v.number(),
+    mediaType: mediaTypeValidator,
+  },
+  returns: v.array(
+    v.object({
+      logo_path: v.string(),
+      provider_name: v.string(),
+    })
+  ),
+  handler: async (ctx, args): Promise<Array<{
+    logo_path: string;
+    provider_name: string;
+  }>> => {
+    return await watchProvidersCache.fetch(ctx, {
+      tmdbId: args.tmdbId,
+      mediaType: args.mediaType,
+    });
+  },
+});
+
+export const internalGetVideos = internalAction({
   args: {
     tmdbId: v.number(),
     mediaType: mediaTypeValidator,
@@ -531,6 +652,38 @@ export const getVideos = action({
     } catch {
       return [];
     }
+  },
+});
+
+const videosCache = new ActionCache(components.actionCache, {
+  action: internal.tmdb.internalGetVideos,
+  name: "getVideosV1",
+  ttl: 1000 * 60 * 60 * 24 * 7,
+});
+
+export const getVideos = action({
+  args: {
+    tmdbId: v.number(),
+    mediaType: mediaTypeValidator,
+  },
+  returns: v.array(
+    v.object({
+      key: v.string(),
+      name: v.string(),
+      site: v.string(),
+      type: v.string(),
+    })
+  ),
+  handler: async (ctx, args): Promise<Array<{
+    key: string;
+    name: string;
+    site: string;
+    type: string;
+  }>> => {
+    return await videosCache.fetch(ctx, {
+      tmdbId: args.tmdbId,
+      mediaType: args.mediaType,
+    });
   },
 });
 

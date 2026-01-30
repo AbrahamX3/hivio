@@ -25,6 +25,7 @@ import { useEffect, useState } from "react";
 import LiteYouTubeEmbed from "react-lite-youtube-embed";
 import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
 import { api } from "../../convex/_generated/api";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 type TitleData = {
   name: string;
@@ -312,7 +313,18 @@ export function TitleDetailsDialog({
                     {title.name}
                   </h2>
                   <div className="text-muted-foreground mb-8 flex items-center gap-4 text-base font-medium">
-                    {releaseYear && <span>{releaseYear}</span>}
+                    {releaseYear && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            {releaseYear}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-fit">
+                          {title.releaseDate}
+                        </PopoverContent>
+                      </Popover>
+                    )}
                     {releaseYear && title.mediaType === "MOVIE" && (
                       <span className="text-primary/40">•</span>
                     )}
@@ -386,6 +398,14 @@ export function TitleDetailsDialog({
                       ) : details?.seasons && details.seasons.length > 0 ? (
                         <div className="grid gap-4">
                           {details.seasons.map((season) => {
+                            if (
+                              season.name === "Specials" ||
+                              season.episodeCount === 0 ||
+                              season.airDate === null
+                            ) {
+                              return null;
+                            }
+
                             const isSeasonExpanded = expandedSeasons.has(
                               season.seasonNumber
                             );

@@ -1,13 +1,24 @@
+import { TableAggregate } from "@convex-dev/aggregate";
 import { v } from "convex/values";
 import { TMDB } from "tmdb-ts";
 
-import { api, internal } from "./_generated/api";
-import { Doc, Id } from "./_generated/dataModel";
+import { api, components, internal } from "./_generated/api";
+import { DataModel, Doc, Id } from "./_generated/dataModel";
 import { action, internalQuery, mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
 
 type HistoryWithTitle = Doc<"history"> & { title: Doc<"title"> | null };
 type HistoryWithRequiredTitle = Doc<"history"> & { title: Doc<"title"> };
+
+const historyAggregate = new TableAggregate<{
+  Namespace: Id<"users">;
+  Key: [string, boolean]; // [status, isFavourite]
+  DataModel: DataModel;
+  TableName: "history";
+}>(components.aggregate, {
+  namespace: (doc) => doc.userId,
+  sortKey: (doc) => [doc.status, doc.isFavourite],
+});
 
 type Filter = {
   id: string;
@@ -312,70 +323,42 @@ export const getDashboardData = query({
 
     const userId: Id<"users"> = currentUser._id;
 
-    const [
-      watchingItems,
-      finishedItems,
-      plannedItems,
-      onHoldItems,
-      droppedItems,
-      rewatchingItems,
-    ] = await Promise.all([
-      ctx.db
-        .query("history")
-        .withIndex("by_user_id_and_status", (q) =>
-          q.eq("userId", userId).eq("status", "WATCHING")
-        )
-        .collect(),
-      ctx.db
-        .query("history")
-        .withIndex("by_user_id_and_status", (q) =>
-          q.eq("userId", userId).eq("status", "FINISHED")
-        )
-        .collect(),
-      ctx.db
-        .query("history")
-        .withIndex("by_user_id_and_status", (q) =>
-          q.eq("userId", userId).eq("status", "PLANNED")
-        )
-        .collect(),
-      ctx.db
-        .query("history")
-        .withIndex("by_user_id_and_status", (q) =>
-          q.eq("userId", userId).eq("status", "ON_HOLD")
-        )
-        .collect(),
-      ctx.db
-        .query("history")
-        .withIndex("by_user_id_and_status", (q) =>
-          q.eq("userId", userId).eq("status", "DROPPED")
-        )
-        .collect(),
-      ctx.db
-        .query("history")
-        .withIndex("by_user_id_and_status", (q) =>
-          q.eq("userId", userId).eq("status", "REWATCHING")
-        )
-        .collect(),
+    // Use aggregate for efficient O(log n) counting instead of O(n) .collect()
+    // Count by status and favorites using batch operations for better performance
+    const statusCounts = await historyAggregate.countBatch(ctx, [
+      { namespace: userId, bounds: { prefix: ["WATCHING"] } },
+      { namespace: userId, bounds: { prefix: ["FINISHED"] } },
+      { namespace: userId, bounds: { prefix: ["PLANNED"] } },
+      { namespace: userId, bounds: { prefix: ["ON_HOLD"] } },
+      { namespace: userId, bounds: { prefix: ["DROPPED"] } },
+      { namespace: userId, bounds: { prefix: ["REWATCHING"] } },
     ]);
 
-    const watching = watchingItems.length;
-    const finished = finishedItems.length;
-    const planned = plannedItems.length;
-    const total =
-      watching +
-      finished +
-      planned +
-      onHoldItems.length +
-      droppedItems.length +
-      rewatchingItems.length;
-    const favourites =
-      watchingItems.filter((item) => item.isFavourite).length +
-      finishedItems.filter((item) => item.isFavourite).length +
-      plannedItems.filter((item) => item.isFavourite).length +
-      onHoldItems.filter((item) => item.isFavourite).length +
-      droppedItems.filter((item) => item.isFavourite).length +
-      rewatchingItems.filter((item) => item.isFavourite).length;
+    const [watching, finished, planned, onHold, dropped, rewatching] =
+      statusCounts;
+
+    // Count favorites by checking each status with isFavourite=true
+    const favoriteCounts = await historyAggregate.countBatch(ctx, [
+      { namespace: userId, bounds: { prefix: ["WATCHING", true] } },
+      { namespace: userId, bounds: { prefix: ["FINISHED", true] } },
+      { namespace: userId, bounds: { prefix: ["PLANNED", true] } },
+      { namespace: userId, bounds: { prefix: ["ON_HOLD", true] } },
+      { namespace: userId, bounds: { prefix: ["DROPPED", true] } },
+      { namespace: userId, bounds: { prefix: ["REWATCHING", true] } },
+    ]);
+
+    const favourites = favoriteCounts.reduce((sum, count) => sum + count, 0);
+    const total = watching + finished + planned + onHold + dropped + rewatching;
+
     const progressValue = total > 0 ? Math.round((finished / total) * 100) : 0;
+
+    // Still need to fetch watching items for display (but not for counting)
+    const watchingItems = await ctx.db
+      .query("history")
+      .withIndex("by_user_id_and_status", (q) =>
+        q.eq("userId", userId).eq("status", "WATCHING")
+      )
+      .collect();
 
     const watchingWithTitles: HistoryWithTitle[] = await attachTitles(
       ctx,
@@ -476,10 +459,34 @@ export const getAll = query({
     }
 
     const userId: Id<"users"> = currentUser._id;
-    let sortDirection: "asc" | "desc" = "desc";
+    const page = args.page ?? 1;
+    const perPage = args.perPage ?? 10;
 
-    if (args.sort && args.sort.length > 0) {
-      for (const sortItem of args.sort) {
+    // Check if filters require title data
+    const filtersRequireTitleData =
+      args.filters?.some(
+        (f) => f.id === "title" || f.id === "type" || f.id === "genre"
+      ) ?? false;
+
+    // Extract filter values
+    const statusFilter = args.filters?.find((f) => f.id === "status");
+    const favouriteFilter = args.filters?.find((f) => f.id === "isFavourite");
+    const statusValues =
+      statusFilter && Array.isArray(statusFilter.value)
+        ? (statusFilter.value as string[])
+        : null;
+    const favouriteValues =
+      favouriteFilter && Array.isArray(favouriteFilter.value)
+        ? (favouriteFilter.value as string[])
+        : null;
+
+    let total: number;
+    let historyItems: Doc<"history">[];
+    let sortDirection: "asc" | "desc" = "desc";
+    const hasExplicitSort = args.sort && args.sort.length > 0;
+
+    if (hasExplicitSort) {
+      for (const sortItem of args.sort!) {
         if (sortItem.id === "status") {
           sortDirection = sortItem.desc ? "desc" : "asc";
           break;
@@ -487,33 +494,166 @@ export const getAll = query({
       }
     }
 
-    const query = ctx.db
-      .query("history")
-      .withIndex("by_user_id", (q) => q.eq("userId", userId))
-      .order(sortDirection);
+    if (!filtersRequireTitleData) {
+      const buildQuery = () => {
+        if (statusValues && statusValues.length === 1 && favouriteValues) {
+          const status = statusValues[0] as
+            | "FINISHED"
+            | "WATCHING"
+            | "PLANNED"
+            | "ON_HOLD"
+            | "DROPPED"
+            | "REWATCHING";
+          const isFavourite = favouriteValues.includes("true");
+          return ctx.db
+            .query("history")
+            .withIndex("by_user_id_status_is_favourite", (q) =>
+              q
+                .eq("userId", userId)
+                .eq("status", status)
+                .eq("isFavourite", isFavourite)
+            );
+        } else if (statusValues && statusValues.length === 1) {
+          const status = statusValues[0] as
+            | "FINISHED"
+            | "WATCHING"
+            | "PLANNED"
+            | "ON_HOLD"
+            | "DROPPED"
+            | "REWATCHING";
+          return ctx.db
+            .query("history")
+            .withIndex("by_user_id_and_status", (q) =>
+              q.eq("userId", userId).eq("status", status)
+            );
+        } else if (favouriteValues) {
+          const isFavourite = favouriteValues.includes("true");
+          return ctx.db
+            .query("history")
+            .withIndex("by_user_id_and_is_favourite", (q) =>
+              q.eq("userId", userId).eq("isFavourite", isFavourite)
+            );
+        } else {
+          return ctx.db
+            .query("history")
+            .withIndex("by_user_id", (q) => q.eq("userId", userId));
+        }
+      };
 
-    const historyItems = await query.collect();
+      if (statusValues && statusValues.length === 1) {
+        if (favouriteValues && favouriteValues.includes("true")) {
+          total = await historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: [statusValues[0], true] },
+          });
+        } else {
+          total = await historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: [statusValues[0]] },
+          });
+        }
+      } else if (statusValues && statusValues.length > 1) {
+        const statusCounts = await Promise.all(
+          statusValues.map((status) =>
+            historyAggregate.count(ctx, {
+              namespace: userId,
+              bounds: { prefix: [status] },
+            })
+          )
+        );
+        total = statusCounts.reduce((sum, count) => sum + count, 0);
+      } else if (favouriteValues && favouriteValues.includes("true")) {
+        const favoriteCounts = await Promise.all([
+          historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: ["WATCHING", true] },
+          }),
+          historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: ["FINISHED", true] },
+          }),
+          historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: ["PLANNED", true] },
+          }),
+          historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: ["ON_HOLD", true] },
+          }),
+          historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: ["DROPPED", true] },
+          }),
+          historyAggregate.count(ctx, {
+            namespace: userId,
+            bounds: { prefix: ["REWATCHING", true] },
+          }),
+        ]);
+        total = favoriteCounts.reduce((sum, count) => sum + count, 0);
+      } else {
+        total = await historyAggregate.count(ctx, { namespace: userId });
+      }
 
-    let historyWithTitles: HistoryWithTitle[] = await attachTitles(
-      ctx,
-      historyItems
-    );
+      if (statusValues && statusValues.length > 1) {
+        const allItems = await buildQuery().order(sortDirection).collect();
+        historyItems = allItems.filter((item: Doc<"history">) =>
+          statusValues.includes(item.status)
+        );
+        const startIndex = (page - 1) * perPage;
+        const endIndex = startIndex + perPage;
+        historyItems = historyItems.slice(startIndex, endIndex);
+      } else {
+        if (page === 1) {
+          const paginationResult = await buildQuery()
+            .order(sortDirection)
+            .paginate({
+              numItems: perPage,
+              cursor: null,
+            });
+          historyItems = paginationResult.page;
+        } else {
+          const allItems = await buildQuery().order(sortDirection).collect();
+          const startIndex = (page - 1) * perPage;
+          const endIndex = startIndex + perPage;
+          historyItems = allItems.slice(startIndex, endIndex);
+        }
+      }
+    } else {
+      const query = ctx.db
+        .query("history")
+        .withIndex("by_user_id", (q) => q.eq("userId", userId))
+        .order(sortDirection);
 
-    if (args.filters && args.filters.length > 0) {
-      historyWithTitles = applyFilters(historyWithTitles, args.filters);
+      const allItems = await query.collect();
+
+      let historyWithTitles = await attachTitles(ctx, allItems);
+      historyWithTitles = applyFilters(historyWithTitles, args.filters || []);
+      historyWithTitles = applySorting(historyWithTitles, args.sort || []);
+
+      total = historyWithTitles.length;
+
+      const startIndex = (page - 1) * perPage;
+      const endIndex = startIndex + perPage;
+      historyWithTitles = historyWithTitles.slice(startIndex, endIndex);
+
+      return {
+        data: historyWithTitles,
+        total,
+      };
     }
 
-    historyWithTitles = applySorting(historyWithTitles, args.sort || []);
+    const historyWithTitles = await attachTitles(ctx, historyItems);
 
-    const total = historyWithTitles.length;
-    const page = args.page ?? 1;
-    const perPage = args.perPage ?? 10;
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    const paginatedData = historyWithTitles.slice(startIndex, endIndex);
+    let finalItems = historyWithTitles;
+    if (args.filters && args.filters.length > 0 && !filtersRequireTitleData) {
+      finalItems = applyFilters(finalItems, args.filters);
+    }
+    if (hasExplicitSort) {
+      finalItems = applySorting(finalItems, args.sort!);
+    }
 
     return {
-      data: paginatedData,
+      data: finalItems,
       total,
     };
   },
@@ -573,6 +713,16 @@ export const update = mutation({
       updates.currentRuntime = args.currentRuntime;
     if (args.isFavourite !== undefined) updates.isFavourite = args.isFavourite;
 
+    const needsAggregateUpdate =
+      args.status !== undefined || args.isFavourite !== undefined;
+
+    if (needsAggregateUpdate) {
+      await historyAggregate.replace(ctx, historyItem, {
+        ...historyItem,
+        ...updates,
+      });
+    }
+
     await ctx.db.patch(args.id, updates);
 
     const updatedHistory = await ctx.db.get("history", args.id);
@@ -599,6 +749,8 @@ export const remove = mutation({
     if (historyItem.userId !== dbUserId) {
       throw new Error("Unauthorized");
     }
+
+    await historyAggregate.delete(ctx, historyItem);
 
     await ctx.db.delete(args.id);
     return null;
@@ -715,6 +867,11 @@ export const addFromTmdbInternal = mutation({
       if (args.isFavourite !== undefined)
         updates.isFavourite = args.isFavourite;
 
+      await historyAggregate.replace(ctx, existingHistory, {
+        ...existingHistory,
+        ...updates,
+      });
+
       await ctx.db.patch(existingHistory._id, updates);
       const updatedHistory = await ctx.db.get("history", existingHistory._id);
       if (!updatedHistory) {
@@ -742,6 +899,9 @@ export const addFromTmdbInternal = mutation({
     if (!newHistory) {
       throw new Error("Failed to create history item");
     }
+
+    await historyAggregate.insert(ctx, newHistory);
+
     return {
       ...newHistory,
       title,
@@ -949,5 +1109,34 @@ export const getHistoryItems = internalQuery({
     );
 
     return historyWithTitles;
+  },
+});
+
+export const backfillHistoryAggregate = mutation({
+  args: {},
+  returns: v.object({
+    processed: v.number(),
+    errors: v.number(),
+    total: v.number(),
+  }),
+  handler: async (ctx) => {
+    let processed = 0;
+    let errors = 0;
+
+    const historyItems = await ctx.db.query("history").order("desc").collect();
+
+    const total = historyItems.length;
+
+    for (const item of historyItems) {
+      try {
+        await historyAggregate.insert(ctx, item);
+        processed++;
+      } catch (error) {
+        console.error(`Error processing history item ${item._id}:`, error);
+        errors++;
+      }
+    }
+
+    return { processed, errors, total };
   },
 });
