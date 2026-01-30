@@ -189,7 +189,10 @@ export const getDetails = action({
     episodes: v.null(),
     description: v.union(v.string(), v.null()),
   }),
-  handler: async (ctx, args): Promise<{
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
     directors: string[];
     imdbId: string | null;
     runtime: number | null;
@@ -260,13 +263,18 @@ export const getSeasonEpisodes = action({
       overview: v.union(v.string(), v.null()),
     })
   ),
-  handler: async (ctx, args): Promise<Array<{
-    episodeNumber: number;
-    name: string;
-    airDate: string | null;
-    runtime: number | null;
-    overview: string | null;
-  }>> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    Array<{
+      episodeNumber: number;
+      name: string;
+      airDate: string | null;
+      runtime: number | null;
+      overview: string | null;
+    }>
+  > => {
     return await seasonEpisodesCache.fetch(ctx, {
       tmdbId: args.tmdbId,
       seasonNumber: args.seasonNumber,
@@ -467,36 +475,38 @@ export const internalGetTrendingTitles = internalAction({
 
       const trendingItems = Array.from(trendingItemsMap.values());
 
-      const providerPromises = trendingItems.map(async (item: {
-        id: number;
-        name: string;
-        posterUrl: string | null;
-        backdropUrl: string | null;
-        mediaType: "MOVIE" | "SERIES";
-        tmdbId: number;
-        description: string | null;
-        releaseDate: string | null;
-        genres: number[] | null;
-      }) => {
-        try {
-          const providersResults =
-            item.mediaType === "MOVIE"
-              ? await tmdb.movies.watchProviders(item.tmdbId)
-              : await tmdb.tvShows.watchProviders(item.tmdbId);
+      const providerPromises = trendingItems.map(
+        async (item: {
+          id: number;
+          name: string;
+          posterUrl: string | null;
+          backdropUrl: string | null;
+          mediaType: "MOVIE" | "SERIES";
+          tmdbId: number;
+          description: string | null;
+          releaseDate: string | null;
+          genres: number[] | null;
+        }) => {
+          try {
+            const providersResults =
+              item.mediaType === "MOVIE"
+                ? await tmdb.movies.watchProviders(item.tmdbId)
+                : await tmdb.tvShows.watchProviders(item.tmdbId);
 
-          const usProviders = providersResults.results?.US;
-          const flatrate = usProviders?.flatrate || [];
+            const usProviders = providersResults.results?.US;
+            const flatrate = usProviders?.flatrate || [];
 
-          const providerLogos = flatrate
-            .slice(0, 3)
-            .map((p) => p.logo_path)
-            .filter(Boolean);
+            const providerLogos = flatrate
+              .slice(0, 3)
+              .map((p) => p.logo_path)
+              .filter(Boolean);
 
-          return providerLogos;
-        } catch {
-          return [];
+            return providerLogos;
+          } catch {
+            return [];
+          }
         }
-      });
+      );
 
       const providerResults = await Promise.allSettled(providerPromises);
 
@@ -606,10 +616,15 @@ export const getWatchProviders = action({
       provider_name: v.string(),
     })
   ),
-  handler: async (ctx, args): Promise<Array<{
-    logo_path: string;
-    provider_name: string;
-  }>> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    Array<{
+      logo_path: string;
+      provider_name: string;
+    }>
+  > => {
     return await watchProvidersCache.fetch(ctx, {
       tmdbId: args.tmdbId,
       mediaType: args.mediaType,
@@ -674,12 +689,17 @@ export const getVideos = action({
       type: v.string(),
     })
   ),
-  handler: async (ctx, args): Promise<Array<{
-    key: string;
-    name: string;
-    site: string;
-    type: string;
-  }>> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    Array<{
+      key: string;
+      name: string;
+      site: string;
+      type: string;
+    }>
+  > => {
     return await videosCache.fetch(ctx, {
       tmdbId: args.tmdbId,
       mediaType: args.mediaType,

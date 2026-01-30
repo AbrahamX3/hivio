@@ -60,7 +60,11 @@ export default defineSchema({
     .index("by_user_id_title_id", ["userId", "titleId"])
     .index("by_user_id_and_status", ["userId", "status"])
     .index("by_user_id_and_is_favourite", ["userId", "isFavourite"])
-    .index("by_user_id_status_is_favourite", ["userId", "status", "isFavourite"])
+    .index("by_user_id_status_is_favourite", [
+      "userId",
+      "status",
+      "isFavourite",
+    ])
     .index("by_status", ["status"])
     .index("by_is_favourite", ["isFavourite"]),
 });

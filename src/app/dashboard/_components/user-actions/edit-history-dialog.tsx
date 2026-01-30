@@ -88,7 +88,12 @@ export function EditHistoryDialog({
           mediaType: title.mediaType,
         });
         startTransition(() => {
-          setTitleDetails(details);
+          setTitleDetails({
+            imdbId: details.imdbId,
+            directors: details.directors,
+            runtime: details.runtime,
+            seasons: details.seasons,
+          });
         });
 
         if (item.currentSeason !== undefined) {

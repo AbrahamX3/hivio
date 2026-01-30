@@ -58,7 +58,7 @@ export type SearchResult = {
 };
 
 export type TitleDetails = {
-  imdbId: string;
+  imdbId: string | null;
   directors: string[];
   runtime: number | null;
   seasons: Array<{

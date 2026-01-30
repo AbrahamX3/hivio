@@ -176,7 +176,12 @@ export function AddHistoryDialog({
         tmdbId: result.id,
         mediaType: result.mediaType,
       });
-      setTitleDetails(details);
+      setTitleDetails({
+        imdbId: details.imdbId,
+        directors: details.directors,
+        runtime: details.runtime,
+        seasons: details.seasons,
+      });
     } catch (error) {
       toast.error("Failed to load title details");
       if (error instanceof Error) {
@@ -235,7 +240,12 @@ export function AddHistoryDialog({
         mediaType: initialTitle.mediaType,
       })
         .then((details) => {
-          setTitleDetails(details);
+          setTitleDetails({
+            imdbId: details.imdbId,
+            directors: details.directors,
+            runtime: details.runtime,
+            seasons: details.seasons,
+          });
         })
         .catch((error) => {
           toast.error("Failed to load title details");
