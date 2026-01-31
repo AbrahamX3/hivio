@@ -346,7 +346,7 @@ function CurrentlyWatchingSection({
 }) {
   if (emptyState || itemsToUse.length === 0) {
     return (
-      <Card className="bg-card rounded-2xl border p-6">
+      <Card className="rounded-2xl border bg-transparent p-6">
         <div className="space-y-3">
           <p className="text-muted-foreground text-xs tracking-wide uppercase">
             Currently watching
@@ -364,7 +364,7 @@ function CurrentlyWatchingSection({
   }
 
   return (
-    <Card className="bg-card rounded-2xl border p-6">
+    <Card className="rounded-2xl border bg-transparent p-6">
       <div className="space-y-4">
         <div>
           <p className="text-muted-foreground text-xs tracking-wide uppercase">

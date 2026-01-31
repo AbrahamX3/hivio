@@ -9,12 +9,24 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 
-import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import {
+  ChevronsUpDown,
+  LogOut,
+  MonitorIcon,
+  MoonIcon,
+  Settings,
+  SunIcon,
+} from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { api } from "../../convex/_generated/api";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -25,6 +37,7 @@ export default function UserMenu() {
   const user = useQuery(api.auth.getCurrentUser);
   const router = useRouter();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   if (!user) {
     return (
@@ -100,6 +113,34 @@ export default function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            {theme === "light" ? (
+              <SunIcon />
+            ) : theme === "dark" ? (
+              <MoonIcon />
+            ) : (
+              <MonitorIcon />
+            )}
+            Theme
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                <SunIcon />
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <MoonIcon />
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                <MonitorIcon />
+                System
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
         <DropdownMenuItem
           onClick={() => {
             setSettingsOpen(true);
@@ -109,7 +150,7 @@ export default function UserMenu() {
           Settings
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="bg-destructive text-destructive-foreground"
+          className="text-destructive hover:bg-destructive/80 hover:text-destructive-foreground/80 focus:bg-destructive/80 focus:text-destructive-foreground/80"
           onClick={() => {
             handleSignOut();
           }}

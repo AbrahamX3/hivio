@@ -3,8 +3,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { UmamiAnalytics } from "@/components/umami-analytics";
 import { UmamiScript } from "@/components/umami-script";
-import { cn } from "@/lib/utils";
 import { getToken } from "@/lib/auth-server";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next";
@@ -49,7 +49,7 @@ export default async function RootLayout({
           <NuqsAdapter>
             <ThemeProvider
               attribute="class"
-              defaultTheme="dark"
+              enableSystem
               disableTransitionOnChange
               storageKey="vite-ui-theme"
             >

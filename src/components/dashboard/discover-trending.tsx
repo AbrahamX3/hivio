@@ -128,7 +128,7 @@ export function DiscoverTrending({
 
   return (
     <>
-      <Card>
+      <Card className="bg-transparent">
         <CardHeader>
           <CardTitle>Discover what&apos;s trending</CardTitle>
         </CardHeader>

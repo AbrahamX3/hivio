@@ -150,7 +150,7 @@ export default function View({
 
         <CurrentlyWatchingWithData items={watchingItems} />
 
-        <Card>
+        <Card className="bg-transparent">
           <CardHeader>
             <CardTitle>Your Library</CardTitle>
           </CardHeader>

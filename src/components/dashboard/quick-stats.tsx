@@ -14,7 +14,7 @@ export function StatsOverview({
   favourites,
 }: StatsOverviewProps) {
   return (
-    <Card>
+    <Card className="bg-transparent">
       <CardHeader>
         <CardTitle>Overview</CardTitle>
       </CardHeader>

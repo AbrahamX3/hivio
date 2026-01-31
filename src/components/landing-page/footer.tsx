@@ -28,24 +28,18 @@ export function Footer() {
               size="sm"
               className="text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200"
             >
-              <Link href="#features">Features</Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200"
-            >
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200"
-            >
               <Link href="/auth/sign-in">Sign In</Link>
             </Button>
+
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200"
+            >
+              <Link href="#features">Features</Link>
+            </Button>
+
             <Button
               asChild
               variant="ghost"
