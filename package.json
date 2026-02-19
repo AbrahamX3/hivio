@@ -67,7 +67,7 @@
     "react-day-picker": "^9.13.2",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.71.1",
-    "react-lite-youtube-embed": "^3.5.0",
+    "react-lite-youtube-embed": "3.3.3",
     "react-resizable-panels": "^3.0.6",
     "recharts": "3.7.0",
     "sonner": "^2.0.7",
