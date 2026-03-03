@@ -59,7 +59,7 @@ function ShowcaseCard({
               <p className="text-muted-foreground text-sm">{mockSubtitle}</p>
             </div>
             <Badge className="bg-primary/10 text-primary shrink-0 rounded-full px-2 py-0.5 text-xs font-medium">
-              Trending
+              Watching
             </Badge>
           </div>
 
