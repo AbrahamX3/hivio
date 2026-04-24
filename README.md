@@ -4,7 +4,9 @@
 
 ## Hivio
 
-**Minimal tracker for Movies & Series.** Keep up with every episode you watch without the clutter. Log what you are watching, pick up where you left off, and see what is coming next, all in a calm dashboard.
+**Minimal tracker for Movies & Series.** Keep up with every episode you watch
+without the clutter. Log what you are watching, pick up where you left off, and
+see what is coming next, all in a calm dashboard.
 
 Built with:
 
@@ -37,17 +39,21 @@ pnpm install
 
 ### 2. Run Convex setup (`predev`)
 
-Run the Convex dashboard + dev server once to create or link a Convex project and generate `.env.local`:
+Run the Convex dashboard + dev server once to create or link a Convex project
+and generate `.env.local`:
 
 ```bash
 pnpm run predev
 ```
 
-The CLI will ask whether you want to **create a new Convex project** or **choose an existing one**. Completing this step creates or updates `.env.local` with the Convex connection variables.
+The CLI will ask whether you want to **create a new Convex project** or **choose
+an existing one**. Completing this step creates or updates `.env.local` with the
+Convex connection variables.
 
 ### 3. Update `.env.local` for the frontend
 
-Open `.env.local` and add/update the following variables (use `.env.example` as a reference):
+Open `.env.local` and add/update the following variables (use `.env.example` as
+a reference):
 
 - `NEXT_PUBLIC_CONVEX_SITE_URL`
 - `NEXT_PUBLIC_SITE_URL=http://localhost:3000`
@@ -61,11 +67,15 @@ You can get `NEXT_PUBLIC_CONVEX_SITE_URL` from the Convex dashboard:
 
 Optional analytics:
 
-- `NEXT_PUBLIC_UMAMI_WEBSITE_ID` – if you want analytics, sign up for a free account at [`https://umami.is/`](https://umami.is/), follow the guide at [`https://umami.is/docs/collect-data`](https://umami.is/docs/collect-data), and copy the `data-website-id` from the script they provide.
+- `NEXT_PUBLIC_UMAMI_WEBSITE_ID` – if you want analytics, sign up for a free
+  account at [`https://umami.is/`](https://umami.is/), follow the guide at
+  [`https://umami.is/docs/collect-data`](https://umami.is/docs/collect-data),
+  and copy the `data-website-id` from the script they provide.
 
 ### 4. Set Convex environment variables
 
-The following environment variables are stored in Convex, not in `.env.local`. Run these commands once (using your own values for the placeholders):
+The following environment variables are stored in Convex, not in `.env.local`.
+Run these commands once (using your own values for the placeholders):
 
 ```bash
 pnpm dlx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
@@ -86,18 +96,24 @@ pnpm dev
 By default:
 
 - The Next.js app runs on `http://localhost:3000`
-- Convex runs on its own dev port and connects using `CONVEX_DEPLOYMENT` / `NEXT_PUBLIC_CONVEX_URL`
+- Convex runs on its own dev port and connects using `CONVEX_DEPLOYMENT` /
+  `NEXT_PUBLIC_CONVEX_URL`
 
 ---
 
 ## Environment variables
 
-All available variables are documented in `.env.example`. Here is a quick reference:
+All available variables are documented in `.env.example`. Here is a quick
+reference:
 
 ### Convex / backend
 
-- **`CONVEX_DEPLOY_KEY`**: Used for Production and Preview deployments when running `convex deploy`. Create it in the Convex dashboard under project settings.
-- **`CONVEX_DEPLOYMENT`**: Name/ID of the Convex deployment used by `npx convex dev` (for example, the dev deployment created in your Convex dashboard).
+- **`CONVEX_DEPLOY_KEY`**: Used for Production and Preview deployments when
+  running `convex deploy`. Create it in the Convex dashboard under project
+  settings.
+- **`CONVEX_DEPLOYMENT`**: Name/ID of the Convex deployment used by
+  `npx convex dev` (for example, the dev deployment created in your Convex
+  dashboard).
 - **`NEXT_PUBLIC_CONVEX_URL`**: The Convex `.cloud` URL for your deployment.
 - **`NEXT_PUBLIC_CONVEX_SITE_URL`**: The Convex `.site` URL for your deployment.
 
@@ -106,15 +122,18 @@ All available variables are documented in `.env.example`. Here is a quick refere
 - **`NEXT_PUBLIC_SITE_URL`**: The base URL of your app.
   - Local: `http://localhost:3000`
   - Production: your deployed site domain.
-- **`SITE_URL`**: Used by Convex / auth flows and the dashboard; set this to the public URL of your app in production.
+- **`SITE_URL`**: Used by Convex / auth flows and the dashboard; set this to the
+  public URL of your app in production.
 
 ### Analytics
 
-- **`NEXT_PUBLIC_UMAMI_WEBSITE_ID`**: Your Umami website ID for analytics (used by the Umami script components).
+- **`NEXT_PUBLIC_UMAMI_WEBSITE_ID`**: Your Umami website ID for analytics (used
+  by the Umami script components).
 
 ### TMDB
 
-- **`TMDB_API_KEY`**: Your TMDB API key, used to fetch trending titles and metadata for movies and series.
+- **`TMDB_API_KEY`**: Your TMDB API key, used to fetch trending titles and
+  metadata for movies and series.
 
 ### Authentication
 
@@ -124,10 +143,14 @@ All available variables are documented in `.env.example`. Here is a quick refere
   openssl rand -base64 32
   ```
 
-- **`DISCORD_CLIENT_ID`**: Discord OAuth client ID from the [Discord Developer Portal](https://discord.com/developers/applications).
-- **`DISCORD_CLIENT_SECRET`**: Discord OAuth client secret from the [Discord Developer Portal](https://discord.com/developers/applications).
+- **`DISCORD_CLIENT_ID`**: Discord OAuth client ID from the
+  [Discord Developer Portal](https://discord.com/developers/applications).
+- **`DISCORD_CLIENT_SECRET`**: Discord OAuth client secret from the
+  [Discord Developer Portal](https://discord.com/developers/applications).
 
-To set up Discord OAuth and obtain these values, you can follow the Better Auth Discord guide: [`https://www.better-auth.com/docs/authentication/discord`](https://www.better-auth.com/docs/authentication/discord).
+To set up Discord OAuth and obtain these values, you can follow the Better Auth
+Discord guide:
+[`https://www.better-auth.com/docs/authentication/discord`](https://www.better-auth.com/docs/authentication/discord).
 For local development, make sure your Discord redirect URL is set to:
 
 ```text
@@ -169,7 +192,9 @@ Useful package scripts from `package.json`:
 
 ## Deploying to Production
 
-Guidance for deploying Hivio to a production environment (including hosting the Next.js app and configuring the Convex production deployment and environment variables) will be documented here soon. Stay tuned!
+Guidance for deploying Hivio to a production environment (including hosting the
+Next.js app and configuring the Convex production deployment and environment
+variables) will be documented here soon. Stay tuned!
 
 ---
 
@@ -183,4 +208,6 @@ Before opening a PR, please run:
 pnpm run check
 ```
 
-This command runs linting, type checking, and formatting to keep the codebase consistent. If you run into setup issues, double‑check your `.env.local` values first, then open an issue with details about your environment.
+This command runs linting, type checking, and formatting to keep the codebase
+consistent. If you run into setup issues, double‑check your `.env.local` values
+first, then open an issue with details about your environment.

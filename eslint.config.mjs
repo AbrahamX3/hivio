@@ -4,16 +4,16 @@ import nextTypescript from "eslint-config-next/typescript";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig([
-  {
-    ignores: [
-      ".cursor/**",
-      ".gemini/**",
-      ".agents/**",
-      "convex/_generated/**",
-      ".next/**",
-    ],
-  },
-  ...nextCoreWebVitals,
-  ...nextTypescript,
-  ...convexPlugin.configs.recommended,
+	{
+		ignores: [
+			".cursor/**",
+			".gemini/**",
+			".agents/**",
+			"convex/_generated/**",
+			".next/**",
+		],
+	},
+	...nextCoreWebVitals,
+	...nextTypescript,
+	...convexPlugin.configs.recommended,
 ]);

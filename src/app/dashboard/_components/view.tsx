@@ -1,189 +1,207 @@
 "use client";
 
-import { CurrentlyWatchingWithData } from "@/components/dashboard/currently-watching";
-import { DiscoverTrending } from "@/components/dashboard/discover-trending";
-import { StatsOverview } from "@/components/dashboard/quick-stats";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import type { fetchAuthAction } from "@/lib/auth-server";
-import type {
-  HistoryId,
-  HistoryItem,
-  HistoryUpdateData,
-} from "@/types/history";
-import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { toast } from "sonner";
-import { api } from "../../../../convex/_generated/api";
+
+import { CurrentlyWatchingWithData } from "@/components/dashboard/currently-watching";
+import { DiscoverTrending } from "@/components/dashboard/discover-trending";
+import { StatsOverview } from "@/components/dashboard/quick-stats";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { client } from "@/lib/orpc";
+import type { HistoryItem, HistoryUpdateData } from "@/types/history";
+
 import { HistoryTable, useHistoryTable } from "./history-table";
 
 const AddTitleDialog = dynamic(
-  () =>
-    import("./user-actions/add-history-dialog").then((mod) => ({
-      default: mod.AddHistoryDialog,
-    })),
-  { ssr: false }
+	() =>
+		import("./user-actions/add-history-dialog").then((mod) => ({
+			default: mod.AddHistoryDialog,
+		})),
+	{ ssr: false },
 );
 
 const DeleteHistoryDialog = dynamic(
-  () =>
-    import("./user-actions/delete-history-dialog").then((mod) => ({
-      default: mod.DeleteHistoryDialog,
-    })),
-  { ssr: false }
+	() =>
+		import("./user-actions/delete-history-dialog").then((mod) => ({
+			default: mod.DeleteHistoryDialog,
+		})),
+	{ ssr: false },
 );
 
 const EditHistoryDialog = dynamic(
-  () =>
-    import("./user-actions/edit-history-dialog").then((mod) => ({
-      default: mod.EditHistoryDialog,
-    })),
-  { ssr: false }
+	() =>
+		import("./user-actions/edit-history-dialog").then((mod) => ({
+			default: mod.EditHistoryDialog,
+		})),
+	{ ssr: false },
 );
 
-interface ViewProps {
-  dashboardDataPreloaded: Preloaded<typeof api.history.getDashboardData>;
-  trendingTitles: Awaited<
-    ReturnType<typeof fetchAuthAction<typeof api.tmdb.getUserTrendingTitles>>
-  >;
-}
+export default function View() {
+	const queryClient = useQueryClient();
+	const [editingItem, setEditingItem] = useState<HistoryItem | null>(null);
+	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+	const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-export default function View({
-  dashboardDataPreloaded,
-  trendingTitles,
-}: ViewProps) {
-  const [editingItem, setEditingItem] = useState<HistoryItem | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState<HistoryId | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+	const dashboardData = useQuery({
+		queryKey: ["history", "getDashboardData"],
+		queryFn: () => client.history.getDashboardData(),
+	});
 
-  const updateHistory = useMutation(api.history.update);
-  const deleteHistory = useMutation(api.history.remove);
+	const updateMutation = useMutation({
+		mutationKey: ["history", "update"],
+		mutationFn: (data: { id: string } & HistoryUpdateData) =>
+			client.history.update(data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["history"] });
+			toast.success("History updated");
+		},
+		onError: (error) => {
+			toast.error("Failed to update history");
+			console.error("Update error:", error);
+		},
+	});
 
-  const { stats: overview, watchingItems } = usePreloadedQuery(
-    dashboardDataPreloaded
-  );
+	const deleteMutation = useMutation({
+		mutationKey: ["history", "remove"],
+		mutationFn: (data: { id: string }) => client.history.remove(data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["history"] });
+			toast.success("History item deleted");
+		},
+		onError: (error) => {
+			toast.error("Failed to delete history item");
+			console.error("Delete error:", error);
+		},
+	});
 
-  const handleEdit = (item: HistoryItem) => {
-    setEditingItem(item);
-    setIsEditDialogOpen(true);
-  };
+	const overview = dashboardData.data?.stats ?? {
+		watching: 0,
+		finished: 0,
+		planned: 0,
+		favourites: 0,
+	};
+	const watchingItems = dashboardData.data?.watchingItems ?? [];
 
-  const handleSave = async (id: HistoryId, data: HistoryUpdateData) => {
-    try {
-      await updateHistory({ id, ...data });
-    } catch (error) {
-      toast.error("Failed to update history");
-      console.error("Update error:", error);
-    }
-  };
+	const handleEdit = (item: HistoryItem) => {
+		setEditingItem(item);
+		setIsEditDialogOpen(true);
+	};
 
-  const handleDelete = (id: HistoryId) => {
-    setDeleteItemId(id);
-    setIsDeleteDialogOpen(true);
-  };
+	const handleSave = async (id: string, data: HistoryUpdateData) => {
+		try {
+			await updateMutation.mutateAsync({ id, ...data });
+		} catch {
+			// Error already handled in onError
+		}
+	};
 
-  const handleConfirmDelete = async () => {
-    if (!deleteItemId) return;
+	const handleDelete = (id: string) => {
+		setDeleteItemId(id);
+		setIsDeleteDialogOpen(true);
+	};
 
-    try {
-      await deleteHistory({ id: deleteItemId });
-      toast.success("History item deleted");
-      setIsDeleteDialogOpen(false);
-      setDeleteItemId(null);
-    } catch (error) {
-      toast.error("Failed to delete history item");
-      console.error("Delete error:", error);
-    }
-  };
+	const handleConfirmDelete = async () => {
+		if (!deleteItemId) return;
 
-  const { table, isLoading, isSearching, hasData } = useHistoryTable({
-    onEdit: handleEdit,
-    onDelete: handleDelete,
-  });
+		try {
+			await deleteMutation.mutateAsync({ id: deleteItemId });
+			setIsDeleteDialogOpen(false);
+			setDeleteItemId(null);
+		} catch {
+			// Error already handled in onError
+		}
+	};
 
-  return (
-    <>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Your Watch History</CardTitle>
-            <p className="text-muted-foreground text-sm">
-              Track progress, stay ahead of episodes, and keep your watchlist
-              tidy.
-            </p>
-          </div>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Title
-          </Button>
-        </div>
+	const { table, isLoading, isSearching, hasData } = useHistoryTable({
+		onEdit: handleEdit,
+		onDelete: handleDelete,
+	});
 
-        <Accordion type="single" collapsible defaultValue="overview">
-          <AccordionItem value="overview">
-            <AccordionTrigger>Overview & Discovery</AccordionTrigger>
-            <AccordionContent>
-              <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-                <StatsOverview
-                  watching={overview.watching}
-                  finished={overview.finished}
-                  planned={overview.planned}
-                  favourites={overview.favourites}
-                />
-                <div className="min-w-0">
-                  <DiscoverTrending trendingTitles={trendingTitles} />
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+	return (
+		<>
+			<div className="space-y-6">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<CardTitle>Your Watch History</CardTitle>
+						<p className="text-muted-foreground text-sm">
+							Track progress, stay ahead of episodes, and keep your watchlist
+							tidy.
+						</p>
+					</div>
+					<Button onClick={() => setIsAddDialogOpen(true)}>
+						<Plus className="mr-2 h-4 w-4" />
+						Add Title
+					</Button>
+				</div>
 
-        <CurrentlyWatchingWithData items={watchingItems} />
+				<Accordion type="single" collapsible defaultValue="overview">
+					<AccordionItem value="overview">
+						<AccordionTrigger>Overview & Discovery</AccordionTrigger>
+						<AccordionContent>
+							<div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+								<StatsOverview
+									watching={overview.watching}
+									finished={overview.finished}
+									planned={overview.planned}
+									favourites={overview.favourites}
+								/>
+								<div className="min-w-0">
+									<DiscoverTrending />
+								</div>
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
 
-        <Card className="bg-transparent">
-          <CardHeader>
-            <CardTitle>Your Library</CardTitle>
-          </CardHeader>
-          <CardContent className="min-w-0">
-            <TooltipProvider>
-              <HistoryTable
-                table={table}
-                isLoading={isLoading}
-                isSearching={isSearching}
-                hasData={hasData}
-              />
-            </TooltipProvider>
-          </CardContent>
-        </Card>
-      </div>
+				<CurrentlyWatchingWithData items={watchingItems} />
 
-      <EditHistoryDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        item={editingItem}
-        onSave={handleSave}
-      />
+				<Card className="bg-transparent">
+					<CardHeader>
+						<CardTitle>Your Library</CardTitle>
+					</CardHeader>
+					<CardContent className="min-w-0">
+						<TooltipProvider>
+							<HistoryTable
+								table={table}
+								isLoading={isLoading}
+								isSearching={isSearching}
+								hasData={hasData}
+							/>
+						</TooltipProvider>
+					</CardContent>
+				</Card>
+			</div>
 
-      <AddTitleDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-      />
+			<EditHistoryDialog
+				open={isEditDialogOpen}
+				onOpenChange={setIsEditDialogOpen}
+				item={editingItem}
+				onSave={handleSave}
+			/>
 
-      <DeleteHistoryDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleConfirmDelete}
-      />
-    </>
-  );
+			<AddTitleDialog
+				open={isAddDialogOpen}
+				onOpenChange={setIsAddDialogOpen}
+			/>
+
+			<DeleteHistoryDialog
+				open={isDeleteDialogOpen}
+				onOpenChange={setIsDeleteDialogOpen}
+				onConfirm={handleConfirmDelete}
+			/>
+		</>
+	);
 }

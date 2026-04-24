@@ -1,69 +1,72 @@
 "use client";
 
-import { useQuery } from "convex/react";
 import { useEffect, useRef } from "react";
-import { api } from "../../convex/_generated/api";
+
+import { env } from "@/env";
+import { authClient } from "@/lib/auth-client";
 
 declare global {
-  interface Window {
-    umami?: {
-      track: (
-        eventName?: string | object | ((props: object) => object),
-        eventData?: object
-      ) => void;
-      identify: (userId?: string | object, userData?: object) => void;
-    };
-  }
+	interface Window {
+		umami?: {
+			track: (
+				eventName?: string | object | ((props: object) => object),
+				eventData?: object,
+			) => void;
+			identify: (userId?: string | object, userData?: object) => void;
+		};
+	}
 }
 
 function identifyUser(user: {
-  _id: string;
-  email: string;
-  name: string;
-  image?: string | null;
+	id: string;
+	email: string;
+	name: string;
+	image?: string | null;
 }) {
-  if (typeof window === "undefined" || !window.umami) {
-    return;
-  }
+	if (typeof window === "undefined" || !window.umami) {
+		return;
+	}
 
-  window.umami.identify(user._id, {
-    email: user.email,
-    name: user.name,
-    ...(user.image && { image: user.image }),
-  });
+	window.umami.identify(user.id, {
+		email: user.email,
+		name: user.name,
+		...(user.image && { image: user.image }),
+	});
 }
 
 export function UmamiAnalytics() {
-  const user = useQuery(api.auth.getCurrentUser);
-  const identifiedRef = useRef<string | null>(null);
+	const { data: session } = authClient.useSession();
+	const identifiedRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      return;
-    }
+	const user = session?.user;
 
-    const tryIdentify = () => {
-      if (
-        typeof window === "undefined" ||
-        !window.umami ||
-        !user ||
-        identifiedRef.current === user._id
-      ) {
-        return;
-      }
+	useEffect(() => {
+		if (env.NODE_ENV === "development") {
+			return;
+		}
 
-      identifyUser(user);
-      identifiedRef.current = user._id;
-    };
+		const tryIdentify = () => {
+			if (
+				typeof window === "undefined" ||
+				!window.umami ||
+				!user ||
+				identifiedRef.current === user.id
+			) {
+				return;
+			}
 
-    tryIdentify();
+			identifyUser(user);
+			identifiedRef.current = user.id;
+		};
 
-    window.addEventListener("umami-loaded", tryIdentify);
+		tryIdentify();
 
-    return () => {
-      window.removeEventListener("umami-loaded", tryIdentify);
-    };
-  }, [user]);
+		window.addEventListener("umami-loaded", tryIdentify);
 
-  return null;
+		return () => {
+			window.removeEventListener("umami-loaded", tryIdentify);
+		};
+	}, [user]);
+
+	return null;
 }

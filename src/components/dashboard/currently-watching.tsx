@@ -1,382 +1,461 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Calendar, MoreHorizontal } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
+
 import { EditHistoryDialog } from "@/app/dashboard/_components/user-actions/edit-history-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { client } from "@/lib/orpc";
 import { cn, convertMinutesToHrMin } from "@/lib/utils";
-import type { HistoryItem } from "@/types/history";
-import { useAction, useMutation } from "convex/react";
-import { Calendar, MoreHorizontal } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
-import { api } from "../../../convex/_generated/api";
+import type { HistoryItem, HistoryStatus } from "@/types/history";
+
 import { TitleDetailsDialog } from "../title-details-dialog";
 
 type WatchingShowData = {
-  item: HistoryItem;
-  nextEpisode?: {
-    episodeNumber: number;
-    name: string;
-    airDate: string;
-  };
-  seasonProgress?: {
-    current: number;
-    total: number;
-  };
-  movieRuntime?: number;
-  isLoading?: boolean;
+	item: HistoryItem;
+	nextEpisode?: {
+		episodeNumber: number;
+		name: string;
+		airDate: string;
+	};
+	lastAired?: {
+		episodeNumber: number;
+		name: string;
+		airDate: string;
+	};
+	seasonProgress?: {
+		current: number;
+		total: number;
+	};
+	movieRuntime?: number;
+	isLoading?: boolean;
 };
 
 function formatReleaseDate(dateString: string): string {
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
+	try {
+		const date = new Date(dateString);
+		return date.toLocaleDateString("en-US", {
+			weekday: "long",
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+		});
+	} catch {
+		return dateString;
+	}
 }
 
 function WatchingShowCard({
-  show,
-  onUpdate,
+	show,
+	onUpdate,
 }: {
-  show: WatchingShowData;
-  onUpdate?: () => void;
+	show: WatchingShowData;
+	onUpdate?: () => void;
 }) {
-  const { item, nextEpisode, seasonProgress, movieRuntime, isLoading } = show;
-  const title = item.title;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const updateHistory = useMutation(api.history.update);
+	const queryClient = useQueryClient();
+	const {
+		item,
+		nextEpisode,
+		lastAired,
+		seasonProgress,
+		movieRuntime,
+		isLoading,
+	} = show;
+	const title = item.title;
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  if (isLoading || !title) {
-    return (
-      <Card className="bg-card rounded-xl border p-4">
-        <div className="flex gap-4">
-          <Skeleton className="h-20 w-14 shrink-0" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-2 w-full" />
-          </div>
-        </div>
-      </Card>
-    );
-  }
+	const updateMutation = useMutation({
+		mutationFn: (data: {
+			id: string;
+			status?: HistoryStatus;
+			currentSeason?: number;
+			currentEpisode?: number;
+		}) => client.history.update(data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["history"] });
+			toast.success("History updated");
+			onUpdate?.();
+		},
+		onError: () => {
+			toast.error("Failed to update history");
+		},
+	});
 
-  const isSeries = title.mediaType === "SERIES";
-  const isMovie = title.mediaType === "MOVIE";
+	if (isLoading || !title) {
+		return (
+			<Card className="bg-card rounded-xl border p-4">
+				<div className="flex gap-4">
+					<Skeleton className="h-20 w-14 shrink-0" />
+					<div className="flex-1 space-y-2">
+						<Skeleton className="h-5 w-32" />
+						<Skeleton className="h-4 w-24" />
+						<Skeleton className="h-2 w-full" />
+					</div>
+				</div>
+			</Card>
+		);
+	}
 
-  let progressValue = 0;
-  let progressLabel = "";
+	const isSeries = title.mediaType === "SERIES";
+	const isMovie = title.mediaType === "MOVIE";
 
-  if (isSeries && seasonProgress) {
-    progressValue = Math.round(
-      (seasonProgress.current / seasonProgress.total) * 100
-    );
-    progressLabel = `S${String(item.currentSeason || 0).padStart(2, "0")} • E${String(item.currentEpisode || 0).padStart(2, "0")} of ${seasonProgress.total}`;
-  } else if (isMovie && item.currentRuntime && movieRuntime) {
-    progressValue = Math.round((item.currentRuntime / movieRuntime) * 100);
-    progressLabel = `${convertMinutesToHrMin(item.currentRuntime)} / ${convertMinutesToHrMin(movieRuntime)}`;
-  }
+	let progressValue = 0;
+	let progressLabel = "";
 
-  return (
-    <Card className="bg-card rounded-xl border p-4">
-      <div className="flex gap-4">
-        {title.posterUrl ? (
-          <TitleDetailsDialog
-            title={{
-              name: title.name,
-              posterUrl: title.posterUrl,
-              backdropUrl: title.backdropUrl,
-              description: title.description,
-              directors: title.directors,
-              tmdbId: title.tmdbId,
-              mediaType: title.mediaType,
-              releaseDate: title.releaseDate,
-              genres: title.genres,
-            }}
-            triggerImage={{
-              width: 56,
-              height: 80,
-              className: "h-20 w-14 shrink-0 rounded object-cover",
-            }}
-          />
-        ) : (
-          <div className="bg-muted h-20 w-14 shrink-0 rounded" />
-        )}
+	if (isSeries && seasonProgress) {
+		progressValue = Math.round(
+			(seasonProgress.current / seasonProgress.total) * 100,
+		);
+		progressLabel = `S${String(item.currentSeason || 0).padStart(2, "0")} • E${String(item.currentEpisode || 0).padStart(2, "0")} of ${seasonProgress.total}`;
+	} else if (isMovie && item.currentRuntime && movieRuntime) {
+		progressValue = Math.round((item.currentRuntime / movieRuntime) * 100);
+		progressLabel = `${convertMinutesToHrMin(item.currentRuntime)} / ${convertMinutesToHrMin(movieRuntime)}`;
+	}
 
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <h4 className="truncate font-semibold">{title.name}</h4>
-              {isSeries && item.currentSeason && item.currentEpisode ? (
-                <p className="text-muted-foreground text-sm">
-                  S{String(item.currentSeason).padStart(2, "0")} • E
-                  {String(item.currentEpisode).padStart(2, "0")}
-                </p>
-              ) : isMovie && item.currentRuntime ? (
-                <p className="text-muted-foreground text-sm">
-                  {convertMinutesToHrMin(item.currentRuntime)} logged
-                </p>
-              ) : null}
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <Badge className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
-                Watching
-              </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setIsDialogOpen(true)}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+	return (
+		<Card className="bg-card rounded-xl border p-4">
+			<div className="flex gap-4">
+				{title.posterUrl ? (
+					<TitleDetailsDialog
+						title={{
+							name: title.name,
+							posterUrl: title.posterUrl ?? undefined,
+							backdropUrl: title.backdropUrl ?? undefined,
+							description: title.description ?? undefined,
+							directors: title.directors ?? [],
+							tmdbId: title.tmdbId,
+							mediaType: title.mediaType,
+							releaseDate: title.releaseDate ?? "",
+							genres: title.genres ?? [],
+						}}
+						triggerImage={{
+							width: 56,
+							height: 80,
+							className: "h-20 w-14 shrink-0 rounded object-cover",
+						}}
+					/>
+				) : (
+					<div className="bg-muted h-20 w-14 shrink-0 rounded" />
+				)}
 
-          {progressValue > 0 && (
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">{progressLabel}</span>
-                <span className="font-medium">{progressValue}%</span>
-              </div>
-              <Progress value={progressValue} className="h-1.5" />
-            </div>
-          )}
+				<div className="min-w-0 flex-1 space-y-2">
+					<div className="flex items-start justify-between gap-2">
+						<div className="min-w-0 flex-1">
+							<h4 className="truncate font-semibold">{title.name}</h4>
+							{isSeries && item.currentSeason && item.currentEpisode ? (
+								<p className="text-muted-foreground text-sm">
+									S{String(item.currentSeason).padStart(2, "0")} • E
+									{String(item.currentEpisode).padStart(2, "0")}
+								</p>
+							) : isMovie && item.currentRuntime ? (
+								<p className="text-muted-foreground text-sm">
+									{convertMinutesToHrMin(item.currentRuntime)} logged
+								</p>
+							) : null}
+						</div>
+						<div className="flex shrink-0 items-center gap-2">
+							<Badge className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
+								Watching
+							</Badge>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-7 w-7"
+								onClick={() => setIsDialogOpen(true)}
+							>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
 
-          {nextEpisode && (
-            <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
-              <Calendar className="h-3 w-3" />
-              <span>
-                {new Date(nextEpisode.airDate) >= new Date()
-                  ? "Next Episode: "
-                  : "Last Aired: "}
-                {formatReleaseDate(nextEpisode.airDate)}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-      <EditHistoryDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        item={item}
-        onSave={async (id, data) => {
-          await updateHistory({
-            id,
-            ...data,
-          });
-          onUpdate?.();
-        }}
-      />
-    </Card>
-  );
+					{progressValue > 0 && (
+						<div className="space-y-1">
+							<div className="flex items-center justify-between text-xs">
+								<span className="text-muted-foreground">{progressLabel}</span>
+								<span className="font-medium">{progressValue}%</span>
+							</div>
+							<Progress value={progressValue} className="h-1.5" />
+						</div>
+					)}
+
+					{nextEpisode && (
+						<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+							<Calendar className="h-3 w-3" />
+							<span>
+								{"Next Episode: "}
+								{formatReleaseDate(nextEpisode.airDate)}
+							</span>
+						</div>
+					)}
+					{!nextEpisode && lastAired && (
+						<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+							<Calendar className="h-3 w-3" />
+							<span>
+								{"Last Aired: "}
+								{formatReleaseDate(lastAired.airDate)}
+							</span>
+						</div>
+					)}
+				</div>
+			</div>
+			<EditHistoryDialog
+				open={isDialogOpen}
+				onOpenChange={setIsDialogOpen}
+				item={item}
+				onSave={async (id, data) => {
+					await updateMutation.mutateAsync({ id, ...data });
+				}}
+			/>
+		</Card>
+	);
 }
 
 function CurrentlyWatchingDataFetcher({
-  items,
-  onUpdate,
+	items,
+	onUpdate,
 }: {
-  items: HistoryItem[];
-  onUpdate?: () => void;
+	items: HistoryItem[];
+	onUpdate?: () => void;
 }) {
-  const [isPending, startTransition] = useTransition();
-  const [showData, setShowData] = useState<WatchingShowData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+	const [isPending, startTransition] = useTransition();
+	const [showData, setShowData] = useState<WatchingShowData[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 
-  const getNextEpisodeInfo = useAction(api.tmdb.getNextEpisodeInfo);
-  const getDetails = useAction(api.tmdb.getDetails);
+	useEffect(() => {
+		const fetchAllData = async () => {
+			setIsLoading(true);
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      setIsLoading(true);
+			try {
+				const seriesItems = items.filter(
+					(
+						item,
+					): item is HistoryItem & {
+						title: NonNullable<HistoryItem["title"]>;
+					} =>
+						!!item.title &&
+						item.title.mediaType === "SERIES" &&
+						!!item.currentSeason &&
+						!!item.currentEpisode,
+				);
+				const movieItems = items.filter(
+					(
+						item,
+					): item is HistoryItem & {
+						title: NonNullable<HistoryItem["title"]>;
+					} => !!item.title && item.title.mediaType === "MOVIE",
+				);
 
-      try {
-        const dataPromises = items.map(async (item) => {
-          if (!item.title) {
-            return {
-              item,
-              nextEpisode: undefined,
-              seasonProgress: undefined,
-              movieRuntime: undefined,
-              isLoading: false,
-            } as WatchingShowData;
-          }
+				const [seriesResults, movieDetails] = await Promise.all([
+					seriesItems.length > 0
+						? client.tmdb.getNextEpisodeInfoBatch(
+								seriesItems.map((item) => ({
+									tmdbId: item.title.tmdbId,
+									currentSeason: item.currentSeason!,
+									currentEpisode: item.currentEpisode!,
+								})),
+							)
+						: Promise.resolve([]),
+					movieItems.length > 0
+						? Promise.all(
+								movieItems.map((item) =>
+									client.tmdb.getDetails({
+										tmdbId: item.title.tmdbId,
+										mediaType: "MOVIE",
+									}),
+								),
+							)
+						: Promise.resolve([]),
+				]);
 
-          try {
-            let nextEpisode: WatchingShowData["nextEpisode"];
-            let seasonProgress: WatchingShowData["seasonProgress"];
-            let movieRuntime: WatchingShowData["movieRuntime"];
+				const seriesMap = new Map(
+					seriesItems.map((item, index) => [
+						item.id,
+						{
+							nextEpisode: seriesResults[index]?.nextEpisode ?? undefined,
+							lastAired: seriesResults[index]?.lastAired ?? undefined,
+							seasonProgress: seriesResults[index]?.seasonProgress ?? undefined,
+						},
+					]),
+				);
+				const movieMap = new Map(
+					movieItems.map((item, index) => [
+						item.id,
+						{ movieRuntime: movieDetails[index]?.runtime ?? undefined },
+					]),
+				);
 
-            if (
-              item.title.mediaType === "SERIES" &&
-              item.currentSeason &&
-              item.currentEpisode
-            ) {
-              const result = await getNextEpisodeInfo({
-                tmdbId: item.title.tmdbId,
-                currentSeason: item.currentSeason,
-                currentEpisode: item.currentEpisode,
-              });
-              nextEpisode = result.nextEpisode ?? undefined;
-              seasonProgress = result.seasonProgress;
-            } else if (item.title.mediaType === "MOVIE") {
-              const details = await getDetails({
-                tmdbId: item.title.tmdbId,
-                mediaType: "MOVIE",
-              });
-              movieRuntime = details.runtime || undefined;
-            }
+				const results: WatchingShowData[] = items.map((item) => {
+					if (!item.title) {
+						return {
+							item,
+							nextEpisode: undefined,
+							lastAired: undefined,
+							seasonProgress: undefined,
+							movieRuntime: undefined,
+							isLoading: false,
+						};
+					}
+					const seriesData = seriesMap.get(item.id);
+					if (seriesData) {
+						return {
+							item,
+							nextEpisode: seriesData.nextEpisode,
+							lastAired: seriesData.lastAired,
+							seasonProgress: seriesData.seasonProgress,
+							movieRuntime: undefined,
+							isLoading: false,
+						};
+					}
+					const movieData = movieMap.get(item.id);
+					if (movieData) {
+						return {
+							item,
+							nextEpisode: undefined,
+							lastAired: undefined,
+							seasonProgress: undefined,
+							movieRuntime: movieData.movieRuntime,
+							isLoading: false,
+						};
+					}
+					return {
+						item,
+						nextEpisode: undefined,
+						lastAired: undefined,
+						seasonProgress: undefined,
+						movieRuntime: undefined,
+						isLoading: false,
+					};
+				});
 
-            return {
-              item,
-              nextEpisode,
-              seasonProgress,
-              movieRuntime,
-              isLoading: false,
-            } as WatchingShowData;
-          } catch (error) {
-            console.error("Failed to load show data:", error);
-            return {
-              item,
-              nextEpisode: undefined,
-              seasonProgress: undefined,
-              movieRuntime: undefined,
-              isLoading: false,
-            } as WatchingShowData;
-          }
-        });
+				startTransition(() => {
+					setShowData(results);
+				});
+			} catch (error) {
+				console.error("Failed to fetch watching data:", error);
+				startTransition(() => {
+					setShowData(
+						items.map((item) => ({
+							item,
+							nextEpisode: undefined,
+							lastAired: undefined,
+							seasonProgress: undefined,
+							movieRuntime: undefined,
+							isLoading: false,
+						})),
+					);
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-        const results = await Promise.all(dataPromises);
-        startTransition(() => {
-          setShowData(results);
-        });
-      } catch (error) {
-        console.error("Failed to fetch watching data:", error);
-        startTransition(() => {
-          setShowData(
-            items.map((item) => ({
-              item,
-              nextEpisode: undefined,
-              seasonProgress: undefined,
-              movieRuntime: undefined,
-              isLoading: false,
-            }))
-          );
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+		void fetchAllData();
+	}, [items]);
 
-    fetchAllData();
-  }, [getDetails, getNextEpisodeInfo, items]);
+	if (isLoading) {
+		return (
+			<div className="space-y-3">
+				{items.map((item) => (
+					<WatchingShowCard
+						key={item.id}
+						show={{
+							item,
+							nextEpisode: undefined,
+							lastAired: undefined,
+							seasonProgress: undefined,
+							movieRuntime: undefined,
+							isLoading: true,
+						}}
+						onUpdate={onUpdate}
+					/>
+				))}
+			</div>
+		);
+	}
 
-  if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {items.map((item) => (
-          <WatchingShowCard
-            key={item._id}
-            show={{
-              item,
-              nextEpisode: undefined,
-              seasonProgress: undefined,
-              movieRuntime: undefined,
-              isLoading: true,
-            }}
-            onUpdate={onUpdate}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        "space-y-3 transition-opacity duration-200",
-        isPending ? "pointer-events-none opacity-60" : "opacity-100"
-      )}
-    >
-      {showData.map((show) => (
-        <WatchingShowCard key={show.item._id} show={show} onUpdate={onUpdate} />
-      ))}
-    </div>
-  );
+	return (
+		<div
+			className={cn(
+				"space-y-3 transition-opacity duration-200",
+				isPending ? "pointer-events-none opacity-60" : "opacity-100",
+			)}
+		>
+			{showData.map((show) => (
+				<WatchingShowCard key={show.item.id} show={show} onUpdate={onUpdate} />
+			))}
+		</div>
+	);
 }
 
 export function CurrentlyWatchingWithData({
-  items,
-  emptyState,
-  onUpdate,
+	items,
+	emptyState,
+	onUpdate,
 }: {
-  items: HistoryItem[];
-  emptyState?: {
-    title: string;
-    description: string;
-  };
-  onUpdate?: () => void;
+	items: HistoryItem[];
+	emptyState?: {
+		title: string;
+		description: string;
+	};
+	onUpdate?: () => void;
 }) {
-  return (
-    <CurrentlyWatchingSection
-      itemsToUse={items}
-      emptyState={emptyState}
-      onUpdate={onUpdate}
-    />
-  );
+	return (
+		<CurrentlyWatchingSection
+			itemsToUse={items}
+			emptyState={emptyState}
+			onUpdate={onUpdate}
+		/>
+	);
 }
 
 function CurrentlyWatchingSection({
-  itemsToUse,
-  emptyState,
-  onUpdate,
+	itemsToUse,
+	emptyState,
+	onUpdate,
 }: {
-  itemsToUse: HistoryItem[];
-  emptyState?: { title: string; description: string };
-  onUpdate?: () => void;
+	itemsToUse: HistoryItem[];
+	emptyState?: { title: string; description: string };
+	onUpdate?: () => void;
 }) {
-  if (emptyState || itemsToUse.length === 0) {
-    return (
-      <Card className="rounded-2xl border bg-transparent p-6">
-        <div className="space-y-3">
-          <p className="text-muted-foreground text-xs tracking-wide uppercase">
-            Currently watching
-          </p>
-          <h3 className="text-xl font-semibold">
-            {emptyState?.title ?? "No titles in progress"}
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            {emptyState?.description ??
-              "Start watching something to see it here with progress and release dates."}
-          </p>
-        </div>
-      </Card>
-    );
-  }
+	if (emptyState || itemsToUse.length === 0) {
+		return (
+			<Card className="rounded-2xl border bg-transparent p-6">
+				<div className="space-y-3">
+					<p className="text-muted-foreground text-xs tracking-wide uppercase">
+						Currently watching
+					</p>
+					<h3 className="text-xl font-semibold">
+						{emptyState?.title ?? "No titles in progress"}
+					</h3>
+					<p className="text-muted-foreground text-sm">
+						{emptyState?.description ??
+							"Start watching something to see it here with progress and release dates."}
+					</p>
+				</div>
+			</Card>
+		);
+	}
 
-  return (
-    <Card className="rounded-2xl border bg-transparent p-6">
-      <div className="space-y-4">
-        <div>
-          <p className="text-muted-foreground text-xs tracking-wide uppercase">
-            Currently watching
-          </p>
-          <h3 className="mt-1 text-xl font-semibold">
-            {itemsToUse.length} {itemsToUse.length === 1 ? "title" : "titles"}
-          </h3>
-        </div>
+	return (
+		<Card className="rounded-2xl border bg-transparent p-6">
+			<div className="space-y-4">
+				<div>
+					<p className="text-muted-foreground text-xs tracking-wide uppercase">
+						Currently watching
+					</p>
+					<h3 className="mt-1 text-xl font-semibold">
+						{itemsToUse.length} {itemsToUse.length === 1 ? "title" : "titles"}
+					</h3>
+				</div>
 
-        <CurrentlyWatchingDataFetcher items={itemsToUse} onUpdate={onUpdate} />
-      </div>
-    </Card>
-  );
+				<CurrentlyWatchingDataFetcher items={itemsToUse} onUpdate={onUpdate} />
+			</div>
+		</Card>
+	);
 }
