@@ -110,18 +110,36 @@ export function HeroShowcase() {
 				<div className="space-y-3">
 					{isLoading ? (
 						<>
-							{[1, 2, 3].map((i) => (
-								<Card key={i} className="bg-card rounded-xl border p-4">
-									<div className="flex gap-4">
-										<Skeleton className="h-20 w-14 shrink-0" />
-										<div className="flex-1 space-y-2">
-											<Skeleton className="h-5 w-32" />
-											<Skeleton className="h-4 w-24" />
-											<Skeleton className="h-2 w-full" />
-										</div>
+							<Card className="bg-card rounded-xl border p-4">
+								<div className="flex gap-4">
+									<Skeleton className="h-20 w-14 shrink-0" />
+									<div className="flex-1 space-y-2">
+										<Skeleton className="h-5 w-32" />
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-2 w-full" />
 									</div>
-								</Card>
-							))}
+								</div>
+							</Card>
+							<Card className="bg-card rounded-xl border p-4">
+								<div className="flex gap-4">
+									<Skeleton className="h-20 w-14 shrink-0" />
+									<div className="flex-1 space-y-2">
+										<Skeleton className="h-5 w-32" />
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-2 w-full" />
+									</div>
+								</div>
+							</Card>
+							<Card className="bg-card rounded-xl border p-4">
+								<div className="flex gap-4">
+									<Skeleton className="h-20 w-14 shrink-0" />
+									<div className="flex-1 space-y-2">
+										<Skeleton className="h-5 w-32" />
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-2 w-full" />
+									</div>
+								</div>
+							</Card>
 						</>
 					) : (
 						trendingTitles.map((title, index) => (

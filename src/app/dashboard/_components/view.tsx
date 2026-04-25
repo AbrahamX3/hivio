@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useReducer } from "react";
 import { toast } from "sonner";
 
 import { CurrentlyWatchingWithData } from "@/components/dashboard/currently-watching";
@@ -47,13 +47,59 @@ const EditHistoryDialog = dynamic(
 	{ ssr: false },
 );
 
+interface DialogState {
+	editingItem: HistoryItem | null;
+	isEditDialogOpen: boolean;
+	isAddDialogOpen: boolean;
+	deleteItemId: string | null;
+	isDeleteDialogOpen: boolean;
+}
+
+type DialogAction =
+	| { type: "OPEN_EDIT"; item: HistoryItem }
+	| { type: "CLOSE_EDIT" }
+	| { type: "OPEN_ADD" }
+	| { type: "CLOSE_ADD" }
+	| { type: "OPEN_DELETE"; id: string }
+	| { type: "CLOSE_DELETE" };
+
+const initialDialogState: DialogState = {
+	editingItem: null,
+	isEditDialogOpen: false,
+	isAddDialogOpen: false,
+	deleteItemId: null,
+	isDeleteDialogOpen: false,
+};
+
+function dialogReducer(state: DialogState, action: DialogAction): DialogState {
+	switch (action.type) {
+		case "OPEN_EDIT":
+			return { ...state, editingItem: action.item, isEditDialogOpen: true };
+		case "CLOSE_EDIT":
+			return { ...state, isEditDialogOpen: false };
+		case "OPEN_ADD":
+			return { ...state, isAddDialogOpen: true };
+		case "CLOSE_ADD":
+			return { ...state, isAddDialogOpen: false };
+		case "OPEN_DELETE":
+			return { ...state, deleteItemId: action.id, isDeleteDialogOpen: true };
+		case "CLOSE_DELETE":
+			return { ...state, isDeleteDialogOpen: false, deleteItemId: null };
+		default:
+			return state;
+	}
+}
+
 export default function View() {
 	const queryClient = useQueryClient();
-	const [editingItem, setEditingItem] = useState<HistoryItem | null>(null);
-	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-	const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+	const [dialogState, dispatch] = useReducer(dialogReducer, initialDialogState);
+	const {
+		editingItem,
+		isEditDialogOpen,
+		isAddDialogOpen,
+		deleteItemId,
+		isDeleteDialogOpen,
+	} = dialogState;
 
 	const dashboardData = useQuery({
 		queryKey: ["history", "getDashboardData"],
@@ -96,8 +142,7 @@ export default function View() {
 	const watchingItems = dashboardData.data?.watchingItems ?? [];
 
 	const handleEdit = (item: HistoryItem) => {
-		setEditingItem(item);
-		setIsEditDialogOpen(true);
+		dispatch({ type: "OPEN_EDIT", item });
 	};
 
 	const handleSave = async (id: string, data: HistoryUpdateData) => {
@@ -109,8 +154,7 @@ export default function View() {
 	};
 
 	const handleDelete = (id: string) => {
-		setDeleteItemId(id);
-		setIsDeleteDialogOpen(true);
+		dispatch({ type: "OPEN_DELETE", id });
 	};
 
 	const handleConfirmDelete = async () => {
@@ -118,8 +162,7 @@ export default function View() {
 
 		try {
 			await deleteMutation.mutateAsync({ id: deleteItemId });
-			setIsDeleteDialogOpen(false);
-			setDeleteItemId(null);
+			dispatch({ type: "CLOSE_DELETE" });
 		} catch {
 			// Error already handled in onError
 		}
@@ -141,7 +184,7 @@ export default function View() {
 							tidy.
 						</p>
 					</div>
-					<Button onClick={() => setIsAddDialogOpen(true)}>
+					<Button onClick={() => dispatch({ type: "OPEN_ADD" })}>
 						<Plus className="mr-2 h-4 w-4" />
 						Add Title
 					</Button>
@@ -186,20 +229,27 @@ export default function View() {
 			</div>
 
 			<EditHistoryDialog
+				key={editingItem?.id ?? "empty"}
 				open={isEditDialogOpen}
-				onOpenChange={setIsEditDialogOpen}
+				onOpenChange={(open) => {
+					if (!open) dispatch({ type: "CLOSE_EDIT" });
+				}}
 				item={editingItem}
 				onSave={handleSave}
 			/>
 
 			<AddTitleDialog
 				open={isAddDialogOpen}
-				onOpenChange={setIsAddDialogOpen}
+				onOpenChange={(open) => {
+					if (!open) dispatch({ type: "CLOSE_ADD" });
+				}}
 			/>
 
 			<DeleteHistoryDialog
 				open={isDeleteDialogOpen}
-				onOpenChange={setIsDeleteDialogOpen}
+				onOpenChange={(open) => {
+					if (!open) dispatch({ type: "CLOSE_DELETE" });
+				}}
 				onConfirm={handleConfirmDelete}
 			/>
 		</>

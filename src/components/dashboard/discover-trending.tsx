@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Film, Tv } from "lucide-react";
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useReducer, useTransition } from "react";
 
 import { AddHistoryDialog } from "@/app/dashboard/_components/user-actions/add-history-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,9 +66,9 @@ function TrendingTitleCard({
 				<div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
 				{title.providers && title.providers.length > 0 && (
 					<div className="absolute right-1 bottom-1 flex -space-x-1.5">
-						{title.providers.map((logo, i) => (
+						{title.providers.map((logo) => (
 							<div
-								key={i}
+								key={logo}
 								className="bg-background relative h-5 w-5 overflow-hidden rounded-full border border-white shadow-sm"
 							>
 								<Image
@@ -93,9 +93,64 @@ function TrendingTitleCard({
 	);
 }
 
+interface TrendingState {
+	recentlyAddedIds: Set<number>;
+	selectedTitle: TrendingTitle | null;
+	isDialogOpen: boolean;
+	isAddTitleDialogOpen: boolean;
+	addTitleInitialData: { title: TrendingTitle } | null;
+}
+
+type TrendingAction =
+	| { type: "SELECT_TITLE"; title: TrendingTitle }
+	| { type: "CLOSE_DIALOG" }
+	| { type: "OPEN_ADD_TITLE"; data: { title: TrendingTitle } }
+	| { type: "CLOSE_ADD_TITLE" }
+	| { type: "MARK_ADDED"; tmdbId: number };
+
+const initialTrendingState: TrendingState = {
+	recentlyAddedIds: new Set(),
+	selectedTitle: null,
+	isDialogOpen: false,
+	isAddTitleDialogOpen: false,
+	addTitleInitialData: null,
+};
+
+function trendingReducer(
+	state: TrendingState,
+	action: TrendingAction,
+): TrendingState {
+	switch (action.type) {
+		case "SELECT_TITLE":
+			return { ...state, selectedTitle: action.title, isDialogOpen: true };
+		case "CLOSE_DIALOG":
+			return { ...state, isDialogOpen: false };
+		case "OPEN_ADD_TITLE":
+			return {
+				...state,
+				addTitleInitialData: action.data,
+				isAddTitleDialogOpen: true,
+			};
+		case "CLOSE_ADD_TITLE":
+			return {
+				...state,
+				isAddTitleDialogOpen: false,
+				addTitleInitialData: null,
+			};
+		case "MARK_ADDED":
+			return {
+				...state,
+				recentlyAddedIds: new Set(state.recentlyAddedIds).add(action.tmdbId),
+			};
+		default:
+			return state;
+	}
+}
+
 export function DiscoverTrending() {
 	const queryClient = useQueryClient();
 	const [isPending, startTransition] = useTransition();
+	const [state, dispatch] = useReducer(trendingReducer, initialTrendingState);
 
 	const { data: rawTrending, isLoading } = useQuery({
 		queryKey: [
@@ -114,30 +169,25 @@ export function DiscoverTrending() {
 
 	const allTrendingTitles: TrendingTitle[] = rawTrending ?? [];
 
-	const [recentlyAddedIds, setRecentlyAddedIds] = useState<Set<number>>(
-		() => new Set(),
-	);
-	const [selectedTitle, setSelectedTitle] = useState<TrendingTitle | null>(
-		null,
-	);
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [isAddTitleDialogOpen, setIsAddTitleDialogOpen] = useState(false);
-	const [addTitleInitialData, setAddTitleInitialData] = useState<{
-		title: TrendingTitle;
-	} | null>(null);
+	const {
+		recentlyAddedIds,
+		selectedTitle,
+		isDialogOpen,
+		isAddTitleDialogOpen,
+		addTitleInitialData,
+	} = state;
 
 	const trendingTitles = allTrendingTitles.filter((title) => {
 		return !recentlyAddedIds.has(title.tmdbId);
 	});
 
 	const handleTitleClick = (title: TrendingTitle) => {
-		setSelectedTitle(title);
-		setIsDialogOpen(true);
+		dispatch({ type: "SELECT_TITLE", title });
 	};
 
 	const handleTitleAdded = (tmdbId: number) => {
 		startTransition(() => {
-			setRecentlyAddedIds((prev) => new Set(prev).add(tmdbId));
+			dispatch({ type: "MARK_ADDED", tmdbId });
 		});
 	};
 
@@ -154,9 +204,9 @@ export function DiscoverTrending() {
 							role="status"
 							aria-label="Loading trending titles"
 						>
-							{Array.from({ length: 16 }).map((_, i) => (
+							{Array.from({ length: 16 }).map((_, idx) => (
 								<div
-									key={i}
+									key={`trending-skeleton-${idx}`}
 									className="border-border bg-card w-24 shrink-0 overflow-hidden rounded-xl border"
 								>
 									<Skeleton className="aspect-2/3 w-full rounded-none" />
@@ -191,9 +241,7 @@ export function DiscoverTrending() {
 				<TitleDetailsDialog
 					open={isDialogOpen}
 					onOpenChange={(open) => {
-						if (!isPending) {
-							setIsDialogOpen(open);
-						}
+						if (!isPending && !open) dispatch({ type: "CLOSE_DIALOG" });
 					}}
 					title={{
 						name: selectedTitle.name,
@@ -208,21 +256,23 @@ export function DiscoverTrending() {
 					showAddToWatchlist
 					onOpenAddTitleDialog={(title) => {
 						if (!isPending) {
-							setAddTitleInitialData({
-								title: {
-									id: title.tmdbId,
-									name: title.name,
-									posterUrl: title.posterUrl ?? null,
-									backdropUrl: title.backdropUrl ?? null,
-									mediaType: title.mediaType,
-									tmdbId: title.tmdbId,
-									providers: [],
-									description: title.description ?? null,
-									releaseDate: title.releaseDate ?? null,
-									genres: title.genres ?? [],
+							dispatch({
+								type: "OPEN_ADD_TITLE",
+								data: {
+									title: {
+										id: title.tmdbId,
+										name: title.name,
+										posterUrl: title.posterUrl ?? null,
+										backdropUrl: title.backdropUrl ?? null,
+										mediaType: title.mediaType,
+										tmdbId: title.tmdbId,
+										providers: [],
+										description: title.description ?? null,
+										releaseDate: title.releaseDate ?? null,
+										genres: title.genres ?? [],
+									},
 								},
 							});
-							setIsAddTitleDialogOpen(true);
 						}
 					}}
 				/>
@@ -232,12 +282,7 @@ export function DiscoverTrending() {
 				<AddHistoryDialog
 					open={isAddTitleDialogOpen}
 					onOpenChange={(open) => {
-						if (!isPending) {
-							setIsAddTitleDialogOpen(open);
-							if (!open) {
-								setAddTitleInitialData(null);
-							}
-						}
+						if (!isPending && !open) dispatch({ type: "CLOSE_ADD_TITLE" });
 					}}
 					initialTitle={{
 						id: addTitleInitialData.title.tmdbId,

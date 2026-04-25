@@ -48,7 +48,6 @@ export function DataTableViewOptions<TData>({
 			<PopoverTrigger asChild>
 				<Button
 					aria-label="Toggle columns"
-					role="combobox"
 					variant="outline"
 					size="sm"
 					className="ml-auto hidden h-8 font-normal lg:flex"

@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -15,57 +15,23 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { client } from "@/lib/orpc";
 import type {
 	EditHistoryFormValues,
-	Episode,
 	HistoryItem,
 	HistoryUpdateData,
-	TitleDetails,
 } from "@/types/history";
 import { editHistoryFormSchema } from "@/types/history";
 
-function formatEpisodeDate(dateString: string | null) {
-	if (!dateString) return "";
-	try {
-		const date = new Date(dateString);
-		return date.toLocaleDateString("en-US", {
-			weekday: "long",
-			day: "numeric",
-			month: "long",
-			year: "numeric",
-		});
-	} catch {
-		return "";
-	}
-}
-
-function getSeasonYear(dateString: string | null) {
-	if (!dateString) return "";
-	try {
-		const date = new Date(dateString);
-		return date.getFullYear().toString();
-	} catch {
-		return "";
-	}
-}
+import {
+	EpisodeSelect,
+	FavoriteCheckbox,
+	RuntimeInput,
+	SeasonSelect,
+	StatusSelect,
+} from "./history-form-fields";
 
 interface EditHistoryDialogProps {
 	open: boolean;
@@ -82,102 +48,38 @@ export function EditHistoryDialog({
 }: EditHistoryDialogProps) {
 	const [isPending, startTransition] = useTransition();
 	const [isSaving, setIsSaving] = useState(false);
-	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-	const [titleDetails, setTitleDetails] = useState<TitleDetails | null>(null);
-	const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
-	const [episodes, setEpisodes] = useState<Episode[]>([]);
-	const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
+	const [selectedSeason, setSelectedSeason] = useState<number | null>(
+		item?.currentSeason ?? null,
+	);
 
-	useEffect(() => {
-		if (!item?.title || !open) return;
+	const { data: titleDetails, isPending: isLoadingDetails } = useQuery({
+		queryKey: ["tmdb", "details", item?.title?.tmdbId, item?.title?.mediaType],
+		queryFn: () =>
+			client.tmdb.getDetails({
+				tmdbId: item!.title!.tmdbId,
+				mediaType: item!.title!.mediaType,
+			}),
+		enabled: open && !!item?.title,
+		staleTime: 1000 * 60 * 5,
+	});
 
-		const loadDetails = async () => {
-			setIsLoadingDetails(true);
-			startTransition(() => {
-				setTitleDetails(null);
-				setSelectedSeason(item.currentSeason ?? null);
-				setEpisodes([]);
-			});
+	const { data: episodes = [], isPending: isLoadingEpisodes } = useQuery({
+		queryKey: ["tmdb", "episodes", item?.title?.tmdbId, selectedSeason],
+		queryFn: () =>
+			client.tmdb.getSeasonEpisodes({
+				tmdbId: item!.title!.tmdbId,
+				seasonNumber: selectedSeason!,
+			}),
+		enabled: open && !!item?.title && selectedSeason != null,
+		staleTime: 1000 * 60 * 5,
+	});
 
-			const title = item.title;
-			if (!title) return;
-
-			try {
-				const details = await client.tmdb.getDetails({
-					tmdbId: title.tmdbId,
-					mediaType: title.mediaType,
-				});
-				startTransition(() => {
-					setTitleDetails({
-						imdbId: details.imdbId,
-						directors: details.directors,
-						runtime: details.runtime,
-						seasons: details.seasons,
-					});
-				});
-
-				if (item.currentSeason != null) {
-					setIsLoadingEpisodes(true);
-					try {
-						const episodeList = await client.tmdb.getSeasonEpisodes({
-							tmdbId: title.tmdbId,
-							seasonNumber: item.currentSeason,
-						});
-						startTransition(() => {
-							setEpisodes(episodeList);
-						});
-					} catch (error) {
-						if (error instanceof Error) {
-							console.error("Failed to load episodes:", error.message);
-						}
-					} finally {
-						setIsLoadingEpisodes(false);
-					}
-				}
-			} catch (error) {
-				toast.error("Failed to load title details");
-				if (error instanceof Error) {
-					console.error("Load details error:", error.message);
-				}
-			} finally {
-				setIsLoadingDetails(false);
-			}
-		};
-
-		void loadDetails();
-	}, [
-		item?.title?.tmdbId,
-		item?.title?.mediaType,
-		item?.currentSeason,
-		item?.title,
-		open,
-	]);
-
-	const handleSelectSeason = async (seasonNumber: number) => {
+	const handleSelectSeason = (seasonNumber: number) => {
 		if (!item?.title) return;
-
 		startTransition(() => {
 			setSelectedSeason(seasonNumber);
-			setEpisodes([]);
+			form.setValue("currentEpisode", "");
 		});
-		setIsLoadingEpisodes(true);
-
-		try {
-			const episodeList = await client.tmdb.getSeasonEpisodes({
-				tmdbId: item.title.tmdbId,
-				seasonNumber,
-			});
-			startTransition(() => {
-				setEpisodes(episodeList);
-			});
-		} catch (error) {
-			toast.error("Failed to load episodes");
-			if (error instanceof Error) {
-				console.error("Load episodes error:", error.message);
-			}
-		} finally {
-			setIsLoadingEpisodes(false);
-		}
 	};
 
 	const form = useForm<EditHistoryFormValues>({
@@ -190,21 +92,6 @@ export function EditHistoryDialog({
 			isFavourite: item?.isFavourite ?? false,
 		},
 	});
-
-	useEffect(() => {
-		if (item) {
-			startTransition(() => {
-				form.reset({
-					status: item.status ?? "PLANNED",
-					currentEpisode: item.currentEpisode?.toString() ?? "",
-					currentSeason: item.currentSeason?.toString() ?? "",
-					currentRuntime: item.currentRuntime?.toString() ?? "",
-					isFavourite: item.isFavourite ?? false,
-				});
-				setSelectedSeason(item.currentSeason ?? null);
-			});
-		}
-	}, [item, form, startTransition]);
 
 	const onSubmit = async (data: EditHistoryFormValues) => {
 		if (!item) return;
@@ -250,35 +137,7 @@ export function EditHistoryDialog({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormField
-							control={form.control}
-							name="status"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Status</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-										disabled={isPending}
-									>
-										<FormControl>
-											<SelectTrigger disabled={isPending}>
-												<SelectValue placeholder="Select status" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="FINISHED">Finished</SelectItem>
-											<SelectItem value="WATCHING">Watching</SelectItem>
-											<SelectItem value="PLANNED">Planned</SelectItem>
-											<SelectItem value="ON_HOLD">On Hold</SelectItem>
-											<SelectItem value="DROPPED">Dropped</SelectItem>
-											<SelectItem value="REWATCHING">Rewatching</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						<StatusSelect control={form.control} disabled={isPending} />
 
 						{isLoadingDetails && (
 							<div className="space-y-2">
@@ -291,151 +150,40 @@ export function EditHistoryDialog({
 							<>
 								{isSeries ? (
 									<>
-										<FormField
+										<SeasonSelect
 											control={form.control}
-											name="currentSeason"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Season</FormLabel>
-													<Select
-														value={
-															selectedSeason !== null
-																? selectedSeason.toString()
-																: (field.value ?? "")
-														}
-														onValueChange={(value: string) => {
-															const seasonNum = parseInt(value, 10);
-															field.onChange(value);
-															void handleSelectSeason(seasonNum);
-															startTransition(() => {
-																form.setValue("currentEpisode", "");
-															});
-														}}
-														disabled={isPending}
-													>
-														<FormControl>
-															<SelectTrigger disabled={isPending}>
-																<SelectValue placeholder="Select season" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															{titleDetails.seasons
-																?.filter((season) => season.episodeCount > 0)
-																.map((season) => {
-																	const year = getSeasonYear(season.airDate);
-																	return (
-																		<SelectItem
-																			key={season.seasonNumber}
-																			value={season.seasonNumber.toString()}
-																		>
-																			{season.name}
-																			{year && ` (${year})`} (
-																			{season.episodeCount} episodes)
-																		</SelectItem>
-																	);
-																})}
-														</SelectContent>
-													</Select>
-													<FormMessage />
-												</FormItem>
-											)}
+											disabled={isPending}
+											titleDetails={
+												titleDetails as import("@/types/history").TitleDetails
+											}
+											selectedSeason={selectedSeason}
+											onSeasonChange={(seasonNum) => {
+												void handleSelectSeason(seasonNum);
+												startTransition(() => {
+													form.setValue("currentEpisode", "");
+												});
+											}}
 										/>
 										{selectedSeason !== null && (
-											<FormField
+											<EpisodeSelect
 												control={form.control}
-												name="currentEpisode"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Episode</FormLabel>
-														{isLoadingEpisodes ? (
-															<Skeleton className="h-10 w-full" />
-														) : (
-															<Select
-																value={field.value ?? ""}
-																onValueChange={field.onChange}
-																disabled={isPending}
-															>
-																<FormControl>
-																	<SelectTrigger disabled={isPending}>
-																		<SelectValue placeholder="Select episode" />
-																	</SelectTrigger>
-																</FormControl>
-																<SelectContent>
-																	{episodes.map((ep) => {
-																		const dateStr = formatEpisodeDate(
-																			ep.airDate,
-																		);
-																		return (
-																			<SelectItem
-																				key={ep.episodeNumber}
-																				value={ep.episodeNumber.toString()}
-																			>
-																				{ep.episodeNumber}. {ep.name}
-																				{dateStr && ` - ${dateStr}`}
-																			</SelectItem>
-																		);
-																	})}
-																</SelectContent>
-															</Select>
-														)}
-														<FormMessage />
-													</FormItem>
-												)}
+												disabled={isPending}
+												episodes={episodes}
+												isLoadingEpisodes={isLoadingEpisodes}
 											/>
 										)}
 									</>
 								) : (
-									<FormField
+									<RuntimeInput
 										control={form.control}
-										name="currentRuntime"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>
-													Runtime (minutes)
-													{titleDetails.runtime && (
-														<span className="text-muted-foreground ml-2 text-xs">
-															Max: {titleDetails.runtime} min
-														</span>
-													)}
-												</FormLabel>
-												<FormControl>
-													<Input
-														type="number"
-														min="0"
-														max={titleDetails.runtime || undefined}
-														placeholder="Runtime in minutes"
-														disabled={isPending}
-														{...field}
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
+										disabled={isPending}
+										maxRuntime={titleDetails.runtime}
 									/>
 								)}
 							</>
 						)}
 
-						<FormField
-							control={form.control}
-							name="isFavourite"
-							render={({ field }) => (
-								<FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-									<FormControl>
-										<Checkbox
-											checked={field.value}
-											onCheckedChange={field.onChange}
-										/>
-									</FormControl>
-									<div className="space-y-1 leading-none">
-										<FormLabel>Favorite</FormLabel>
-										<p className="text-muted-foreground text-sm">
-											Mark this title as a favorite
-										</p>
-									</div>
-								</FormItem>
-							)}
-						/>
+						<FavoriteCheckbox control={form.control} disabled={isPending} />
 
 						<DialogFooter>
 							<Button

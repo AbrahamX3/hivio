@@ -1,8 +1,8 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Calendar, MoreHorizontal } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { EditHistoryDialog } from "@/app/dashboard/_components/user-actions/edit-history-dialog";
@@ -223,106 +223,71 @@ function CurrentlyWatchingDataFetcher({
 	items: HistoryItem[];
 	onUpdate?: () => void;
 }) {
-	const [isPending, startTransition] = useTransition();
-	const [showData, setShowData] = useState<WatchingShowData[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isPending] = useTransition();
 
-	useEffect(() => {
-		const fetchAllData = async () => {
-			setIsLoading(true);
+	const { data: showData = [], isLoading } = useQuery({
+		queryKey: ["watching", "details", items.map((i) => i.id).join(",")],
+		queryFn: async () => {
+			const seriesItems = items.filter(
+				(
+					item,
+				): item is HistoryItem & {
+					title: NonNullable<HistoryItem["title"]>;
+				} =>
+					!!item.title &&
+					item.title.mediaType === "SERIES" &&
+					!!item.currentSeason &&
+					!!item.currentEpisode,
+			);
+			const movieItems = items.filter(
+				(
+					item,
+				): item is HistoryItem & {
+					title: NonNullable<HistoryItem["title"]>;
+				} => !!item.title && item.title.mediaType === "MOVIE",
+			);
 
-			try {
-				const seriesItems = items.filter(
-					(
-						item,
-					): item is HistoryItem & {
-						title: NonNullable<HistoryItem["title"]>;
-					} =>
-						!!item.title &&
-						item.title.mediaType === "SERIES" &&
-						!!item.currentSeason &&
-						!!item.currentEpisode,
-				);
-				const movieItems = items.filter(
-					(
-						item,
-					): item is HistoryItem & {
-						title: NonNullable<HistoryItem["title"]>;
-					} => !!item.title && item.title.mediaType === "MOVIE",
-				);
-
-				const [seriesResults, movieDetails] = await Promise.all([
-					seriesItems.length > 0
-						? client.tmdb.getNextEpisodeInfoBatch(
-								seriesItems.map((item) => ({
+			const [seriesResults, movieDetails] = await Promise.all([
+				seriesItems.length > 0
+					? client.tmdb.getNextEpisodeInfoBatch(
+							seriesItems.map((item) => ({
+								tmdbId: item.title.tmdbId,
+								currentSeason: item.currentSeason!,
+								currentEpisode: item.currentEpisode!,
+							})),
+						)
+					: Promise.resolve([]),
+				movieItems.length > 0
+					? Promise.all(
+							movieItems.map((item) =>
+								client.tmdb.getDetails({
 									tmdbId: item.title.tmdbId,
-									currentSeason: item.currentSeason!,
-									currentEpisode: item.currentEpisode!,
-								})),
-							)
-						: Promise.resolve([]),
-					movieItems.length > 0
-						? Promise.all(
-								movieItems.map((item) =>
-									client.tmdb.getDetails({
-										tmdbId: item.title.tmdbId,
-										mediaType: "MOVIE",
-									}),
-								),
-							)
-						: Promise.resolve([]),
-				]);
+									mediaType: "MOVIE",
+								}),
+							),
+						)
+					: Promise.resolve([]),
+			]);
 
-				const seriesMap = new Map(
-					seriesItems.map((item, index) => [
-						item.id,
-						{
-							nextEpisode: seriesResults[index]?.nextEpisode ?? undefined,
-							lastAired: seriesResults[index]?.lastAired ?? undefined,
-							seasonProgress: seriesResults[index]?.seasonProgress ?? undefined,
-						},
-					]),
-				);
-				const movieMap = new Map(
-					movieItems.map((item, index) => [
-						item.id,
-						{ movieRuntime: movieDetails[index]?.runtime ?? undefined },
-					]),
-				);
+			const seriesMap = new Map(
+				seriesItems.map((item, index) => [
+					item.id,
+					{
+						nextEpisode: seriesResults[index]?.nextEpisode ?? undefined,
+						lastAired: seriesResults[index]?.lastAired ?? undefined,
+						seasonProgress: seriesResults[index]?.seasonProgress ?? undefined,
+					},
+				]),
+			);
+			const movieMap = new Map(
+				movieItems.map((item, index) => [
+					item.id,
+					{ movieRuntime: movieDetails[index]?.runtime ?? undefined },
+				]),
+			);
 
-				const results: WatchingShowData[] = items.map((item) => {
-					if (!item.title) {
-						return {
-							item,
-							nextEpisode: undefined,
-							lastAired: undefined,
-							seasonProgress: undefined,
-							movieRuntime: undefined,
-							isLoading: false,
-						};
-					}
-					const seriesData = seriesMap.get(item.id);
-					if (seriesData) {
-						return {
-							item,
-							nextEpisode: seriesData.nextEpisode,
-							lastAired: seriesData.lastAired,
-							seasonProgress: seriesData.seasonProgress,
-							movieRuntime: undefined,
-							isLoading: false,
-						};
-					}
-					const movieData = movieMap.get(item.id);
-					if (movieData) {
-						return {
-							item,
-							nextEpisode: undefined,
-							lastAired: undefined,
-							seasonProgress: undefined,
-							movieRuntime: movieData.movieRuntime,
-							isLoading: false,
-						};
-					}
+			return items.map((item) => {
+				if (!item.title) {
 					return {
 						item,
 						nextEpisode: undefined,
@@ -331,32 +296,41 @@ function CurrentlyWatchingDataFetcher({
 						movieRuntime: undefined,
 						isLoading: false,
 					};
-				});
-
-				startTransition(() => {
-					setShowData(results);
-				});
-			} catch (error) {
-				console.error("Failed to fetch watching data:", error);
-				startTransition(() => {
-					setShowData(
-						items.map((item) => ({
-							item,
-							nextEpisode: undefined,
-							lastAired: undefined,
-							seasonProgress: undefined,
-							movieRuntime: undefined,
-							isLoading: false,
-						})),
-					);
-				});
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		void fetchAllData();
-	}, [items]);
+				}
+				const seriesData = seriesMap.get(item.id);
+				if (seriesData) {
+					return {
+						item,
+						nextEpisode: seriesData.nextEpisode,
+						lastAired: seriesData.lastAired,
+						seasonProgress: seriesData.seasonProgress,
+						movieRuntime: undefined,
+						isLoading: false,
+					};
+				}
+				const movieData = movieMap.get(item.id);
+				if (movieData) {
+					return {
+						item,
+						nextEpisode: undefined,
+						lastAired: undefined,
+						seasonProgress: undefined,
+						movieRuntime: movieData.movieRuntime,
+						isLoading: false,
+					};
+				}
+				return {
+					item,
+					nextEpisode: undefined,
+					lastAired: undefined,
+					seasonProgress: undefined,
+					movieRuntime: undefined,
+					isLoading: false,
+				};
+			});
+		},
+		enabled: items.length > 0,
+	});
 
 	if (isLoading) {
 		return (

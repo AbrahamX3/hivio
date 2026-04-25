@@ -132,8 +132,12 @@ export function DataTableSliderFilter<TData>({
 	);
 
 	const onReset = React.useCallback(
-		(event: React.MouseEvent) => {
-			if (event.target instanceof HTMLDivElement) {
+		(event?: React.MouseEvent | React.KeyboardEvent) => {
+			if (
+				event &&
+				"target" in event &&
+				event.target instanceof HTMLDivElement
+			) {
 				event.stopPropagation();
 			}
 			column.setFilterValue(undefined);
@@ -156,6 +160,12 @@ export function DataTableSliderFilter<TData>({
 							tabIndex={0}
 							className="focus-visible:ring-ring rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-1 focus-visible:outline-none"
 							onClick={onReset}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									e.preventDefault();
+									onReset?.();
+								}
+							}}
 						>
 							<XCircle />
 						</div>
