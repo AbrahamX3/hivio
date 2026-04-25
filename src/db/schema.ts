@@ -101,25 +101,6 @@ export const verifications = pgTable(
 	(table) => [index("verifications_identifier_idx").on(table.identifier)],
 );
 
-export const usersRelations = relations(users, ({ many }) => ({
-	sessions: many(sessions),
-	accounts: many(accounts),
-}));
-
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-	users: one(users, {
-		fields: [sessions.userId],
-		references: [users.id],
-	}),
-}));
-
-export const accountsRelations = relations(accounts, ({ one }) => ({
-	users: one(users, {
-		fields: [accounts.userId],
-		references: [users.id],
-	}),
-}));
-
 export const titles = pgTable(
 	"titles",
 	{
@@ -244,5 +225,3 @@ export type HistoryStatus =
 	| "REWATCHING";
 
 export type MediaType = "MOVIE" | "SERIES";
-
-export type HistoryWithTitle = History & { title: Title | null };

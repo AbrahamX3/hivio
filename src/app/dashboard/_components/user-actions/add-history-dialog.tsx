@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, Search } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
@@ -46,6 +47,31 @@ import type {
 } from "@/types/history";
 import { addTitleFormSchema } from "@/types/history";
 
+function formatEpisodeDate(dateString: string | null) {
+	if (!dateString) return "";
+	try {
+		const date = new Date(dateString);
+		return date.toLocaleDateString("en-US", {
+			weekday: "long",
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+		});
+	} catch {
+		return "";
+	}
+}
+
+function getSeasonYear(dateString: string | null) {
+	if (!dateString) return "";
+	try {
+		const date = new Date(dateString);
+		return date.getFullYear().toString();
+	} catch {
+		return "";
+	}
+}
+
 interface AddHistoryDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -80,21 +106,11 @@ export function AddHistoryDialog({
 	const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
 	const [episodes, setEpisodes] = useState<Episode[]>([]);
 	const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
-	const [currentUser, setCurrentUser] = useState<{
-		defaultStatus:
-			| "FINISHED"
-			| "WATCHING"
-			| "PLANNED"
-			| "ON_HOLD"
-			| "DROPPED"
-			| "REWATCHING"
-			| null;
-	} | null>(null);
-
-	// Fetch current user on mount
-	useEffect(() => {
-		client.user.getCurrentUser().then(setCurrentUser).catch(console.error);
-	}, []);
+	const { data: currentUser } = useQuery({
+		queryKey: ["user", "getCurrentUser"],
+		queryFn: () => client.user.getCurrentUser(),
+		enabled: open,
+	});
 
 	const form = useForm<AddTitleFormValues>({
 		resolver: zodResolver(addTitleFormSchema),
@@ -360,31 +376,6 @@ export function AddHistoryDialog({
 	]);
 
 	const isSeries = selectedResult?.mediaType === "SERIES";
-
-	const formatEpisodeDate = (dateString: string | null) => {
-		if (!dateString) return "";
-		try {
-			const date = new Date(dateString);
-			return date.toLocaleDateString("en-US", {
-				weekday: "long",
-				day: "numeric",
-				month: "long",
-				year: "numeric",
-			});
-		} catch {
-			return "";
-		}
-	};
-
-	const getSeasonYear = (dateString: string | null) => {
-		if (!dateString) return "";
-		try {
-			const date = new Date(dateString);
-			return date.getFullYear().toString();
-		} catch {
-			return "";
-		}
-	};
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>

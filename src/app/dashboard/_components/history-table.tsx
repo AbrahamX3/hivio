@@ -478,10 +478,8 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 	const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
 
 	React.useEffect(() => {
-		if (hasData && !hasLoadedOnce) {
-			setHasLoadedOnce(true);
-		}
-	}, [hasData, hasLoadedOnce]);
+		setHasLoadedOnce((prev) => (hasData && !prev ? true : prev));
+	}, [hasData]);
 
 	const shouldShowSkeleton = isLoading && !hasLoadedOnce;
 	const isSearching = isLoading && hasLoadedOnce;

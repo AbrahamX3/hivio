@@ -42,6 +42,31 @@ import type {
 } from "@/types/history";
 import { editHistoryFormSchema } from "@/types/history";
 
+function formatEpisodeDate(dateString: string | null) {
+	if (!dateString) return "";
+	try {
+		const date = new Date(dateString);
+		return date.toLocaleDateString("en-US", {
+			weekday: "long",
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+		});
+	} catch {
+		return "";
+	}
+}
+
+function getSeasonYear(dateString: string | null) {
+	if (!dateString) return "";
+	try {
+		const date = new Date(dateString);
+		return date.getFullYear().toString();
+	} catch {
+		return "";
+	}
+}
+
 interface EditHistoryDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -213,31 +238,6 @@ export function EditHistoryDialog({
 	if (!item) return null;
 
 	const isSeries = item.title?.mediaType === "SERIES";
-
-	const formatEpisodeDate = (dateString: string | null) => {
-		if (!dateString) return "";
-		try {
-			const date = new Date(dateString);
-			return date.toLocaleDateString("en-US", {
-				weekday: "long",
-				day: "numeric",
-				month: "long",
-				year: "numeric",
-			});
-		} catch {
-			return "";
-		}
-	};
-
-	const getSeasonYear = (dateString: string | null) => {
-		if (!dateString) return "";
-		try {
-			const date = new Date(dateString);
-			return date.getFullYear().toString();
-		} catch {
-			return "";
-		}
-	};
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>

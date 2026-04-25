@@ -3,14 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Trash2, Upload, X } from "lucide-react";
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-	useTransition,
-} from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -146,17 +139,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 		}
 	}, [form, open, userData, startTransition]);
 
-	// Clean up preview URL on unmount or when dialog closes
-	useEffect(() => {
-		if (!open) {
-			setSelectedFile(null);
-			if (previewUrl) {
-				URL.revokeObjectURL(previewUrl);
-				setPreviewUrl(null);
-			}
-		}
-	}, [open, previewUrl]);
-
 	const onSubmit = useCallback(
 		async (data: SettingsFormValues) => {
 			try {
@@ -261,10 +243,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 	const user = session?.user;
 	const currentImage =
 		previewUrl ?? getAvatarUrl(user?.image, userData?.updatedAt);
-	const canSave = useMemo(
-		() => !updateDefaultStatus.isPending && !isPending,
-		[updateDefaultStatus.isPending, isPending],
-	);
+	const canSave = !updateDefaultStatus.isPending && !isPending;
 	const isUploading =
 		getAvatarUploadUrl.isPending ||
 		updateAvatar.isPending ||
@@ -273,9 +252,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={(open) => {
+			onOpenChange={(newOpen) => {
+				if (!newOpen) {
+					setSelectedFile(null);
+					if (previewUrl) {
+						URL.revokeObjectURL(previewUrl);
+						setPreviewUrl(null);
+					}
+				}
 				if (!isPending && !isUploading) {
-					onOpenChange(open);
+					onOpenChange(newOpen);
 				}
 			}}
 		>

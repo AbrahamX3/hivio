@@ -1,8 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ExternalLink, Play, Plus } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import LiteYouTubeEmbed from "react-lite-youtube-embed";
 
 import { Badge } from "@/components/ui/badge";
@@ -109,96 +110,60 @@ export function TitleDetailsDialog({
 
 	const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
 	const setOpen = controlledOnOpenChange || setInternalOpen;
-	const [details, setDetails] = useState<DetailedInfo | null>(null);
-	const [providers, setProviders] = useState<WatchProvider[]>([]);
-	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-	const [isLoadingProviders, setIsLoadingProviders] = useState(false);
-	const [videos, setVideos] = useState<
-		Array<{
-			key: string;
-			name: string;
-			site: string;
-			type: string;
-		}>
-	>([]);
-	const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+
+	const { data: detailsResult, isPending: isLoadingDetails } = useQuery({
+		queryKey: ["tmdb", "details", title.tmdbId, title.mediaType],
+		queryFn: () =>
+			client.tmdb.getDetails({
+				tmdbId: title.tmdbId,
+				mediaType: title.mediaType,
+			}),
+		enabled: open,
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const { data: providersResult, isPending: isLoadingProviders } = useQuery({
+		queryKey: ["tmdb", "providers", title.tmdbId, title.mediaType],
+		queryFn: () =>
+			client.tmdb.getWatchProviders({
+				tmdbId: title.tmdbId,
+				mediaType: title.mediaType,
+			}),
+		enabled: open,
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const { data: videosResult, isPending: isLoadingVideos } = useQuery({
+		queryKey: ["tmdb", "videos", title.tmdbId, title.mediaType],
+		queryFn: () =>
+			client.tmdb.getVideos({
+				tmdbId: title.tmdbId,
+				mediaType: title.mediaType,
+			}),
+		enabled: open,
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const details: DetailedInfo | null = detailsResult
+		? {
+				runtime: detailsResult.runtime,
+				seasons: detailsResult.seasons,
+				directors: detailsResult.directors,
+				description: detailsResult.overview,
+				imdbId: detailsResult.imdbId,
+			}
+		: null;
+
+	const providers: WatchProvider[] = providersResult
+		? providersResult.map((p) => ({
+				logo_path: p.logoPath,
+				provider_name: p.providerName,
+			}))
+		: [];
+
+	const videos = videosResult ?? [];
 
 	const genresList = Array.isArray(title.genres) ? title.genres : [];
-
-	useEffect(() => {
-		if (!open) {
-			setDetails(null);
-			setProviders([]);
-			setVideos([]);
-			return;
-		}
-
-		const fetchDetails = async () => {
-			setIsLoadingDetails(true);
-			try {
-				const result = await client.tmdb.getDetails({
-					tmdbId: title.tmdbId,
-					mediaType: title.mediaType,
-				});
-				// Transform to DetailedInfo type
-				setDetails({
-					runtime: result.runtime,
-					seasons: result.seasons,
-					directors: result.directors,
-					description: result.overview,
-					imdbId: result.imdbId,
-				});
-			} catch (error) {
-				if (error instanceof Error) {
-					console.error("Failed to load title details:", error.message);
-				}
-			} finally {
-				setIsLoadingDetails(false);
-			}
-		};
-
-		const fetchProviders = async () => {
-			setIsLoadingProviders(true);
-			try {
-				const result = await client.tmdb.getWatchProviders({
-					tmdbId: title.tmdbId,
-					mediaType: title.mediaType,
-				});
-				// Transform to expected format
-				setProviders(
-					result.map((p) => ({
-						logo_path: p.logoPath,
-						provider_name: p.providerName,
-					})),
-				);
-			} catch (error) {
-				if (error instanceof Error) {
-					console.error("Failed to load watch providers:", error.message);
-				}
-			} finally {
-				setIsLoadingProviders(false);
-			}
-		};
-
-		const fetchVideos = async () => {
-			setIsLoadingVideos(true);
-			try {
-				const result = await client.tmdb.getVideos({
-					tmdbId: title.tmdbId,
-					mediaType: title.mediaType,
-				});
-				setVideos(result);
-			} catch (error) {
-				console.error("Failed to load videos:", error);
-			} finally {
-				setIsLoadingVideos(false);
-			}
-		};
-
-		fetchDetails();
-		fetchProviders();
-		fetchVideos();
-	}, [open, title.tmdbId, title.mediaType]);
 
 	const handleSeasonToggle = async (
 		seasonNumber: number,
