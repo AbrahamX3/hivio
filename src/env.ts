@@ -21,14 +21,21 @@ export const env = createEnv({
 		DISCORD_CLIENT_SECRET: z.string().min(1),
 		UPSTASH_REDIS_REST_URL: z.url(),
 		UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+		CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
+		CLOUDFLARE_ACCESS_KEY_ID: z.string().min(1),
+		CLOUDFLARE_SECRET_ACCESS_KEY: z.string().min(1),
+		CLOUDFLARE_BUCKET_NAME: z.string().min(1),
+		CLOUDFLARE_REGION: z.string().min(1),
 	},
 	client: {
 		NEXT_PUBLIC_SITE_URL: z.url(),
 		NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().min(1),
+		NEXT_PUBLIC_CLOUDFLARE_DOMAIN: z.url(),
 	},
 	experimental__runtimeEnv: {
 		NODE_ENV: process.env.NODE_ENV,
 		NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 		NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+		NEXT_PUBLIC_CLOUDFLARE_DOMAIN: process.env.NEXT_PUBLIC_CLOUDFLARE_DOMAIN,
 	},
 });

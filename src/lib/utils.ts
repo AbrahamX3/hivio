@@ -2,8 +2,28 @@ import { clsx, type ClassValue } from "clsx";
 import { ImageLoaderProps } from "next/image";
 import { twMerge } from "tailwind-merge";
 
+import { env } from "@/env";
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
+}
+
+export function getAvatarUrl(
+	image: string | null | undefined,
+	cacheBuster?: string | number | Date,
+): string | undefined {
+	if (!image) return undefined;
+	const url = image.startsWith("http")
+		? image
+		: `${env.NEXT_PUBLIC_CLOUDFLARE_DOMAIN}/${image}`;
+	if (!cacheBuster) return url;
+	const v =
+		typeof cacheBuster === "number"
+			? cacheBuster
+			: cacheBuster instanceof Date
+				? cacheBuster.getTime()
+				: cacheBuster;
+	return `${url}?v=${v}`;
 }
 
 export function convertMinutesToHrMin(minutes: number): string {

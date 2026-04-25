@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 import { env } from "@/env";
 import { authClient } from "@/lib/auth-client";
+import { getAvatarUrl } from "@/lib/utils";
 
 declare global {
 	interface Window {
@@ -30,7 +31,7 @@ function identifyUser(user: {
 	window.umami.identify(user.id, {
 		email: user.email,
 		name: user.name,
-		...(user.image && { image: user.image }),
+		...(user.image && { image: getAvatarUrl(user.image) }),
 	});
 }
 

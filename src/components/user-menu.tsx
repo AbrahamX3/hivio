@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SettingsDialog } from "@/components/settings-dialog";
 import {
@@ -26,6 +26,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { getAvatarUrl } from "@/lib/utils";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -36,8 +37,15 @@ export default function UserMenu() {
 	const router = useRouter();
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const { theme, setTheme } = useTheme();
+	const [imgError, setImgError] = useState(false);
 
 	const user = session?.user;
+	const avatarUrl = getAvatarUrl(user?.image);
+
+	// Reset error state when avatar URL changes (e.g., new upload)
+	useEffect(() => {
+		setImgError(false);
+	}, [avatarUrl]);
 
 	if (isPending || !user) {
 		return (
@@ -75,9 +83,14 @@ export default function UserMenu() {
 					className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground rounded-lg p-1"
 					variant="outline"
 				>
-					<Avatar className="h-8 w-8 rounded-lg">
-						{user?.image && <AvatarImage src={user.image} alt={user.name} />}
-						{user?.name && (
+					<Avatar key={avatarUrl ?? "fallback"} className="h-8 w-8 rounded-lg">
+						{avatarUrl && !imgError ? (
+							<AvatarImage
+								src={avatarUrl}
+								alt={user.name}
+								onError={() => setImgError(true)}
+							/>
+						) : (
 							<AvatarFallback className="rounded-lg">
 								{user.name.charAt(0)}
 							</AvatarFallback>
@@ -98,9 +111,17 @@ export default function UserMenu() {
 			>
 				<DropdownMenuLabel className="p-0 font-normal">
 					<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-						<Avatar className="h-8 w-8 rounded-lg">
-							{user?.image && <AvatarImage src={user.image} alt={user.name} />}
-							{user?.name && (
+						<Avatar
+							key={avatarUrl ?? "fallback"}
+							className="h-8 w-8 rounded-lg"
+						>
+							{avatarUrl && !imgError ? (
+								<AvatarImage
+									src={avatarUrl}
+									alt={user.name}
+									onError={() => setImgError(true)}
+								/>
+							) : (
 								<AvatarFallback className="rounded-lg">
 									{user.name.charAt(0)}
 								</AvatarFallback>
