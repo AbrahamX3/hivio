@@ -192,40 +192,48 @@ export function DiscoverTrending() {
 	};
 
 	return (
-		<>
-			<Card className="bg-transparent">
-				<CardHeader>
+		<div className="min-w-0 w-full max-w-full">
+			<Card className="bg-transparent min-w-0 max-w-full">
+				<CardHeader className="min-w-0">
 					<CardTitle>Discover what&apos;s trending</CardTitle>
 				</CardHeader>
-				<CardContent className="p-0">
+				<CardContent className="min-w-0 max-w-full overflow-x-clip p-0">
 					{isLoading ? (
 						<div
-							className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted flex gap-3 overflow-x-auto px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full"
+							className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted min-w-0 overflow-x-auto overscroll-x-contain px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full"
 							role="status"
 							aria-label="Loading trending titles"
 						>
-							{Array.from({ length: 16 }).map((_, idx) => (
-								<div
-									key={`trending-skeleton-${idx}`}
-									className="border-border bg-card w-24 shrink-0 overflow-hidden rounded-xl border"
-								>
-									<Skeleton className="aspect-2/3 w-full rounded-none" />
-									<div className="p-2">
-										<Skeleton className="h-2.5 w-full rounded-sm" />
+							<div className="flex w-max gap-3">
+								{Array.from({ length: 16 }).map((_, idx) => (
+									<div
+										key={`trending-skeleton-${idx}`}
+										className="border-border bg-card w-24 shrink-0 overflow-hidden rounded-xl border"
+									>
+										<Skeleton className="aspect-2/3 w-full rounded-none" />
+										<div className="p-2">
+											<Skeleton className="h-2.5 w-full rounded-sm" />
+										</div>
 									</div>
-								</div>
-							))}
+								))}
+							</div>
 						</div>
 					) : trendingTitles.length > 0 ? (
-						<div className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted flex gap-3 overflow-x-auto px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full">
-							{trendingTitles.map((title) => (
-								<TrendingTitleCard
-									key={`${title.id}-${title.mediaType}`}
-									title={title}
-									onClick={() => handleTitleClick(title)}
-									disabled={isPending}
-								/>
-							))}
+						<div className="grid min-w-0 grid-cols-[minmax(0,1fr)]">
+							<div
+								className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted col-start-1 row-start-1 min-w-0 overflow-x-auto overscroll-x-contain px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full"
+							>
+								<div className="flex w-max gap-3">
+									{trendingTitles.map((title) => (
+										<TrendingTitleCard
+											key={`${title.id}-${title.mediaType}`}
+											title={title}
+											onClick={() => handleTitleClick(title)}
+											disabled={isPending}
+										/>
+									))}
+								</div>
+							</div>
 						</div>
 					) : (
 						<div className="px-6 py-4">
@@ -302,6 +310,6 @@ export function DiscoverTrending() {
 					}}
 				/>
 			)}
-		</>
+		</div>
 	);
 }

@@ -1,26 +1,115 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { HivioLogo } from "@/components/icons";
 import { authClient } from "@/lib/auth-client";
 
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+
+function GoogleIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			width="20"
+			height="20"
+			viewBox="0 0 24 24"
+			xmlns="http://www.w3.org/2000/svg"
+			aria-hidden="true"
+		>
+			<path
+				d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+				fill="#4285F4"
+			/>
+			<path
+				d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+				fill="#34A853"
+			/>
+			<path
+				d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+				fill="#FBBC05"
+			/>
+			<path
+				d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+				fill="#EA4335"
+			/>
+		</svg>
+	);
+}
+
+function DiscordIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 65 48"
+		>
+			<path
+				fill="#5865f2"
+				d="M41.235 0a37 37 0 0 0-1.68 3.397 49 49 0 0 0-14.497 0A34 34 0 0 0 23.378 0a52.8 52.8 0 0 0-13.07 4.028C2.05 16.265-.185 28.186.927 39.943a52.5 52.5 0 0 0 16.025 8.044c1.3-1.742 2.45-3.599 3.435-5.53a34.7 34.7 0 0 1-5.405-2.577c.455-.328.897-.67 1.326-.998a37.63 37.63 0 0 0 32.038 0c.43.354.871.695 1.326.998a34.4 34.4 0 0 1-5.418 2.589A38.5 38.5 0 0 0 47.688 48a52.5 52.5 0 0 0 16.025-8.032c1.314-13.638-2.247-25.458-9.408-35.927A52 52 0 0 0 41.248.025zM21.8 32.707c-3.119 0-5.708-2.829-5.708-6.327s2.488-6.339 5.696-6.339 5.758 2.854 5.708 6.34-2.513 6.326-5.696 6.326m21.039 0c-3.132 0-5.695-2.829-5.695-6.327s2.487-6.339 5.695-6.339 5.746 2.854 5.695 6.34c-.05 3.485-2.513 6.326-5.695 6.326"
+			/>
+		</svg>
+	);
+}
 
 export default function SignInForm() {
 	const [isPending, startTransition] = useTransition();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const [error, setError] = useState("");
+	const [lastMethod, setLastMethod] = useState<string | null>(null);
 
-	const signIn = () => {
+	useEffect(() => {
+		setLastMethod(authClient.getLastUsedLoginMethod());
+	}, []);
+
+	const handleEmailSignIn = (e: React.FormEvent) => {
+		e.preventDefault();
+		setError("");
+		startTransition(async () => {
+			try {
+				const result = await authClient.signIn.email({
+					email,
+					password,
+					callbackURL: "/dashboard",
+				});
+				if (result.error) {
+					setError(result.error.message ?? "Invalid email or password");
+				}
+			} catch (err) {
+				if (err instanceof Error) {
+					setError(err.message);
+				} else {
+					setError("An unexpected error occurred");
+				}
+			}
+		});
+	};
+
+	const handleSocialSignIn = (provider: "google" | "discord") => {
 		startTransition(async () => {
 			try {
 				await authClient.signIn.social({
-					provider: "discord",
+					provider,
 					callbackURL: "/dashboard",
 				});
-			} catch (error) {
-				if (error instanceof Error) {
-					console.error("Sign in error:", error.message);
+			} catch (err) {
+				if (err instanceof Error) {
+					console.error("Sign in error:", err.message);
 				}
 			}
 		});
@@ -50,86 +139,148 @@ export default function SignInForm() {
 			</div>
 
 			<section className="flex flex-1 items-center justify-center px-4 py-14 sm:py-16">
-				<div className="mx-auto flex max-w-md flex-col items-center gap-8 text-center">
-					<div className="space-y-4">
-						<p className="text-primary text-sm font-semibold tracking-widest uppercase">
-							Welcome back
-						</p>
-						<h1 className="text-3xl font-semibold sm:text-4xl">
-							Sign in to your account
-						</h1>
-						<p className="text-muted-foreground max-w-sm text-balance">
-							Access your personal dashboard, track your favorite shows, and
-							never lose your place again.
-						</p>
-					</div>
-
-					<div className="w-full space-y-4">
-						<Button
-							onClick={signIn}
-							disabled={isPending}
-							size="lg"
-							className="w-full bg-[#5865F2] text-white shadow-sm hover:bg-[#4752C4]"
-						>
-							{isPending ? (
-								<div className="flex items-center justify-center gap-2">
-									<svg
-										className="h-4 w-4 animate-spin"
-										viewBox="0 0 24 24"
-										fill="none"
-										xmlns="http://www.w3.org/2000/svg"
-										aria-hidden="true"
-									>
-										<circle
-											className="opacity-25"
-											cx="12"
-											cy="12"
-											r="10"
-											stroke="currentColor"
-											strokeWidth="4"
+				<div className="w-full max-w-sm">
+					<Card>
+						<CardHeader className="text-center">
+							<CardTitle className="text-2xl">Welcome back</CardTitle>
+							<CardDescription>
+								Sign in to your account to continue
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<form onSubmit={handleEmailSignIn}>
+								<div className="flex flex-col gap-6">
+									<div className="grid gap-2">
+										<Label htmlFor="email">Email</Label>
+										<Input
+											id="email"
+											type="email"
+											placeholder="m@example.com"
+											required
+											value={email}
+											onChange={(e) => setEmail(e.target.value)}
+											disabled={isPending}
 										/>
-										<path
-											className="opacity-75"
-											fill="currentColor"
-											d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-										/>
-									</svg>
-									Signing in...
+									</div>
+									<div className="grid gap-2">
+										<div className="flex items-center">
+											<Label htmlFor="password">Password</Label>
+											<Link
+												href="#"
+												className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+											>
+												Forgot your password?
+											</Link>
+										</div>
+										<div className="relative">
+											<Input
+												id="password"
+												type={showPassword ? "text" : "password"}
+												required
+												value={password}
+												onChange={(e) => setPassword(e.target.value)}
+												disabled={isPending}
+												className="pr-10"
+											/>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="absolute right-0 top-0 h-full px-3"
+												onClick={() => setShowPassword((v) => !v)}
+												aria-label={
+													showPassword ? "Hide password" : "Show password"
+												}
+											>
+												{showPassword ? (
+													<EyeOff className="h-4 w-4" />
+												) : (
+													<Eye className="h-4 w-4" />
+												)}
+											</Button>
+										</div>
+									</div>
+									{error && <p className="text-destructive text-sm">{error}</p>}
+									<Button type="submit" className="w-full" disabled={isPending}>
+										{isPending ? "Signing in..." : "Sign in"}
+									</Button>
 								</div>
-							) : (
-								<div className="flex items-center justify-center gap-2">
-									<svg
-										width="20"
-										height="20"
-										viewBox="0 0 24 24"
-										fill="currentColor"
-										xmlns="http://www.w3.org/2000/svg"
-										aria-hidden="true"
-									>
-										<path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-									</svg>
-									Continue with Discord
-								</div>
-							)}
-						</Button>
+							</form>
 
-						<p className="text-muted-foreground text-xs">
-							By signing in, you agree to our{" "}
-							<Link
-								href="/terms-of-service"
-								className="underline hover:no-underline"
-							>
-								Terms of Service
-							</Link>{" "}
-							and{" "}
-							<Link
-								href="/privacy-policy"
-								className="underline hover:no-underline"
-							>
-								Privacy Policy
-							</Link>
-						</p>
-					</div>
+							<div className="relative my-6">
+								<div className="absolute inset-0 flex items-center">
+									<span className="w-full border-t" />
+								</div>
+								<div className="relative flex justify-center text-xs uppercase">
+									<span className="bg-card text-muted-foreground px-2">
+										Or continue with
+									</span>
+								</div>
+							</div>
+
+							<div className="flex flex-col gap-3">
+								<div className="relative">
+									<Button
+										onClick={() => handleSocialSignIn("google")}
+										variant="outline"
+										className="w-full"
+										disabled={isPending}
+									>
+										<GoogleIcon />
+										<span>Continue with Google</span>
+									</Button>
+									{lastMethod === "google" && (
+										<Badge className="absolute -top-2 -right-2 text-[10px]">
+											Last used
+										</Badge>
+									)}
+								</div>
+								<div className="relative">
+									<Button
+										onClick={() => handleSocialSignIn("discord")}
+										variant="outline"
+										className="w-full"
+										disabled={isPending}
+									>
+										<DiscordIcon />
+										<span>Continue with Discord</span>
+									</Button>
+									{lastMethod === "discord" && (
+										<Badge className="absolute -top-2 -right-2 text-[10px]">
+											Last used
+										</Badge>
+									)}
+								</div>
+							</div>
+
+							<div className="mt-6 text-center text-sm">
+								Don&apos;t have an account?{" "}
+								<Link
+									href="/auth/sign-up"
+									className="underline underline-offset-4"
+								>
+									Sign up
+								</Link>
+							</div>
+
+							<p className="text-muted-foreground mt-6 text-center text-xs">
+								By signing in, you agree to our{" "}
+								<Link
+									href="/terms-of-service"
+									className="underline hover:no-underline"
+								>
+									Terms of Service
+								</Link>{" "}
+								and{" "}
+								<Link
+									href="/privacy-policy"
+									className="underline hover:no-underline"
+								>
+									Privacy Policy
+								</Link>
+							</p>
+						</CardContent>
+					</Card>
 				</div>
 			</section>
 		</main>

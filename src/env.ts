@@ -26,6 +26,9 @@ export const env = createEnv({
 		CLOUDFLARE_SECRET_ACCESS_KEY: z.string().min(1),
 		CLOUDFLARE_BUCKET_NAME: z.string().min(1),
 		CLOUDFLARE_REGION: z.string().min(1),
+		BETTER_AUTH_URL: z.url(),
+		GOOGLE_CLIENT_ID: z.string().min(1),
+		GOOGLE_CLIENT_SECRET: z.string().min(1),
 	},
 	client: {
 		NEXT_PUBLIC_SITE_URL: z.url(),

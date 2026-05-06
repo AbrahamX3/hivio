@@ -1,24 +1,47 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-import { HivioLogo } from "@/components/icons";
-import UserMenu from "@/components/user-menu";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export const metadata: Metadata = {
+	title: "Dashboard",
+	description:
+		"Manage your watch history and track your favorite movies and series",
+};
+
+export default async function DashboardLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
+
+	if (!session) {
+		redirect("/auth/sign-in");
+	}
+
 	return (
-		<div className="min-h-screen max-w-full overflow-x-hidden">
-			<header className="border-b">
-				<div className="mx-auto px-4 py-4">
-					<div className="flex items-center justify-between">
-						<Link href="/">
-							<HivioLogo className="text-primary" />
-						</Link>
-						<UserMenu />
-					</div>
+		<SidebarProvider
+			style={
+				{
+					"--sidebar-width": "calc(var(--spacing) * 72)",
+					"--header-height": "calc(var(--spacing) * 12)",
+				} as React.CSSProperties
+			}
+		>
+			<AppSidebar />
+			<SidebarInset>
+				<SiteHeader />
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4">
+					{children}
 				</div>
-			</header>
-			<main className="container mx-auto max-w-full overflow-x-hidden px-4 py-6">
-				{children}
-			</main>
-		</div>
+			</SidebarInset>
+		</SidebarProvider>
 	);
 }

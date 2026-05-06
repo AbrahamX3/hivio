@@ -86,6 +86,7 @@ export const tmdbRouter = {
 							?.filter((c) => c.job === "Director")
 							.map((c) => c.name) || [],
 					seasons: null,
+					voteAverage: movie.vote_average,
 				};
 			} else {
 				const tvShow = await tmdb.tvShows.details(input.tmdbId, [
@@ -110,6 +111,7 @@ export const tmdbRouter = {
 							episodeCount: s.episode_count,
 							airDate: s.air_date,
 						})) || [],
+					voteAverage: tvShow.vote_average,
 				};
 			}
 		}),

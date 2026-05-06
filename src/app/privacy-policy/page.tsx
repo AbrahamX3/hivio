@@ -293,13 +293,7 @@ export default function PrivacyPolicy() {
 
 			<div className="bg-muted/30 mt-8 rounded-lg border p-6">
 				<p className="text-muted-foreground text-sm">
-					This privacy policy is effective as of{" "}
-					{new Date().toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-					})}
-					.
+					This privacy policy is effective as of April 25, 2026.
 				</p>
 			</div>
 		</LegalPageLayout>

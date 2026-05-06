@@ -79,6 +79,7 @@ function WatchingShowCard({
 		}) => client.history.update(data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["history"] });
+			queryClient.invalidateQueries({ queryKey: ["watching"] });
 			toast.success("History updated");
 			onUpdate?.();
 		},

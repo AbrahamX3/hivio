@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, ExternalLink, Play, Plus } from "lucide-react";
+import { ChevronDown, ExternalLink, Play, Plus, Star } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import LiteYouTubeEmbed from "react-lite-youtube-embed";
@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getGenreName } from "@/lib/genres";
 import { client } from "@/lib/orpc";
 import { cn, tmdbImageLoader } from "@/lib/utils";
+import { TMDBIconSmall } from "@/components/icons";
 
 import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
 
@@ -72,6 +73,7 @@ type DetailedInfo = {
 	directors: string[];
 	description: string | null;
 	imdbId: string | null;
+	voteAverage: number | null;
 };
 
 type WatchProvider = {
@@ -90,7 +92,7 @@ function TitleHeroSection({
 	isLoadingDetails: boolean;
 	releaseYear: number | null;
 }) {
-	const displayDescription = details?.description || title.description;
+	const displayDescription = details?.description;
 
 	return (
 		<div className="mb-12 flex flex-col items-start gap-10 md:flex-row">
@@ -140,6 +142,21 @@ function TitleHeroSection({
 									{Math.floor(details.runtime / 60)}h {details.runtime % 60}m
 								</span>
 							) : null}
+						</>
+					)}
+					{details?.voteAverage != null && (
+						<>
+							<span className="text-primary/40">•</span>
+							<span className="inline-flex items-center gap-1.5">
+								<Star className="fill-amber-400 stroke-amber-400 size-4" />
+								{details.voteAverage.toFixed(1)}
+							</span>
+						</>
+					)}
+					{isLoadingDetails && !details?.voteAverage && (
+						<>
+							<span className="text-primary/40">•</span>
+							<Skeleton className="h-4 w-12" />
 						</>
 					)}
 				</div>
@@ -434,7 +451,7 @@ function SidebarInfo({
 				</div>
 
 				{details?.imdbId && (
-					<div className="pt-4">
+					<div className="space-y-3 pt-4">
 						<Button
 							variant="outline"
 							className="group h-10 w-full justify-start rounded-xl px-4 font-bold shadow-sm transition-all hover:shadow-md"
@@ -506,6 +523,21 @@ function SidebarInfo({
 									/>
 								</svg>
 								<span className="flex-1">View on IMDb</span>
+								<ExternalLink className="size-5 opacity-50 transition-transform group-hover:translate-x-1" />
+							</a>
+						</Button>
+						<Button
+							variant="outline"
+							className="group h-10 w-full justify-start rounded-xl px-4 font-bold shadow-sm transition-all hover:shadow-md"
+							asChild
+						>
+							<a
+								href={`https://www.themoviedb.org/${title.mediaType === "MOVIE" ? "movie" : "tv"}/${title.tmdbId}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<TMDBIconSmall className="size-5" />
+								<span className="flex-1">View on TMDB</span>
 								<ExternalLink className="size-5 opacity-50 transition-transform group-hover:translate-x-1" />
 							</a>
 						</Button>
@@ -644,6 +676,7 @@ export function TitleDetailsDialog({
 				directors: detailsResult.directors,
 				description: detailsResult.overview,
 				imdbId: detailsResult.imdbId,
+				voteAverage: detailsResult.voteAverage,
 			}
 		: null;
 
@@ -701,7 +734,7 @@ export function TitleDetailsDialog({
 		}
 	};
 
-	const displayDirectors = details?.directors || title.directors || [];
+	const displayDirectors = details?.directors || [];
 	const releaseYear = title.releaseDate
 		? new Date(title.releaseDate).getFullYear()
 		: null;

@@ -209,13 +209,7 @@ export default function TermsOfService() {
 
 			<div className="bg-muted/30 mt-8 rounded-lg border p-6">
 				<p className="text-muted-foreground text-sm">
-					These Terms of Service are effective as of{" "}
-					{new Date().toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-					})}
-					.
+					These Terms of Service are effective as of April 25, 2026.
 				</p>
 			</div>
 		</LegalPageLayout>
