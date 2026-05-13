@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 
@@ -27,6 +27,7 @@ export default function SignUpForm() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [error, setError] = useState("");
+	const [success, setSuccess] = useState(false);
 
 	const handleSignUp = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -52,6 +53,8 @@ export default function SignUpForm() {
 				});
 				if (result.error) {
 					setError(result.error.message ?? "Failed to create account");
+				} else {
+					setSuccess(true);
 				}
 			} catch (err) {
 				if (err instanceof Error) {
@@ -96,7 +99,23 @@ export default function SignUpForm() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<form onSubmit={handleSignUp}>
+							{success ? (
+								<div className="flex flex-col items-center gap-4 py-4 text-center">
+									<div className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-full">
+										<Mail className="size-6" />
+									</div>
+									<h3 className="text-lg font-semibold">Check your email</h3>
+									<p className="text-muted-foreground text-sm">
+										We sent a verification link to{" "}
+										<span className="font-medium text-foreground">{email}</span>
+									</p>
+									<p className="text-muted-foreground text-xs">
+										Click the link in the email to verify your account and get
+										started.
+									</p>
+								</div>
+							) : (
+								<form onSubmit={handleSignUp}>
 								<div className="flex flex-col gap-6">
 									<div className="grid gap-2">
 										<Label htmlFor="name">Name</Label>
@@ -190,6 +209,7 @@ export default function SignUpForm() {
 									</Button>
 								</div>
 							</form>
+						)}
 
 							<div className="mt-6 text-center text-sm">
 								Already have an account?{" "}

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import SignInForm from "@/components/sign-in-form";
-import { auth } from "@/lib/auth";
+import { auth } from "@/server/auth";
 
 export const metadata: Metadata = {
 	title: "Sign In",
