@@ -15,6 +15,13 @@
 			"when": 1775982998967,
 			"tag": "0001_spicy_night_thrasher",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1778043826958,
+			"tag": "0002_kind_felicia_hardy",
+			"breakpoints": true
 		}
 	]
 }

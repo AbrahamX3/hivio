@@ -29,12 +29,12 @@ export function DataTable<TData>({
 }: DataTableProps<TData>) {
 	return (
 		<div
-			className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
+			className={cn("flex min-w-0 w-full max-w-full flex-col gap-2.5", className)}
 			{...props}
 		>
 			{children}
-			<div className="overflow-hidden rounded-md border">
-				<Table>
+			<div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain rounded-md border">
+				<Table noWrapper className="min-w-max">
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
@@ -106,7 +106,7 @@ export function DataTable<TData>({
 					</TableBody>
 				</Table>
 			</div>
-			<div className="flex flex-col gap-2.5">
+			<div className="flex min-w-0 max-w-full flex-col gap-2.5">
 				<DataTablePagination table={table} />
 				{actionBar &&
 					table.getFilteredSelectedRowModel().rows.length > 0 &&

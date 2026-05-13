@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useReducer, useTransition } from "react";
 
 import { AddHistoryDialog } from "@/app/dashboard/_components/user-actions/add-history-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { client } from "@/lib/orpc";
 import { cn, tmdbImageLoader } from "@/lib/utils";
@@ -156,11 +156,11 @@ export function DiscoverTrending() {
 		queryKey: [
 			"tmdb",
 			"discoverTrending",
-			{ pages: 5, window: "week", exclude: true },
+			{ pages: 10, window: "week", exclude: true },
 		],
 		queryFn: () =>
 			client.tmdb.getDiscoverTrending({
-				pages: 5,
+				pages: 10,
 				timeWindow: "week",
 				excludeInLibrary: true,
 			}),
@@ -193,57 +193,48 @@ export function DiscoverTrending() {
 
 	return (
 		<div className="min-w-0 w-full max-w-full">
-			<Card className="bg-transparent min-w-0 max-w-full">
-				<CardHeader className="min-w-0">
-					<CardTitle>Discover what&apos;s trending</CardTitle>
-				</CardHeader>
-				<CardContent className="min-w-0 max-w-full overflow-x-clip p-0">
-					{isLoading ? (
-						<div
-							className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted min-w-0 overflow-x-auto overscroll-x-contain px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full"
-							role="status"
-							aria-label="Loading trending titles"
-						>
-							<div className="flex w-max gap-3">
-								{Array.from({ length: 16 }).map((_, idx) => (
-									<div
-										key={`trending-skeleton-${idx}`}
-										className="border-border bg-card w-24 shrink-0 overflow-hidden rounded-xl border"
-									>
-										<Skeleton className="aspect-2/3 w-full rounded-none" />
-										<div className="p-2">
-											<Skeleton className="h-2.5 w-full rounded-sm" />
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					) : trendingTitles.length > 0 ? (
-						<div className="grid min-w-0 grid-cols-[minmax(0,1fr)]">
+			{isLoading ? (
+				<div
+					className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted min-w-0 overflow-x-auto overscroll-x-contain py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full"
+					role="status"
+					aria-label="Loading trending titles"
+				>
+					<div className="flex w-max gap-3">
+						{Array.from({ length: 16 }).map((_, idx) => (
 							<div
-								className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted col-start-1 row-start-1 min-w-0 overflow-x-auto overscroll-x-contain px-6 py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full"
+								key={`trending-skeleton-${idx}`}
+								className="border-border bg-card w-24 shrink-0 overflow-hidden rounded-xl border"
 							>
-								<div className="flex w-max gap-3">
-									{trendingTitles.map((title) => (
-										<TrendingTitleCard
-											key={`${title.id}-${title.mediaType}`}
-											title={title}
-											onClick={() => handleTitleClick(title)}
-											disabled={isPending}
-										/>
-									))}
+								<Skeleton className="aspect-2/3 w-full rounded-none" />
+								<div className="p-2">
+									<Skeleton className="h-2.5 w-full rounded-sm" />
 								</div>
 							</div>
+						))}
+					</div>
+				</div>
+			) : trendingTitles.length > 0 ? (
+				<div className="grid min-w-0 grid-cols-[minmax(0,1fr)]">
+					<div className="[&::-webkit-scrollbar-track]:bg-muted/20 [&::-webkit-scrollbar-thumb]:bg-muted col-start-1 row-start-1 min-w-0 overflow-x-auto overscroll-x-contain py-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full">
+						<div className="flex w-max gap-3">
+							{trendingTitles.map((title) => (
+								<TrendingTitleCard
+									key={`${title.id}-${title.mediaType}`}
+									title={title}
+									onClick={() => handleTitleClick(title)}
+									disabled={isPending}
+								/>
+							))}
 						</div>
-					) : (
-						<div className="px-6 py-4">
-							<p className="text-muted-foreground text-sm">
-								No trending titles available.
-							</p>
-						</div>
-					)}
-				</CardContent>
-			</Card>
+					</div>
+				</div>
+			) : (
+				<div className="py-4">
+					<p className="text-muted-foreground text-sm">
+						No trending titles available.
+					</p>
+				</div>
+			)}
 
 			{selectedTitle && (
 				<TitleDetailsDialog

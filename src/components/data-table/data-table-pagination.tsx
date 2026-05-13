@@ -1,3 +1,4 @@
+import type * as React from "react";
 import type { Table } from "@tanstack/react-table";
 import {
 	ChevronLeft,
@@ -30,16 +31,16 @@ export function DataTablePagination<TData>({
 	return (
 		<div
 			className={cn(
-				"flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8",
+				"flex w-full min-w-0 max-w-full flex-col gap-4 p-1 sm:flex-row sm:items-center sm:justify-between sm:gap-8",
 				className,
 			)}
 			{...props}
 		>
-			<div className="text-muted-foreground flex-1 text-sm whitespace-nowrap">
+			<div className="text-muted-foreground shrink-0 text-center text-sm whitespace-nowrap sm:min-w-0 sm:flex-1 sm:text-left">
 				viewing {table.getFilteredRowModel().rows.length}{" "}
 				{`${table.getFilteredRowModel().rows.length === 1 ? "row" : "rows"}`}
 			</div>
-			<div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+			<div className="flex min-w-0 w-full flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:w-auto sm:flex-nowrap sm:justify-end lg:gap-8">
 				<div className="flex items-center space-x-2">
 					<p className="text-sm font-medium whitespace-nowrap">Rows per page</p>
 					<Select

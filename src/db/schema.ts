@@ -167,6 +167,32 @@ export const history = pgTable(
 	],
 );
 
+export const historyAuditLog = pgTable(
+	"history_audit_log",
+	{
+		id: text("id")
+			.primaryKey()
+			.$defaultFn(() => uuidv7()),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		historyId: text("history_id")
+			.notNull()
+			.references(() => history.id, { onDelete: "cascade" }),
+		titleId: text("title_id")
+			.notNull()
+			.references(() => titles.id, { onDelete: "cascade" }),
+		changedField: text("changed_field").notNull(),
+		oldValue: text("old_value"),
+		newValue: text("new_value"),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+	},
+	(table) => [
+		index("audit_user_id_idx").on(table.userId),
+		index("audit_user_created_at_idx").on(table.userId, table.createdAt),
+	],
+);
+
 export const userRelations = relations(users, ({ many }) => ({
 	sessions: many(sessions),
 	accounts: many(accounts),
@@ -191,7 +217,7 @@ export const titlesRelations = relations(titles, ({ many }) => ({
 	history: many(history),
 }));
 
-export const historyRelations = relations(history, ({ one }) => ({
+export const historyRelations = relations(history, ({ one, many }) => ({
 	user: one(users, {
 		fields: [history.userId],
 		references: [users.id],
@@ -200,7 +226,26 @@ export const historyRelations = relations(history, ({ one }) => ({
 		fields: [history.titleId],
 		references: [titles.id],
 	}),
+	auditLogs: many(historyAuditLog),
 }));
+
+export const historyAuditLogRelations = relations(
+	historyAuditLog,
+	({ one }) => ({
+		user: one(users, {
+			fields: [historyAuditLog.userId],
+			references: [users.id],
+		}),
+		history: one(history, {
+			fields: [historyAuditLog.historyId],
+			references: [history.id],
+		}),
+		title: one(titles, {
+			fields: [historyAuditLog.titleId],
+			references: [titles.id],
+		}),
+	}),
+);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -215,6 +260,8 @@ export type Title = typeof titles.$inferSelect;
 export type NewTitle = typeof titles.$inferInsert;
 export type History = typeof history.$inferSelect;
 export type NewHistory = typeof history.$inferInsert;
+export type HistoryAuditLog = typeof historyAuditLog.$inferSelect;
+export type NewHistoryAuditLog = typeof historyAuditLog.$inferInsert;
 
 export type HistoryStatus =
 	| "FINISHED"

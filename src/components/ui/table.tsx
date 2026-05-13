@@ -4,16 +4,25 @@ import { cn } from "@/lib/utils";
 
 const Table = React.forwardRef<
 	HTMLTableElement,
-	React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-	<div className="relative w-full overflow-auto">
+	React.ComponentPropsWithoutRef<"table"> & {
+		/** Use when an ancestor provides `overflow-x-auto` (e.g. wide data tables). */
+		noWrapper?: boolean;
+	}
+>(({ className, noWrapper, ...props }, ref) => {
+	const table = (
 		<table
 			ref={ref}
 			className={cn("w-full caption-bottom text-sm", className)}
 			{...props}
 		/>
-	</div>
-));
+	);
+	if (noWrapper) {
+		return table;
+	}
+	return (
+		<div className="relative min-w-0 w-full overflow-x-auto">{table}</div>
+	);
+});
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<

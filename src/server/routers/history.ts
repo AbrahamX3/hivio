@@ -4,7 +4,7 @@ import { and, asc, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
-import { history, titles } from "@/db/schema";
+import { history, historyAuditLog, titles } from "@/db/schema";
 import { filterColumns } from "@/lib/filter-columns";
 import type { ExtendedColumnFilter, JoinOperator } from "@/types/data-table";
 
@@ -468,6 +468,43 @@ export const historyRouter = {
 				historyId = newHistory.id;
 			}
 
+			// Log initial field values to audit log
+			const auditFields = [
+				{ field: "status", value: input.status },
+				{
+					field: "current_episode",
+					value:
+						input.currentEpisode != null ? String(input.currentEpisode) : null,
+				},
+				{
+					field: "current_season",
+					value:
+						input.currentSeason != null ? String(input.currentSeason) : null,
+				},
+				{
+					field: "current_runtime",
+					value:
+						input.currentRuntime != null ? String(input.currentRuntime) : null,
+				},
+				{
+					field: "is_favourite",
+					value: String(input.isFavourite ?? false),
+				},
+			];
+
+			await db.insert(historyAuditLog).values(
+				auditFields
+					.filter((f) => f.value !== null)
+					.map((f) => ({
+						userId,
+						historyId,
+						titleId,
+						changedField: f.field,
+						oldValue: null,
+						newValue: f.value!,
+					})),
+			);
+
 			// Return with joined title
 			const result = await db
 				.select({ history, title: titles })
@@ -510,6 +547,44 @@ export const historyRouter = {
 				.set(updates)
 				.where(eq(history.id, input.id))
 				.returning();
+
+			const prev = existing[0];
+
+			const auditEntries: {
+				userId: string;
+				historyId: string;
+				titleId: string;
+				changedField: string;
+				oldValue: string | null;
+				newValue: string;
+			}[] = [];
+
+			const trackField = (field: string, oldVal: unknown, newVal: unknown) => {
+				if (newVal === undefined || newVal === null) return;
+				const oldStr =
+					oldVal !== null && oldVal !== undefined ? String(oldVal) : null;
+				const newStr = String(newVal);
+				if (oldStr !== newStr) {
+					auditEntries.push({
+						userId,
+						historyId: input.id,
+						titleId: prev.titleId,
+						changedField: field,
+						oldValue: oldStr,
+						newValue: newStr,
+					});
+				}
+			};
+
+			trackField("status", prev.status, input.status);
+			trackField("current_episode", prev.currentEpisode, input.currentEpisode);
+			trackField("current_season", prev.currentSeason, input.currentSeason);
+			trackField("current_runtime", prev.currentRuntime, input.currentRuntime);
+			trackField("is_favourite", prev.isFavourite, input.isFavourite);
+
+			if (auditEntries.length > 0) {
+				await db.insert(historyAuditLog).values(auditEntries);
+			}
 
 			const result = await db
 				.select({ history, title: titles })

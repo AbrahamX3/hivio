@@ -21,7 +21,7 @@ export default async function DiscoverPage() {
 
 	return (
 		<div className="space-y-6 min-w-0">
-			<h1 className="text-2xl font-semibold">Discover</h1>
+			<h1 className="text-2xl font-semibold">Discover Weekly</h1>
 			<DiscoverTrending />
 		</div>
 	);

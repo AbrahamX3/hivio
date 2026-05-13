@@ -19,6 +19,7 @@ export const env = createEnv({
 		BETTER_AUTH_SECRET: z.string().min(1),
 		DISCORD_CLIENT_ID: z.string().min(1),
 		DISCORD_CLIENT_SECRET: z.string().min(1),
+		OPENCODE_API_KEY: z.string().min(1),
 		UPSTASH_REDIS_REST_URL: z.url(),
 		UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
 		CLOUDFLARE_ACCOUNT_ID: z.string().min(1),

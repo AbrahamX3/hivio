@@ -1,25 +1,15 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useReducer } from "react";
 import { toast } from "sonner";
 
-import { HistoryTable, useHistoryTable } from "./history-table";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { CardTitle } from "@/components/ui/card";
 import { client } from "@/lib/orpc";
 import type { HistoryItem, HistoryUpdateData } from "@/types/history";
 
-const AddHistoryDialog = dynamic(
-	() =>
-		import("./user-actions/add-history-dialog").then((mod) => ({
-			default: mod.AddHistoryDialog,
-		})),
-	{ ssr: false },
-);
+import { HistoryTable, useHistoryTable } from "./history-table";
 
 const DeleteHistoryDialog = dynamic(
 	() =>
@@ -40,7 +30,6 @@ const EditHistoryDialog = dynamic(
 interface DialogState {
 	editingItem: HistoryItem | null;
 	isEditDialogOpen: boolean;
-	isAddDialogOpen: boolean;
 	deleteItemId: string | null;
 	isDeleteDialogOpen: boolean;
 }
@@ -48,32 +37,22 @@ interface DialogState {
 type DialogAction =
 	| { type: "OPEN_EDIT"; item: HistoryItem }
 	| { type: "CLOSE_EDIT" }
-	| { type: "OPEN_ADD" }
-	| { type: "CLOSE_ADD" }
 	| { type: "OPEN_DELETE"; id: string }
 	| { type: "CLOSE_DELETE" };
 
 const initialDialogState: DialogState = {
 	editingItem: null,
 	isEditDialogOpen: false,
-	isAddDialogOpen: false,
 	deleteItemId: null,
 	isDeleteDialogOpen: false,
 };
 
-function dialogReducer(
-	state: DialogState,
-	action: DialogAction,
-): DialogState {
+function dialogReducer(state: DialogState, action: DialogAction): DialogState {
 	switch (action.type) {
 		case "OPEN_EDIT":
 			return { ...state, editingItem: action.item, isEditDialogOpen: true };
 		case "CLOSE_EDIT":
 			return { ...state, isEditDialogOpen: false };
-		case "OPEN_ADD":
-			return { ...state, isAddDialogOpen: true };
-		case "CLOSE_ADD":
-			return { ...state, isAddDialogOpen: false };
 		case "OPEN_DELETE":
 			return { ...state, deleteItemId: action.id, isDeleteDialogOpen: true };
 		case "CLOSE_DELETE":
@@ -85,17 +64,9 @@ function dialogReducer(
 
 export function HistoryContent() {
 	const queryClient = useQueryClient();
-	const [dialogState, dispatch] = useReducer(
-		dialogReducer,
-		initialDialogState,
-	);
-	const {
-		editingItem,
-		isEditDialogOpen,
-		isAddDialogOpen,
-		deleteItemId,
-		isDeleteDialogOpen,
-	} = dialogState;
+	const [dialogState, dispatch] = useReducer(dialogReducer, initialDialogState);
+	const { editingItem, isEditDialogOpen, deleteItemId, isDeleteDialogOpen } =
+		dialogState;
 
 	const updateMutation = useMutation({
 		mutationKey: ["history", "update"],
@@ -157,34 +128,19 @@ export function HistoryContent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<CardTitle>History</CardTitle>
-					<p className="text-muted-foreground text-sm">
-						Manage your complete watch library.
-					</p>
-				</div>
-				<Button onClick={() => dispatch({ type: "OPEN_ADD" })}>
-					<Plus className="mr-2 h-4 w-4" />
-					Add Title
-				</Button>
+			<div>
+				<CardTitle>History</CardTitle>
+				<p className="text-muted-foreground text-sm">
+					Manage your complete watch library.
+				</p>
 			</div>
 
-			<Card className="bg-transparent">
-				<CardHeader>
-					<CardTitle>Your Library</CardTitle>
-				</CardHeader>
-				<CardContent className="min-w-0">
-					<TooltipProvider>
-						<HistoryTable
-							table={table}
-							isLoading={isLoading}
-							isSearching={isSearching}
-							hasData={hasData}
-						/>
-					</TooltipProvider>
-				</CardContent>
-			</Card>
+			<HistoryTable
+				table={table}
+				isLoading={isLoading}
+				isSearching={isSearching}
+				hasData={hasData}
+			/>
 
 			<EditHistoryDialog
 				key={editingItem?.id ?? "empty"}
@@ -194,13 +150,6 @@ export function HistoryContent() {
 				}}
 				item={editingItem}
 				onSave={handleSave}
-			/>
-
-			<AddHistoryDialog
-				open={isAddDialogOpen}
-				onOpenChange={(open) => {
-					if (!open) dispatch({ type: "CLOSE_ADD" });
-				}}
 			/>
 
 			<DeleteHistoryDialog

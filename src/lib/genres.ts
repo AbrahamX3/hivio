@@ -44,7 +44,11 @@ export function getGenreName(
 	};
 
 	const genres = mediaType === "MOVIE" ? movieGenres : tvGenres;
-	return genres[genreId] || `Genre ${genreId}`;
+	const name = genres[genreId];
+	if (name) return name;
+
+	const otherGenres = mediaType === "MOVIE" ? tvGenres : movieGenres;
+	return otherGenres[genreId] || `Genre ${genreId}`;
 }
 
 export function getAllGenres(

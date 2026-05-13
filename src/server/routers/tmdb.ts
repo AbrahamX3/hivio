@@ -69,6 +69,7 @@ export const tmdbRouter = {
 				const [movie, credits] = await Promise.all([
 					tmdb.movies.details(input.tmdbId, ["external_ids"]),
 					tmdb.movies.credits(input.tmdbId),
+					
 				]);
 
 				return {
@@ -243,7 +244,7 @@ export const tmdbRouter = {
 	getDiscoverTrending: publicProcedure
 		.input(
 			z.object({
-				pages: z.number().min(1).max(5).default(2),
+				pages: z.number().min(1).max(10).default(2),
 				timeWindow: z.enum(["day", "week"]).default("week"),
 				excludeInLibrary: z.boolean().default(true),
 			}),
@@ -383,6 +384,64 @@ export const tmdbRouter = {
 			}
 
 			return list;
+		}),
+
+	getRecommendations: publicProcedure
+		.input(
+			z.object({
+				tmdbId: z.number(),
+				mediaType: z.enum(["MOVIE", "SERIES"]),
+				pages: z.number().min(1).max(5).default(3),
+			}),
+		)
+		.handler(async ({ input }) => {
+			const tmdb = getTmdbClient();
+
+			const pageResults = await Promise.all(
+				Array.from({ length: input.pages }, (_, i) =>
+					input.mediaType === "MOVIE"
+						? tmdb.movies.recommendations(input.tmdbId, { page: i + 1 })
+						: tmdb.tvShows.recommendations(input.tmdbId, { page: i + 1 }),
+				),
+			);
+
+			const seen = new Set<number>();
+			const results: Array<{
+				id: number;
+				name: string;
+				posterPath: string | null;
+				overview: string | null;
+				releaseDate: string | null;
+				voteAverage: number | null;
+				genreIds: number[];
+				mediaType: "MOVIE" | "SERIES";
+			}> = [];
+
+			for (const page of pageResults) {
+				for (const item of page.results ?? []) {
+					if (seen.has(item.id)) continue;
+					seen.add(item.id);
+
+					results.push({
+						id: item.id,
+						name: "title" in item ? item.title : item.name,
+						posterPath: item.poster_path ?? null,
+						overview: item.overview ?? null,
+						releaseDate:
+							"release_date" in item
+								? item.release_date
+								: "first_air_date" in item
+									? item.first_air_date
+									: null,
+						voteAverage: item.vote_average ?? null,
+						genreIds: item.genre_ids ?? [],
+						mediaType:
+							input.mediaType === "MOVIE" ? "MOVIE" : "SERIES",
+					});
+				}
+			}
+
+			return results;
 		}),
 
 	getNextEpisodeInfoBatch: publicProcedure

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { type LucideIcon } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { type LucideIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import {
 	SidebarGroup,
@@ -9,22 +9,22 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavMain({
 	items,
 }: {
 	items: {
-		title: string
-		url: string
-		icon: LucideIcon
+		title: string;
+		url: string;
+		icon: LucideIcon;
 		items?: {
-			title: string
-			url: string
-		}[]
-	}[]
+			title: string;
+			url: string;
+		}[];
+	}[];
 }) {
-	const pathname = usePathname()
+	const pathname = usePathname();
 
 	return (
 		<SidebarGroup>
@@ -47,5 +47,5 @@ export function NavMain({
 				</SidebarMenu>
 			</SidebarGroupContent>
 		</SidebarGroup>
-	)
+	);
 }

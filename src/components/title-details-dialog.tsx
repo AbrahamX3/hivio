@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import LiteYouTubeEmbed from "react-lite-youtube-embed";
 
+import { TMDBIconSmall } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +31,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getGenreName } from "@/lib/genres";
 import { client } from "@/lib/orpc";
 import { cn, tmdbImageLoader } from "@/lib/utils";
-import { TMDBIconSmall } from "@/components/icons";
 
 import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
 

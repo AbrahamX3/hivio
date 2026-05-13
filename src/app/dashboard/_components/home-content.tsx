@@ -1,29 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
-import dynamic from "next/dynamic";
-import { useReducer } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { CurrentlyWatchingWithData } from "@/components/dashboard/currently-watching";
 import { StatsOverview } from "@/components/dashboard/quick-stats";
-import { Button } from "@/components/ui/button";
 import { CardTitle } from "@/components/ui/card";
 import { client } from "@/lib/orpc";
 
-const AddHistoryDialog = dynamic(
-	() =>
-		import("./user-actions/add-history-dialog").then((mod) => ({
-			default: mod.AddHistoryDialog,
-		})),
-	{ ssr: false },
-);
-
 export function HomeContent() {
-	const [isAddOpen, setIsAddOpen] = useReducer(
-		(_: boolean, open: boolean) => open,
-		false,
-	);
+	const queryClient = useQueryClient();
 
 	const dashboardData = useQuery({
 		queryKey: ["history", "getDashboardData"],
@@ -40,17 +25,11 @@ export function HomeContent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<CardTitle>Home</CardTitle>
-					<p className="text-muted-foreground text-sm">
-						Your watch activity at a glance.
-					</p>
-				</div>
-				<Button onClick={() => setIsAddOpen(true)}>
-					<Plus className="mr-2 h-4 w-4" />
-					Add Title
-				</Button>
+			<div>
+				<CardTitle>Home</CardTitle>
+				<p className="text-muted-foreground text-sm">
+					Your watch activity at a glance.
+				</p>
 			</div>
 
 			<StatsOverview
@@ -60,12 +39,14 @@ export function HomeContent() {
 				favourites={overview.favourites}
 			/>
 
-			<CurrentlyWatchingWithData items={watchingItems} />
-
-			<AddHistoryDialog
-				open={isAddOpen}
-				onOpenChange={setIsAddOpen}
+			<CurrentlyWatchingWithData
+				items={watchingItems}
+				onUpdate={() => {
+					queryClient.invalidateQueries({ queryKey: ["history"] });
+					queryClient.invalidateQueries({ queryKey: ["watching"] });
+				}}
 			/>
+
 		</div>
 	);
 }

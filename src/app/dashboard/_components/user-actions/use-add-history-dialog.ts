@@ -66,6 +66,37 @@ export function useAddHistoryDialog({
 				throw new Error("Title details not found");
 			}
 
+			let finalEpisode = data.currentEpisode
+				? Math.floor(parseFloat(data.currentEpisode))
+				: undefined;
+			let finalSeason = data.currentSeason
+				? Math.floor(parseFloat(data.currentSeason))
+				: undefined;
+			let finalRuntime = data.currentRuntime
+				? Math.floor(parseFloat(data.currentRuntime))
+				: undefined;
+
+			if (data.status === "FINISHED") {
+				if (
+					selectedResult.mediaType === "MOVIE" &&
+					state.titleDetails.runtime
+				) {
+					finalRuntime = state.titleDetails.runtime;
+				} else if (
+					selectedResult.mediaType === "SERIES" &&
+					state.titleDetails.seasons?.length
+				) {
+					const validSeasons = state.titleDetails.seasons.filter(
+						(s) => s.episodeCount > 0,
+					);
+					if (validSeasons.length > 0) {
+						const lastSeason = validSeasons[validSeasons.length - 1];
+						finalSeason = lastSeason.seasonNumber;
+						finalEpisode = lastSeason.episodeCount;
+					}
+				}
+			}
+
 			const result = await client.history.add({
 				tmdbId: selectedResult.id,
 				mediaType: selectedResult.mediaType,
@@ -88,15 +119,9 @@ export function useAddHistoryDialog({
 				genres: selectedResult.genres,
 				imdbId: state.titleDetails.imdbId,
 				directors: state.titleDetails.directors,
-				currentEpisode: data.currentEpisode
-					? Math.floor(parseFloat(data.currentEpisode))
-					: undefined,
-				currentSeason: data.currentSeason
-					? Math.floor(parseFloat(data.currentSeason))
-					: undefined,
-				currentRuntime: data.currentRuntime
-					? Math.floor(parseFloat(data.currentRuntime))
-					: undefined,
+				currentEpisode: finalEpisode,
+				currentSeason: finalSeason,
+				currentRuntime: finalRuntime,
 				isFavourite: data.isFavourite,
 			});
 			toast.success(

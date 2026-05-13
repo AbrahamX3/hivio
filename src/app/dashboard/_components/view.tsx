@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useReducer } from "react";
 import { toast } from "sonner";
@@ -15,21 +14,12 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { client } from "@/lib/orpc";
 import type { HistoryItem, HistoryUpdateData } from "@/types/history";
 
 import { HistoryTable, useHistoryTable } from "./history-table";
-
-const AddTitleDialog = dynamic(
-	() =>
-		import("./user-actions/add-history-dialog").then((mod) => ({
-			default: mod.AddHistoryDialog,
-		})),
-	{ ssr: false },
-);
 
 const DeleteHistoryDialog = dynamic(
 	() =>
@@ -50,7 +40,6 @@ const EditHistoryDialog = dynamic(
 interface DialogState {
 	editingItem: HistoryItem | null;
 	isEditDialogOpen: boolean;
-	isAddDialogOpen: boolean;
 	deleteItemId: string | null;
 	isDeleteDialogOpen: boolean;
 }
@@ -58,15 +47,12 @@ interface DialogState {
 type DialogAction =
 	| { type: "OPEN_EDIT"; item: HistoryItem }
 	| { type: "CLOSE_EDIT" }
-	| { type: "OPEN_ADD" }
-	| { type: "CLOSE_ADD" }
 	| { type: "OPEN_DELETE"; id: string }
 	| { type: "CLOSE_DELETE" };
 
 const initialDialogState: DialogState = {
 	editingItem: null,
 	isEditDialogOpen: false,
-	isAddDialogOpen: false,
 	deleteItemId: null,
 	isDeleteDialogOpen: false,
 };
@@ -77,10 +63,6 @@ function dialogReducer(state: DialogState, action: DialogAction): DialogState {
 			return { ...state, editingItem: action.item, isEditDialogOpen: true };
 		case "CLOSE_EDIT":
 			return { ...state, isEditDialogOpen: false };
-		case "OPEN_ADD":
-			return { ...state, isAddDialogOpen: true };
-		case "CLOSE_ADD":
-			return { ...state, isAddDialogOpen: false };
 		case "OPEN_DELETE":
 			return { ...state, deleteItemId: action.id, isDeleteDialogOpen: true };
 		case "CLOSE_DELETE":
@@ -96,7 +78,6 @@ export default function View() {
 	const {
 		editingItem,
 		isEditDialogOpen,
-		isAddDialogOpen,
 		deleteItemId,
 		isDeleteDialogOpen,
 	} = dialogState;
@@ -176,18 +157,12 @@ export default function View() {
 	return (
 		<>
 			<div className="space-y-6">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<CardTitle>Your Watch History</CardTitle>
-						<p className="text-muted-foreground text-sm">
-							Track progress, stay ahead of episodes, and keep your watchlist
-							tidy.
-						</p>
-					</div>
-					<Button onClick={() => dispatch({ type: "OPEN_ADD" })}>
-						<Plus className="mr-2 h-4 w-4" />
-						Add Title
-					</Button>
+				<div>
+					<CardTitle>Your Watch History</CardTitle>
+					<p className="text-muted-foreground text-sm">
+						Track progress, stay ahead of episodes, and keep your watchlist
+						tidy.
+					</p>
 				</div>
 
 				<Accordion type="single" collapsible defaultValue="overview">
@@ -215,7 +190,7 @@ export default function View() {
 					<CardHeader>
 						<CardTitle>Your Library</CardTitle>
 					</CardHeader>
-					<CardContent className="min-w-0">
+					<CardContent className="min-w-0 overflow-hidden">
 						<TooltipProvider>
 							<HistoryTable
 								table={table}
@@ -236,13 +211,6 @@ export default function View() {
 				}}
 				item={editingItem}
 				onSave={handleSave}
-			/>
-
-			<AddTitleDialog
-				open={isAddDialogOpen}
-				onOpenChange={(open) => {
-					if (!open) dispatch({ type: "CLOSE_ADD" });
-				}}
 			/>
 
 			<DeleteHistoryDialog

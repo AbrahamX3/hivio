@@ -19,10 +19,7 @@ import {
 	ClockIcon,
 	FilmIcon,
 	MinusIcon,
-	MoreHorizontal,
-	Pencil,
 	Star,
-	Trash2,
 } from "lucide-react";
 import * as React from "react";
 
@@ -31,15 +28,6 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { TitleDetailsDialog } from "@/components/title-details-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
@@ -56,6 +44,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useDataTableUrl, useDataTableWithUrl } from "@/hooks/use-data-table";
 import { getAllGenres, getGenreName } from "@/lib/genres";
+import { HistoryTableActions } from "./history-table-actions";
 import { client } from "@/lib/orpc";
 import { convertMinutesToHrMin } from "@/lib/utils";
 import type { HistoryItem, HistoryStatus, MediaType } from "@/types/history";
@@ -317,12 +306,12 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 					if (!Array.isArray(item.title?.genres)) return null;
 					const genreIds = item.title.genres;
 					return (
-						<div className="flex flex-wrap gap-1">
+						<div className="flex max-w-xs flex-wrap gap-1">
 							{genreIds.map((genreId) => (
 								<Badge
 									key={genreId}
 									variant="outline"
-									className="w-full rounded-md text-center text-[0.70rem] text-balance md:w-fit"
+									className="max-w-full rounded-md text-center text-[0.70rem] text-balance sm:w-fit"
 								>
 									{getGenreName(genreId, item.title!.mediaType)}
 								</Badge>
@@ -391,35 +380,13 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 			{
 				id: "actions",
 				enableHiding: false,
-				cell: ({ row }) => {
-					const item = row.original;
-
-					return (
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" className="h-8 w-8 p-0">
-									<span className="sr-only">Open menu</span>
-									<MoreHorizontal className="h-4 w-4" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuLabel>Actions</DropdownMenuLabel>
-								<DropdownMenuItem onClick={() => onEdit(item)}>
-									<Pencil className="mr-2 h-4 w-4" />
-									Edit
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onClick={() => onDelete(item.id)}
-									className="text-destructive"
-								>
-									<Trash2 className="mr-2 h-4 w-4" />
-									Delete
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					);
-				},
+				cell: ({ row }) => (
+					<HistoryTableActions
+						item={row.original}
+						onEdit={onEdit}
+						onDelete={onDelete}
+					/>
+				),
 			},
 		],
 		[onEdit, onDelete, genreOptions],
@@ -533,8 +500,8 @@ export function HistoryTable({
 					<Skeleton className="ml-auto hidden h-9 w-9 lg:flex" />
 				</div>
 
-				<div className="rounded-md border">
-					<Table>
+				<div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain rounded-md border">
+					<Table noWrapper className="min-w-max">
 						<TableHeader>
 							<TableRow className="hover:bg-transparent">
 								<TableHead className="h-10 px-3 py-2">
@@ -590,7 +557,7 @@ export function HistoryTable({
 					</Table>
 				</div>
 
-				<div className="flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8">
+				<div className="flex w-full min-w-0 flex-col-reverse items-center justify-between gap-4 p-1 sm:flex-row sm:gap-8">
 					<Skeleton className="h-7 w-40 shrink-0" />
 					<div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
 						<div className="flex items-center gap-2">

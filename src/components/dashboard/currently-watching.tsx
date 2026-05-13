@@ -77,9 +77,9 @@ function WatchingShowCard({
 			currentSeason?: number;
 			currentEpisode?: number;
 		}) => client.history.update(data),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["history"] });
-			queryClient.invalidateQueries({ queryKey: ["watching"] });
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ["history"] });
+			await queryClient.invalidateQueries({ queryKey: ["watching"] });
 			toast.success("History updated");
 			onUpdate?.();
 		},
@@ -227,7 +227,16 @@ function CurrentlyWatchingDataFetcher({
 	const [isPending] = useTransition();
 
 	const { data: showData = [], isLoading } = useQuery({
-		queryKey: ["watching", "details", items.map((i) => i.id).join(",")],
+		queryKey: [
+			"watching",
+			"details",
+			items
+				.map(
+					(i) =>
+						`${i.id}:${i.currentEpisode ?? 0}:${i.currentSeason ?? 0}:${i.currentRuntime ?? 0}`,
+				)
+				.join(","),
+		],
 		queryFn: async () => {
 			const seriesItems = items.filter(
 				(

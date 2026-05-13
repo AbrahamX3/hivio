@@ -160,9 +160,7 @@ export default function SignUpForm() {
 												type={showConfirmPassword ? "text" : "password"}
 												required
 												value={confirmPassword}
-												onChange={(e) =>
-													setConfirmPassword(e.target.value)
-												}
+												onChange={(e) => setConfirmPassword(e.target.value)}
 												disabled={isPending}
 												className="pr-10"
 											/>
@@ -186,14 +184,8 @@ export default function SignUpForm() {
 											</Button>
 										</div>
 									</div>
-									{error && (
-										<p className="text-destructive text-sm">{error}</p>
-									)}
-									<Button
-										type="submit"
-										className="w-full"
-										disabled={isPending}
-									>
+									{error && <p className="text-destructive text-sm">{error}</p>}
+									<Button type="submit" className="w-full" disabled={isPending}>
 										{isPending ? "Creating account..." : "Sign up"}
 									</Button>
 								</div>

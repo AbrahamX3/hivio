@@ -53,7 +53,7 @@ export default async function RootLayout({
 							disableTransitionOnChange
 							storageKey="vite-ui-theme"
 						>
-							<div className="grid h-svh grid-rows-[auto_1fr]">{children}</div>
+							<div className="flex flex-col h-svh">{children}</div>
 							<Toaster richColors />
 						</ThemeProvider>
 					</NuqsAdapter>
