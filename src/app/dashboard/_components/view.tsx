@@ -75,12 +75,8 @@ function dialogReducer(state: DialogState, action: DialogAction): DialogState {
 export default function View() {
 	const queryClient = useQueryClient();
 	const [dialogState, dispatch] = useReducer(dialogReducer, initialDialogState);
-	const {
-		editingItem,
-		isEditDialogOpen,
-		deleteItemId,
-		isDeleteDialogOpen,
-	} = dialogState;
+	const { editingItem, isEditDialogOpen, deleteItemId, isDeleteDialogOpen } =
+		dialogState;
 
 	const dashboardData = useQuery({
 		queryKey: ["history", "getDashboardData"],

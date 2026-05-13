@@ -44,10 +44,11 @@ import {
 } from "@/components/ui/tooltip";
 import { useDataTableUrl, useDataTableWithUrl } from "@/hooks/use-data-table";
 import { getAllGenres, getGenreName } from "@/lib/genres";
-import { HistoryTableActions } from "./history-table-actions";
 import { client } from "@/lib/orpc";
 import { convertMinutesToHrMin } from "@/lib/utils";
 import type { HistoryItem, HistoryStatus, MediaType } from "@/types/history";
+
+import { HistoryTableActions } from "./history-table-actions";
 
 export type { HistoryItem };
 

@@ -142,7 +142,9 @@ export function RecommendationsDialog({
 				cell: ({ row }) => {
 					const date = row.original.releaseDate;
 					return date ? (
-						<span className="text-sm tabular-nums">{new Date(date).getFullYear()}</span>
+						<span className="text-sm tabular-nums">
+							{new Date(date).getFullYear()}
+						</span>
 					) : (
 						<span className="text-muted-foreground">-</span>
 					);

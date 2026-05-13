@@ -46,7 +46,6 @@ export function HomeContent() {
 					queryClient.invalidateQueries({ queryKey: ["watching"] });
 				}}
 			/>
-
 		</div>
 	);
 }

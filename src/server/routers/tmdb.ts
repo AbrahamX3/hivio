@@ -69,7 +69,6 @@ export const tmdbRouter = {
 				const [movie, credits] = await Promise.all([
 					tmdb.movies.details(input.tmdbId, ["external_ids"]),
 					tmdb.movies.credits(input.tmdbId),
-					
 				]);
 
 				return {
@@ -435,8 +434,7 @@ export const tmdbRouter = {
 									: null,
 						voteAverage: item.vote_average ?? null,
 						genreIds: item.genre_ids ?? [],
-						mediaType:
-							input.mediaType === "MOVIE" ? "MOVIE" : "SERIES",
+						mediaType: input.mediaType === "MOVIE" ? "MOVIE" : "SERIES",
 					});
 				}
 			}
