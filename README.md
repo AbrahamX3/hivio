@@ -171,10 +171,10 @@ Useful package scripts from `package.json`:
 - **`predev`**: Ensures Convex dev is ready and opens the Convex dashboard.
 - **`build`**: Builds the Next.js app.
 - **`start`**: Starts the built Next.js app.
-- **`lint`**: Runs ESLint.
+- **`lint`**: Runs Oxlint.
 - **`typecheck`**: Runs TypeScript type checking.
 - **`check`**: Runs linting, type checking, and formatting.
-- **`format`**: Formats the codebase with Prettier.
+- **`format`**: Formats the codebase with Oxfmt.
 - **`deploy`**: Deploys the Convex backend.
 
 ---
