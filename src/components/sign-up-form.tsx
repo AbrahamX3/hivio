@@ -116,100 +116,106 @@ export default function SignUpForm() {
 								</div>
 							) : (
 								<form onSubmit={handleSignUp}>
-								<div className="flex flex-col gap-6">
-									<div className="grid gap-2">
-										<Label htmlFor="name">Name</Label>
-										<Input
-											id="name"
-											type="text"
-											placeholder="John Doe"
-											required
-											value={name}
-											onChange={(e) => setName(e.target.value)}
-											disabled={isPending}
-										/>
-									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="email">Email</Label>
-										<Input
-											id="email"
-											type="email"
-											placeholder="m@example.com"
-											required
-											value={email}
-											onChange={(e) => setEmail(e.target.value)}
-											disabled={isPending}
-										/>
-									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="password">Password</Label>
-										<div className="relative">
+									<div className="flex flex-col gap-6">
+										<div className="grid gap-2">
+											<Label htmlFor="name">Name</Label>
 											<Input
-												id="password"
-												type={showPassword ? "text" : "password"}
+												id="name"
+												type="text"
+												placeholder="John Doe"
 												required
-												value={password}
-												onChange={(e) => setPassword(e.target.value)}
+												value={name}
+												onChange={(e) => setName(e.target.value)}
 												disabled={isPending}
-												className="pr-10"
 											/>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="absolute right-0 top-0 h-full px-3"
-												onClick={() => setShowPassword((v) => !v)}
-												aria-label={
-													showPassword ? "Hide password" : "Show password"
-												}
-											>
-												{showPassword ? (
-													<EyeOff className="h-4 w-4" />
-												) : (
-													<Eye className="h-4 w-4" />
-												)}
-											</Button>
 										</div>
-									</div>
-									<div className="grid gap-2">
-										<Label htmlFor="confirm-password">Confirm password</Label>
-										<div className="relative">
+										<div className="grid gap-2">
+											<Label htmlFor="email">Email</Label>
 											<Input
-												id="confirm-password"
-												type={showConfirmPassword ? "text" : "password"}
+												id="email"
+												type="email"
+												placeholder="m@example.com"
 												required
-												value={confirmPassword}
-												onChange={(e) => setConfirmPassword(e.target.value)}
+												value={email}
+												onChange={(e) => setEmail(e.target.value)}
 												disabled={isPending}
-												className="pr-10"
 											/>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="absolute right-0 top-0 h-full px-3"
-												onClick={() => setShowConfirmPassword((v) => !v)}
-												aria-label={
-													showConfirmPassword
-														? "Hide confirm password"
-														: "Show confirm password"
-												}
-											>
-												{showConfirmPassword ? (
-													<EyeOff className="h-4 w-4" />
-												) : (
-													<Eye className="h-4 w-4" />
-												)}
-											</Button>
 										</div>
+										<div className="grid gap-2">
+											<Label htmlFor="password">Password</Label>
+											<div className="relative">
+												<Input
+													id="password"
+													type={showPassword ? "text" : "password"}
+													required
+													value={password}
+													onChange={(e) => setPassword(e.target.value)}
+													disabled={isPending}
+													className="pr-10"
+												/>
+												<Button
+													type="button"
+													variant="ghost"
+													size="icon"
+													className="absolute right-0 top-0 h-full px-3"
+													onClick={() => setShowPassword((v) => !v)}
+													aria-label={
+														showPassword ? "Hide password" : "Show password"
+													}
+												>
+													{showPassword ? (
+														<EyeOff className="h-4 w-4" />
+													) : (
+														<Eye className="h-4 w-4" />
+													)}
+												</Button>
+											</div>
+										</div>
+										<div className="grid gap-2">
+											<Label htmlFor="confirm-password">Confirm password</Label>
+											<div className="relative">
+												<Input
+													id="confirm-password"
+													type={showConfirmPassword ? "text" : "password"}
+													required
+													value={confirmPassword}
+													onChange={(e) => setConfirmPassword(e.target.value)}
+													disabled={isPending}
+													className="pr-10"
+												/>
+												<Button
+													type="button"
+													variant="ghost"
+													size="icon"
+													className="absolute right-0 top-0 h-full px-3"
+													onClick={() => setShowConfirmPassword((v) => !v)}
+													aria-label={
+														showConfirmPassword
+															? "Hide confirm password"
+															: "Show confirm password"
+													}
+												>
+													{showConfirmPassword ? (
+														<EyeOff className="h-4 w-4" />
+													) : (
+														<Eye className="h-4 w-4" />
+													)}
+												</Button>
+											</div>
+										</div>
+										{error && (
+											<p className="text-destructive text-sm">{error}</p>
+										)}
+										<Button
+											type="submit"
+											className="w-full"
+											disabled={isPending}
+										>
+											{isPending ? "Creating account..." : "Sign up"}
+										</Button>
 									</div>
-									{error && <p className="text-destructive text-sm">{error}</p>}
-									<Button type="submit" className="w-full" disabled={isPending}>
-										{isPending ? "Creating account..." : "Sign up"}
-									</Button>
-								</div>
-							</form>
-						)}
+								</form>
+							)}
 
 							<div className="mt-6 text-center text-sm">
 								Already have an account?{" "}
