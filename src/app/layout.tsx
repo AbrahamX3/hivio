@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: {
 		default: "Hivio",
-		template: "%s | Hivio",
+		template: "Hivio | %s",
 	},
 	description: "Your personal dashboard for tracking movies and TV shows.",
 	icons: {

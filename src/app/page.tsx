@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
+
 import { CallToAction } from "@/components/landing-page/cta";
 import { Features } from "@/components/landing-page/features";
 import { Footer } from "@/components/landing-page/footer";
 import { Hero } from "@/components/landing-page/hero";
 import { LandingNavbar } from "@/components/landing-page/navbar";
+
+export const metadata: Metadata = {
+	title: "Home",
+	description: "Track your favorite movies and TV shows",
+};
 
 export default function Home() {
 	return (
