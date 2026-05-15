@@ -121,6 +121,7 @@ export default function SignUpForm() {
 											<Label htmlFor="name">Name</Label>
 											<Input
 												id="name"
+												autoComplete="name"
 												type="text"
 												placeholder="John Doe"
 												required
@@ -133,6 +134,7 @@ export default function SignUpForm() {
 											<Label htmlFor="email">Email</Label>
 											<Input
 												id="email"
+												autoComplete="email"
 												type="email"
 												placeholder="m@example.com"
 												required
@@ -146,6 +148,7 @@ export default function SignUpForm() {
 											<div className="relative">
 												<Input
 													id="password"
+													autoComplete="new-password"
 													type={showPassword ? "text" : "password"}
 													required
 													value={password}
@@ -176,6 +179,7 @@ export default function SignUpForm() {
 											<div className="relative">
 												<Input
 													id="confirm-password"
+													autoComplete="new-password"
 													type={showConfirmPassword ? "text" : "password"}
 													required
 													value={confirmPassword}

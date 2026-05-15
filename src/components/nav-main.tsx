@@ -1,6 +1,7 @@
 "use client";
 
 import { type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
@@ -11,9 +12,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export function NavMain({
-	items,
-}: {
+interface NavMainProps {
 	items: {
 		title: string;
 		url: string;
@@ -23,7 +22,9 @@ export function NavMain({
 			url: string;
 		}[];
 	}[];
-}) {
+}
+
+export function NavMain({ items }: NavMainProps) {
 	const pathname = usePathname();
 
 	return (
@@ -37,10 +38,10 @@ export function NavMain({
 								asChild
 								isActive={pathname === item.url}
 							>
-								<a href={item.url}>
-									<item.icon />
+								<Link href={item.url}>
+									<item.icon className="hover:scale-3d" />
 									<span>{item.title}</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					))}

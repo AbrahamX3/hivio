@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useReducer, useTransition } from "react";
+import { useEffect, useReducer, useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -38,6 +38,8 @@ export function useAddHistoryDialog({
 	);
 
 	const { selectedResult } = state;
+	const selectedResultRef = useRef(selectedResult);
+	selectedResultRef.current = selectedResult;
 
 	const { data: currentUser } = useQuery({
 		queryKey: ["user", "getCurrentUser"],
@@ -284,18 +286,19 @@ export function useAddHistoryDialog({
 				seasons: fetchedInitialDetails.seasons,
 			},
 		});
-		if (selectedResult) {
+		const currentResult = selectedResultRef.current;
+		if (currentResult) {
 			dispatch({
 				type: "UPDATE_RESULT",
 				result: {
-					...selectedResult,
+					...currentResult,
 					description:
-						fetchedInitialDetails.overview ?? selectedResult.description,
-					genres: fetchedInitialDetails.genres ?? selectedResult.genres,
+						fetchedInitialDetails.overview ?? currentResult.description,
+					genres: fetchedInitialDetails.genres ?? currentResult.genres,
 				},
 			});
 		}
-	}, [fetchedInitialDetails, selectedResult]);
+	}, [fetchedInitialDetails]);
 
 	const isSeries = selectedResult?.mediaType === "SERIES";
 

@@ -154,6 +154,7 @@ export default function SignInForm() {
 										<Label htmlFor="email">Email</Label>
 										<Input
 											id="email"
+											autoComplete="email"
 											type="email"
 											placeholder="m@example.com"
 											required
@@ -175,6 +176,7 @@ export default function SignInForm() {
 										<div className="relative">
 											<Input
 												id="password"
+												autoComplete="current-password"
 												type={showPassword ? "text" : "password"}
 												required
 												value={password}
