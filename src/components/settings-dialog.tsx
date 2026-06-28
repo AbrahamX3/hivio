@@ -29,7 +29,9 @@ import {
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
@@ -167,11 +169,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											{STATUS_OPTIONS.map((opt) => (
-												<SelectItem key={opt.value} value={opt.value}>
-													{opt.label}
-												</SelectItem>
-											))}
+											<SelectGroup>
+												<SelectLabel>Status</SelectLabel>
+												{STATUS_OPTIONS.map((opt) => (
+													<SelectItem key={opt.value} value={opt.value}>
+														{opt.label}
+													</SelectItem>
+												))}
+											</SelectGroup>
 										</SelectContent>
 									</Select>
 									<FormMessage />
