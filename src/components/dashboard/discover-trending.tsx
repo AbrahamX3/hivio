@@ -3,8 +3,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Film, Tv, X } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useReducer, useEffect, useState, useTransition } from "react";
 import { parseAsString, useQueryState } from "nuqs";
+import { useMemo, useReducer, useEffect, useState, useTransition } from "react";
 
 import { AddHistoryDialog } from "@/app/dashboard/_components/user-actions/add-history-dialog";
 import {
@@ -13,8 +13,8 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getAllGenres } from "@/lib/genres";
 import { client } from "@/lib/orpc";
 import { cn, tmdbImageLoader } from "@/lib/utils";
@@ -34,7 +34,7 @@ type TrendingTitle = {
 	genres: number[] | null;
 };
 
-	function TrendingTitleCard({
+function TrendingTitleCard({
 	title,
 	onClick,
 	disabled,
@@ -232,9 +232,7 @@ export function DiscoverTrending() {
 		}
 		if (genreFilter) {
 			const genreId = Number(genreFilter);
-			filtered = filtered.filter(
-				(t) => t.genres && t.genres.includes(genreId),
-			);
+			filtered = filtered.filter((t) => t.genres && t.genres.includes(genreId));
 		}
 		return filtered;
 	}, [rawTrending, recentlyAddedIds, mediaTypeFilter, genreFilter]);
@@ -290,16 +288,16 @@ export function DiscoverTrending() {
 				}}
 			>
 				<div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-				<div className="flex-1 min-w-0">
-					<h1 className="text-2xl font-semibold tracking-tight">
-						{headerTitle}
-					</h1>
-					<p className="text-muted-foreground mt-0.5 text-sm">
-						{headerSubtitle}
-					</p>
-				</div>
+					<div className="flex-1 min-w-0">
+						<h1 className="text-2xl font-semibold tracking-tight">
+							{headerTitle}
+						</h1>
+						<p className="text-muted-foreground mt-0.5 text-sm">
+							{headerSubtitle}
+						</p>
+					</div>
 
-				<div className="flex flex-wrap items-center gap-2">
+					<div className="flex flex-wrap items-center gap-2">
 						{filterOptions.map((group) => (
 							<div
 								key={group.group}
@@ -329,14 +327,12 @@ export function DiscoverTrending() {
 									type="button"
 									className={cn(
 										"bg-muted/60 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium ring-1 ring-border/30 transition-all hover:text-foreground",
-										genreFilter
-											? "text-foreground"
-											: "text-muted-foreground",
+										genreFilter ? "text-foreground" : "text-muted-foreground",
 									)}
 								>
 									{genreFilter
-										? allGenres.find((g) => g.id === genreFilter)?.name ??
-											"Genre"
+										? (allGenres.find((g) => g.id === genreFilter)?.name ??
+											"Genre")
 										: "All Genres"}
 									{genreFilter ? (
 										<span
@@ -379,48 +375,48 @@ export function DiscoverTrending() {
 								</ScrollArea>
 							</PopoverContent>
 						</Popover>
+					</div>
 				</div>
-			</div>
 			</div>
 
 			<div className="pt-16">
-			{isLoading ? (
-				<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 pt-4">
-					{Array.from({ length: 16 }).map((_, idx) => (
-						<div
-							key={`trending-skeleton-${idx}`}
-							className="ring-border/50 bg-card overflow-hidden rounded-xl ring-1"
-						>
-							<Skeleton className="aspect-2/3 w-full rounded-none" />
-							<div className="p-2.5">
-								<Skeleton className="h-2.5 w-4/5 rounded-sm" />
+				{isLoading ? (
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 pt-4">
+						{Array.from({ length: 16 }).map((_, idx) => (
+							<div
+								key={`trending-skeleton-${idx}`}
+								className="ring-border/50 bg-card overflow-hidden rounded-xl ring-1"
+							>
+								<Skeleton className="aspect-2/3 w-full rounded-none" />
+								<div className="p-2.5">
+									<Skeleton className="h-2.5 w-4/5 rounded-sm" />
+								</div>
 							</div>
-						</div>
-					))}
-				</div>
-			) : trendingTitles.length > 0 ? (
-				<div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 pt-4">
-					{trendingTitles.map((title, idx) => (
-						<div
-							key={`${title.id}-${title.mediaType}`}
-							className="animate-enter"
-							style={{ animationDelay: `${idx * 30}ms` }}
-						>
-							<TrendingTitleCard
-								title={title}
-								onClick={() => handleTitleClick(title)}
-								disabled={isPending}
-							/>
-						</div>
-					))}
-				</div>
-			) : (
-				<div className="py-4">
-					<p className="text-muted-foreground text-sm">
-						No trending titles available.
-					</p>
-				</div>
-			)}
+						))}
+					</div>
+				) : trendingTitles.length > 0 ? (
+					<div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 pt-4">
+						{trendingTitles.map((title, idx) => (
+							<div
+								key={`${title.id}-${title.mediaType}`}
+								className="animate-enter"
+								style={{ animationDelay: `${idx * 30}ms` }}
+							>
+								<TrendingTitleCard
+									title={title}
+									onClick={() => handleTitleClick(title)}
+									disabled={isPending}
+								/>
+							</div>
+						))}
+					</div>
+				) : (
+					<div className="py-4">
+						<p className="text-muted-foreground text-sm">
+							No trending titles available.
+						</p>
+					</div>
+				)}
 			</div>
 
 			{selectedTitle && (
