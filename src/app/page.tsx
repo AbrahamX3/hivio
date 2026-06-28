@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { CallToAction } from "@/components/landing-page/cta";
 import { Features } from "@/components/landing-page/features";
 import { Footer } from "@/components/landing-page/footer";
 import { Hero } from "@/components/landing-page/hero";
+import { HowItWorks } from "@/components/landing-page/how-it-works";
 import { LandingNavbar } from "@/components/landing-page/navbar";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default function Home() {
 			<LandingNavbar />
 			<Hero />
 			<Features />
-			<CallToAction />
+			<HowItWorks />
 			<Footer />
 		</main>
 	);

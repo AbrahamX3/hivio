@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 interface StatsOverviewProps {
 	watching: number;
 	finished: number;
@@ -14,38 +12,42 @@ export function StatsOverview({
 	favourites,
 }: StatsOverviewProps) {
 	return (
-		<Card className="bg-transparent">
-			<CardHeader>
-				<CardTitle>Overview</CardTitle>
-			</CardHeader>
-			<CardContent className="grid gap-3 sm:grid-cols-2">
-				<div className="bg-muted/30 rounded-xl border p-4">
-					<p className="text-muted-foreground text-xs uppercase">Watching</p>
-					<p className="mt-2 text-2xl font-semibold">{watching}</p>
+		<div className="bg-card ring-border/50 rounded-xl p-4 ring-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
+			<h3 className="text-sm font-medium">Overview</h3>
+			<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				<div className="space-y-1">
+					<p className="text-muted-foreground text-[11px] font-medium tracking-[0.15em] uppercase">
+						Watching
+					</p>
+					<p className="text-2xl font-semibold tabular-nums">{watching}</p>
 					<p className="text-muted-foreground text-xs">
-						Titles in progress right now.
+						Titles in progress right now
 					</p>
 				</div>
-				<div className="bg-muted/30 rounded-xl border p-4">
-					<p className="text-muted-foreground text-xs uppercase">Completed</p>
-					<p className="mt-2 text-2xl font-semibold">{finished}</p>
+				<div className="space-y-1">
+					<p className="text-muted-foreground text-[11px] font-medium tracking-[0.15em] uppercase">
+						Completed
+					</p>
+					<p className="text-2xl font-semibold tabular-nums">{finished}</p>
 					<p className="text-muted-foreground text-xs">
-						Finished titles in your library.
+						Finished titles in your library
 					</p>
 				</div>
-				<div className="bg-muted/30 rounded-xl border p-4">
-					<p className="text-muted-foreground text-xs uppercase">Planned</p>
-					<p className="mt-2 text-2xl font-semibold">{planned}</p>
-					<p className="text-muted-foreground text-xs">Lined up for later.</p>
-				</div>
-				<div className="bg-muted/30 rounded-xl border p-4">
-					<p className="text-muted-foreground text-xs uppercase">Favorites</p>
-					<p className="mt-2 text-2xl font-semibold">{favourites}</p>
-					<p className="text-muted-foreground text-xs">
-						Saved titles you love.
+				<div className="space-y-1">
+					<p className="text-muted-foreground text-[11px] font-medium tracking-[0.15em] uppercase">
+						Planned
 					</p>
+					<p className="text-2xl font-semibold tabular-nums">{planned}</p>
+					<p className="text-muted-foreground text-xs">Lined up for later</p>
 				</div>
-			</CardContent>
-		</Card>
+				<div className="space-y-1">
+					<p className="text-muted-foreground text-[11px] font-medium tracking-[0.15em] uppercase">
+						Favorites
+					</p>
+					<p className="text-2xl font-semibold tabular-nums">{favourites}</p>
+					<p className="text-muted-foreground text-xs">Saved titles you love</p>
+				</div>
+			</div>
+		</div>
 	);
 }

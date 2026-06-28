@@ -4,18 +4,12 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 
+import { DoubleBezel } from "@/components/double-bezel";
 import { HivioLogo } from "@/components/icons";
 import { authClient } from "@/lib/auth-client";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
@@ -118,8 +112,8 @@ export default function SignInForm() {
 	return (
 		<main className="bg-background text-foreground flex min-h-screen flex-col">
 			<div className="pointer-events-none sticky top-4 z-50 w-full px-4">
-				<div className="mx-auto flex max-w-6xl">
-					<div className="border-border/60 bg-background/80 ring-border/40 pointer-events-auto flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 shadow-black/5 backdrop-blur">
+				<div className="mx-auto w-full max-w-6xl">
+					<div className="border-border/60 bg-background/80 ring-border/40 ring-primary/5 pointer-events-auto flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 backdrop-blur-2xl">
 						<Link
 							href="/"
 							className="flex items-center gap-2 font-semibold transition-opacity hover:opacity-90"
@@ -138,16 +132,16 @@ export default function SignInForm() {
 				</div>
 			</div>
 
-			<section className="flex flex-1 items-center justify-center px-4 py-14 sm:py-16">
+			<section className="flex flex-1 items-center justify-center px-4 py-20 sm:py-24">
 				<div className="w-full max-w-sm">
-					<Card>
-						<CardHeader className="text-center">
-							<CardTitle className="text-2xl">Welcome back</CardTitle>
-							<CardDescription>
-								Sign in to your account to continue
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
+					<DoubleBezel outerClassName="rounded-[1.5rem]">
+						<div className="px-2 py-4">
+							<div className="mb-6 text-center">
+								<h2 className="text-2xl font-semibold">Welcome back</h2>
+								<p className="text-muted-foreground mt-1.5 text-sm">
+									Sign in to your account to continue
+								</p>
+							</div>
 							<form onSubmit={handleEmailSignIn}>
 								<div className="flex flex-col gap-6">
 									<div className="grid gap-2">
@@ -203,7 +197,11 @@ export default function SignInForm() {
 										</div>
 									</div>
 									{error && <p className="text-destructive text-sm">{error}</p>}
-									<Button type="submit" className="w-full" disabled={isPending}>
+									<Button
+										type="submit"
+										className="w-full transition-spring"
+										disabled={isPending}
+									>
 										{isPending ? "Signing in..." : "Sign in"}
 									</Button>
 								</div>
@@ -281,8 +279,8 @@ export default function SignInForm() {
 									Privacy Policy
 								</Link>
 							</p>
-						</CardContent>
-					</Card>
+						</div>
+					</DoubleBezel>
 				</div>
 			</section>
 		</main>

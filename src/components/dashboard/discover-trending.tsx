@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useReducer, useTransition } from "react";
 
 import { AddHistoryDialog } from "@/app/dashboard/_components/user-actions/add-history-dialog";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { client } from "@/lib/orpc";
 import { cn, tmdbImageLoader } from "@/lib/utils";
@@ -36,9 +36,9 @@ function TrendingTitleCard({
 	disabled?: boolean;
 }) {
 	return (
-		<Card
+		<div
 			className={cn(
-				"group w-24 shrink-0 transition-transform hover:scale-105 hover:shadow-md",
+				"group w-24 shrink-0 rounded-xl ring-1 ring-border/50 bg-card transition-spring hover:scale-105 hover:shadow-lg",
 				disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
 			)}
 			onClick={disabled ? undefined : onClick}
@@ -89,7 +89,7 @@ function TrendingTitleCard({
 					{title.name}
 				</h4>
 			</CardContent>
-		</Card>
+		</div>
 	);
 }
 
@@ -203,7 +203,7 @@ export function DiscoverTrending() {
 						{Array.from({ length: 16 }).map((_, idx) => (
 							<div
 								key={`trending-skeleton-${idx}`}
-								className="border-border bg-card w-24 shrink-0 overflow-hidden rounded-xl border"
+								className="ring-border/50 bg-card w-24 shrink-0 overflow-hidden rounded-xl ring-1"
 							>
 								<Skeleton className="aspect-2/3 w-full rounded-none" />
 								<div className="p-2">

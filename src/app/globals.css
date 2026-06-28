@@ -8,7 +8,7 @@
 } */
 
 :root {
-	--background: oklch(0.9821 0 0);
+	--background: oklch(0.976 0.002 85);
 	--foreground: oklch(0.2435 0 0);
 	--card: oklch(0.9911 0 0);
 	--card-foreground: oklch(0.2435 0 0);
@@ -54,25 +54,31 @@
 	--shadow-blur: 3px;
 	--shadow-spread: 0px;
 	--shadow-opacity: 0.1;
-	--shadow-color: oklch(0 0 0);
-	--shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-	--shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+	--shadow-color: oklch(0.35 0.03 55);
+	--shadow-2xs: 0 1px 3px 0px oklch(0.35 0.03 55 / 0.04);
+	--shadow-xs: 0 1px 3px 0px oklch(0.35 0.03 55 / 0.04);
 	--shadow-sm:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-	--shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+		0 1px 3px 0px oklch(0.35 0.03 55 / 0.08),
+		0 1px 2px -1px oklch(0.35 0.03 55 / 0.08);
+	--shadow:
+		0 1px 3px 0px oklch(0.35 0.03 55 / 0.08),
+		0 1px 2px -1px oklch(0.35 0.03 55 / 0.08);
 	--shadow-md:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+		0 1px 3px 0px oklch(0.35 0.03 55 / 0.08),
+		0 2px 4px -1px oklch(0.35 0.03 55 / 0.08);
 	--shadow-lg:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+		0 1px 3px 0px oklch(0.35 0.03 55 / 0.08),
+		0 4px 6px -1px oklch(0.35 0.03 55 / 0.08);
 	--shadow-xl:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-	--shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+		0 1px 3px 0px oklch(0.35 0.03 55 / 0.08),
+		0 8px 10px -1px oklch(0.35 0.03 55 / 0.08);
+	--shadow-2xl: 0 1px 3px 0px oklch(0.35 0.03 55 / 0.2);
 	--tracking-normal: 0em;
 	--spacing: 0.25rem;
 }
 
 .dark {
-	--background: oklch(0.1776 0 0);
+	--background: oklch(0.16 0.005 85);
 	--foreground: oklch(0.9491 0 0);
 	--card: oklch(0.2134 0 0);
 	--card-foreground: oklch(0.9491 0 0);
@@ -118,19 +124,25 @@
 	--shadow-blur: 3px;
 	--shadow-spread: 0px;
 	--shadow-opacity: 0.1;
-	--shadow-color: oklch(0 0 0);
-	--shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-	--shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+	--shadow-color: oklch(0.15 0.003 85);
+	--shadow-2xs: 0 1px 3px 0px oklch(0.15 0.003 85 / 0.08);
+	--shadow-xs: 0 1px 3px 0px oklch(0.15 0.003 85 / 0.08);
 	--shadow-sm:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-	--shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+		0 1px 3px 0px oklch(0.15 0.003 85 / 0.15),
+		0 1px 2px -1px oklch(0.15 0.003 85 / 0.15);
+	--shadow:
+		0 1px 3px 0px oklch(0.15 0.003 85 / 0.15),
+		0 1px 2px -1px oklch(0.15 0.003 85 / 0.15);
 	--shadow-md:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+		0 1px 3px 0px oklch(0.15 0.003 85 / 0.15),
+		0 2px 4px -1px oklch(0.15 0.003 85 / 0.15);
 	--shadow-lg:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+		0 1px 3px 0px oklch(0.15 0.003 85 / 0.15),
+		0 4px 6px -1px oklch(0.15 0.003 85 / 0.15);
 	--shadow-xl:
-		0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-	--shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+		0 1px 3px 0px oklch(0.15 0.003 85 / 0.15),
+		0 8px 10px -1px oklch(0.15 0.003 85 / 0.15);
+	--shadow-2xl: 0 1px 3px 0px oklch(0.15 0.003 85 / 0.35);
 }
 
 @theme inline {
@@ -175,6 +187,8 @@
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 8px);
+	--radius-3xl: calc(var(--radius) + 16px);
 
 	--shadow-2xs: var(--shadow-2xs);
 	--shadow-xs: var(--shadow-xs);
@@ -216,5 +230,72 @@
 	[data-state="open"][data-radix-dialog-overlay],
 	[data-state="open"][data-radix-sheet-overlay] {
 		overscroll-behavior: contain;
+	}
+
+	/* Grain texture overlay */
+	body::after {
+		content: "";
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		z-index: 50;
+		opacity: 0.025;
+		background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+		background-repeat: repeat;
+		background-size: 128px 128px;
+	}
+
+	/* Scroll-driven entry animations */
+	.animate-enter {
+		animation: enter 0.7s cubic-bezier(0.32, 0.72, 0, 1) both;
+	}
+	.animate-enter[data-visible] {
+		animation: enter 0.7s cubic-bezier(0.32, 0.72, 0, 1) both;
+	}
+
+	@keyframes enter {
+		from {
+			opacity: 0;
+			transform: translateY(1rem);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Spring-based interaction transition */
+	.transition-spring {
+		transition:
+			transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+			opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+			box-shadow 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+			background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+	}
+
+	/* Glow orb for hero sections */
+	.glow-orb {
+		background: radial-gradient(
+			ellipse 60% 50% at 50% 50%,
+			oklch(0.3927 0.0312 49.1581 / 0.15),
+			transparent 70%
+		);
+	}
+	.glow-orb-subtle {
+		background: radial-gradient(
+			ellipse 50% 40% at 50% 50%,
+			oklch(0.3927 0.0312 49.1581 / 0.08),
+			transparent 70%
+		);
+	}
+
+	/* Dot grid pattern */
+	.dot-grid {
+		background-image: radial-gradient(
+			circle,
+			oklch(0.5032 0 0 / 0.15) 1px,
+			transparent 1px
+		);
+		background-size: 24px 24px;
 	}
 }

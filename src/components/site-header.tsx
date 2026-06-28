@@ -48,7 +48,7 @@ export function SiteHeader() {
 	const [isAddOpen, setIsAddOpen] = React.useState(false);
 
 	return (
-		<header className="sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+		<header className="bg-background/80 sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b backdrop-blur-xl transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
 			<div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-4">
 				<SidebarTrigger className="-ml-1" />
 				<Separator

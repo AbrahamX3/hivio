@@ -12,11 +12,11 @@ export function LandingNavbar() {
 
 	return (
 		<div className="fixed top-4 right-0 left-0 z-50 w-full px-4">
-			<div className="mx-auto flex max-w-6xl">
-				<div className="border-border/60 bg-background/80 ring-border/40 flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 shadow-black/5 backdrop-blur">
+			<div className="mx-auto w-full max-w-6xl">
+				<div className="border-border/60 bg-background/80 ring-border/40 ring-primary/5 flex w-full items-center justify-between rounded-full border px-3 py-2 shadow-lg ring-1 backdrop-blur-2xl">
 					<Link
 						href="/"
-						className="flex items-center gap-2 font-semibold transition-opacity hover:opacity-90"
+						className="flex items-center gap-2 font-semibold transition-spring hover:opacity-90"
 					>
 						<HivioLogo className="text-primary" />
 					</Link>

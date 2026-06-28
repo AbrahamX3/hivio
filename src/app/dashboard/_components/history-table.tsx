@@ -410,13 +410,16 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 
 	const queryArgs = React.useMemo(() => {
 		return {
-			filters: historyColumnFiltersToApi(urlState.columnFilters, columns),
+			filters: historyColumnFiltersToApi(
+				urlState.debouncedColumnFilters,
+				columns,
+			),
 			sort: urlState.sorting.map((s) => ({ id: String(s.id), desc: s.desc })),
 			page: urlState.page,
 			perPage: urlState.perPage,
 		};
 	}, [
-		urlState.columnFilters,
+		urlState.debouncedColumnFilters,
 		urlState.sorting,
 		urlState.page,
 		urlState.perPage,

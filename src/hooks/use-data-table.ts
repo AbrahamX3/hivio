@@ -47,6 +47,7 @@ export type DataTableUrlState<TData> = {
 	pagination: PaginationState;
 	sorting: ExtendedColumnSort<TData>[];
 	columnFilters: ColumnFiltersState;
+	debouncedColumnFilters: ColumnFiltersState;
 	onPaginationChange: (updaterOrValue: Updater<PaginationState>) => void;
 	onSortingChange: (updaterOrValue: Updater<SortingState>) => void;
 	onColumnFiltersChange: (updaterOrValue: Updater<ColumnFiltersState>) => void;
@@ -213,11 +214,7 @@ export function useDataTableUrl<TData>(
 		return Object.entries(filterValues).reduce<ColumnFiltersState>(
 			(filters, [key, value]) => {
 				if (value !== null) {
-					const processedValue = Array.isArray(value)
-						? value
-						: typeof value === "string" && /[^a-zA-Z0-9]/.test(value)
-							? value.split(/[^a-zA-Z0-9]+/).filter(Boolean)
-							: [value];
+					const processedValue = Array.isArray(value) ? value : [value];
 
 					filters.push({
 						id: key,
@@ -236,6 +233,17 @@ export function useDataTableUrl<TData>(
 	React.useEffect(() => {
 		setColumnFilters(initialColumnFilters);
 	}, [initialColumnFilters]);
+
+	const [debouncedColumnFilters, setDebouncedColumnFilters] =
+		React.useState<ColumnFiltersState>(initialColumnFilters);
+
+	React.useEffect(() => {
+		const timer = setTimeout(
+			() => setDebouncedColumnFilters(columnFilters),
+			debounceMs,
+		);
+		return () => clearTimeout(timer);
+	}, [columnFilters, debounceMs]);
 
 	const onColumnFiltersChange = React.useCallback(
 		(updaterOrValue: Updater<ColumnFiltersState>) => {
@@ -276,6 +284,7 @@ export function useDataTableUrl<TData>(
 			pagination,
 			sorting,
 			columnFilters,
+			debouncedColumnFilters,
 			onPaginationChange,
 			onSortingChange,
 			onColumnFiltersChange,
@@ -286,6 +295,7 @@ export function useDataTableUrl<TData>(
 			pagination,
 			sorting,
 			columnFilters,
+			debouncedColumnFilters,
 			onPaginationChange,
 			onSortingChange,
 			onColumnFiltersChange,

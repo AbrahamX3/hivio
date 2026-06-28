@@ -6,9 +6,9 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { EditHistoryDialog } from "@/app/dashboard/_components/user-actions/edit-history-dialog";
+import { DoubleBezel } from "@/components/double-bezel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { client } from "@/lib/orpc";
@@ -90,7 +90,7 @@ function WatchingShowCard({
 
 	if (isLoading || !title) {
 		return (
-			<Card className="bg-card rounded-xl border p-4">
+			<div className="bg-card ring-border/50 rounded-xl p-4 ring-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
 				<div className="flex gap-4">
 					<Skeleton className="h-20 w-14 shrink-0" />
 					<div className="flex-1 space-y-2">
@@ -99,7 +99,7 @@ function WatchingShowCard({
 						<Skeleton className="h-2 w-full" />
 					</div>
 				</div>
-			</Card>
+			</div>
 		);
 	}
 
@@ -120,7 +120,7 @@ function WatchingShowCard({
 	}
 
 	return (
-		<Card className="bg-card rounded-xl border p-4">
+		<div className="bg-card ring-border/50 rounded-xl p-4 ring-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
 			<div className="flex gap-4">
 				{title.posterUrl ? (
 					<TitleDetailsDialog
@@ -213,7 +213,7 @@ function WatchingShowCard({
 					await updateMutation.mutateAsync({ id, ...data });
 				}}
 			/>
-		</Card>
+		</div>
 	);
 }
 
@@ -409,7 +409,7 @@ function CurrentlyWatchingSection({
 }) {
 	if (emptyState || itemsToUse.length === 0) {
 		return (
-			<Card className="rounded-2xl border bg-transparent p-6">
+			<DoubleBezel>
 				<div className="space-y-3">
 					<p className="text-muted-foreground text-xs tracking-wide uppercase">
 						Currently watching
@@ -422,12 +422,12 @@ function CurrentlyWatchingSection({
 							"Start watching something to see it here with progress and release dates."}
 					</p>
 				</div>
-			</Card>
+			</DoubleBezel>
 		);
 	}
 
 	return (
-		<Card className="rounded-2xl border bg-transparent p-6">
+		<DoubleBezel>
 			<div className="space-y-4">
 				<div>
 					<p className="text-muted-foreground text-xs tracking-wide uppercase">
@@ -440,6 +440,6 @@ function CurrentlyWatchingSection({
 
 				<CurrentlyWatchingDataFetcher items={itemsToUse} onUpdate={onUpdate} />
 			</div>
-		</Card>
+		</DoubleBezel>
 	);
 }

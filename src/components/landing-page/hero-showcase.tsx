@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
 
+import { DoubleBezel } from "@/components/double-bezel";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { client } from "@/lib/orpc";
@@ -37,7 +37,7 @@ function ShowcaseCard({
 	const mockNextEpisode = index === 0 ? "Monday, Jan 15" : undefined;
 
 	return (
-		<Card className="bg-card rounded-xl border p-4">
+		<div className="bg-card ring-border/50 rounded-xl p-4 ring-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
 			<div className="flex gap-4">
 				{title.posterPath ? (
 					<Image
@@ -82,7 +82,22 @@ function ShowcaseCard({
 					)}
 				</div>
 			</div>
-		</Card>
+		</div>
+	);
+}
+
+function ShowcaseCardSkeleton() {
+	return (
+		<div className="bg-card ring-border/50 rounded-xl p-4 ring-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
+			<div className="flex gap-4">
+				<Skeleton className="h-20 w-14 shrink-0" />
+				<div className="flex-1 space-y-2">
+					<Skeleton className="h-5 w-32" />
+					<Skeleton className="h-4 w-24" />
+					<Skeleton className="h-2 w-full" />
+				</div>
+			</div>
+		</div>
 	);
 }
 
@@ -96,7 +111,7 @@ export function HeroShowcase() {
 	});
 
 	return (
-		<Card className="rounded-2xl border bg-transparent p-6">
+		<DoubleBezel outerClassName="rounded-[1.5rem]">
 			<div className="space-y-4">
 				<div>
 					<p className="text-muted-foreground text-xs tracking-wide uppercase">
@@ -110,36 +125,9 @@ export function HeroShowcase() {
 				<div className="space-y-3">
 					{isLoading ? (
 						<>
-							<Card className="bg-card rounded-xl border p-4">
-								<div className="flex gap-4">
-									<Skeleton className="h-20 w-14 shrink-0" />
-									<div className="flex-1 space-y-2">
-										<Skeleton className="h-5 w-32" />
-										<Skeleton className="h-4 w-24" />
-										<Skeleton className="h-2 w-full" />
-									</div>
-								</div>
-							</Card>
-							<Card className="bg-card rounded-xl border p-4">
-								<div className="flex gap-4">
-									<Skeleton className="h-20 w-14 shrink-0" />
-									<div className="flex-1 space-y-2">
-										<Skeleton className="h-5 w-32" />
-										<Skeleton className="h-4 w-24" />
-										<Skeleton className="h-2 w-full" />
-									</div>
-								</div>
-							</Card>
-							<Card className="bg-card rounded-xl border p-4">
-								<div className="flex gap-4">
-									<Skeleton className="h-20 w-14 shrink-0" />
-									<div className="flex-1 space-y-2">
-										<Skeleton className="h-5 w-32" />
-										<Skeleton className="h-4 w-24" />
-										<Skeleton className="h-2 w-full" />
-									</div>
-								</div>
-							</Card>
+							<ShowcaseCardSkeleton />
+							<ShowcaseCardSkeleton />
+							<ShowcaseCardSkeleton />
 						</>
 					) : (
 						trendingTitles.map((title, index) => (
@@ -148,6 +136,6 @@ export function HeroShowcase() {
 					)}
 				</div>
 			</div>
-		</Card>
+		</DoubleBezel>
 	);
 }

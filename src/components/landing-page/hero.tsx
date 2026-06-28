@@ -16,42 +16,66 @@ const GithubIcon = ({ className }: { className?: string }) => (
 
 export function Hero() {
 	return (
-		<section className="from-background via-background to-muted/60 relative bg-linear-to-b">
-			<div className="mx-auto mt-16 flex max-w-6xl flex-col gap-10 px-4 py-14 lg:flex-row lg:items-center lg:py-20">
-				<div className="flex-1 space-y-6">
-					<div className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium">
+		<section className="relative overflow-hidden">
+			<div className="dot-grid absolute inset-0 opacity-40" />
+			<div className="glow-orb absolute top-1/2 left-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2" />
+			<div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 pt-32 pb-20 md:pt-44 md:pb-28 lg:flex-row lg:items-center">
+				<div className="flex-1 space-y-8">
+					<div
+						className="animate-enter bg-muted/80 text-muted-foreground inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-medium"
+						style={{ animationDelay: "0ms" }}
+					>
 						<a
 							target="_blank"
-							className="text-muted-foreground hover:text-foreground flex items-center gap-1 font-bold transition-colors"
+							className="text-muted-foreground hover:text-foreground flex items-center gap-1 font-bold transition-spring"
 							href="https://github.com/AbrahamX3/hivio"
 						>
 							<GithubIcon className="size-3" /> <span>Open Source</span>
 						</a>
-						<span>•</span>
+						<span className="text-border">|</span>
 						<span>Minimal tracker for Movies & Series</span>
 					</div>
-					<h1 className="text-4xl leading-tight font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-						Keep up with every episode you watch without the clutter.
+					<h1
+						className="animate-enter text-5xl leading-[1.08] font-semibold tracking-tight sm:text-6xl lg:text-7xl"
+						style={{ animationDelay: "80ms" }}
+					>
+						Track what you watch.
+						<br />
+						<span className="text-muted-foreground">Without the noise.</span>
 					</h1>
-					<p className="text-muted-foreground max-w-2xl text-lg">
-						Log what you&apos;re watching, pick up where you left off, and see
-						what&apos;s coming next. Built for people who juggle multiple shows
-						and want a calm space to track them.
+					<p
+						className="animate-enter text-muted-foreground max-w-xl text-lg leading-relaxed"
+						style={{ animationDelay: "160ms" }}
+					>
+						Log episodes and movies, pick up where you left off, and see
+						what&apos;s coming next. A calm space for people who juggle multiple
+						shows.
 					</p>
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-						<Button asChild size="lg">
+					<div
+						className="animate-enter flex flex-col gap-3 sm:flex-row sm:items-center"
+						style={{ animationDelay: "240ms" }}
+					>
+						<Button asChild size="lg" className="transition-spring px-7">
 							<Link href="/auth/sign-in">Start tracking for free</Link>
 						</Button>
-						<Button asChild variant="outline" size="lg">
+						<Button
+							asChild
+							variant="outline"
+							size="lg"
+							className="transition-spring"
+						>
 							<Link href="#features">Explore the dashboard</Link>
 						</Button>
 					</div>
 				</div>
-				<div className="flex-1">
+				<div
+					className="animate-enter flex-1"
+					style={{ animationDelay: "300ms" }}
+				>
 					<HeroShowcase />
 				</div>
 			</div>
-			<div className="to-background pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent" />
+			<div className="to-background pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-b from-transparent" />
 		</section>
 	);
 }

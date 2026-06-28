@@ -115,15 +115,13 @@ function KpiCard({
 	icon: React.ComponentType<{ className?: string }>;
 }) {
 	return (
-		<Card>
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-				<CardTitle className="text-sm font-medium">{title}</CardTitle>
+		<div className="bg-card ring-border/50 rounded-xl p-4 ring-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
+			<div className="flex items-center justify-between">
+				<p className="text-muted-foreground text-xs font-medium">{title}</p>
 				<Icon className="text-muted-foreground size-4" />
-			</CardHeader>
-			<CardContent>
-				<div className="text-2xl font-bold">{value}</div>
-			</CardContent>
-		</Card>
+			</div>
+			<div className="mt-2 text-2xl font-bold tabular-nums">{value}</div>
+		</div>
 	);
 }
 
@@ -205,8 +203,8 @@ export default function AnalyticsPage() {
 				</div>
 			</div>
 
-			<Card>
-				<CardContent className="flex flex-wrap items-end gap-3 pt-6">
+			<div className="rounded-xl border border-border/50 p-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)]">
+				<div className="flex flex-wrap items-end gap-3">
 					<DatePickerButton
 						label="Start"
 						dateStr={startDate}
@@ -250,20 +248,19 @@ export default function AnalyticsPage() {
 							This Year
 						</Button>
 					</div>
-				</CardContent>
-			</Card>
+				</div>
+			</div>
 
 			<div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
 				{overviewLoading ? (
 					Array.from({ length: 6 }).map((_, i) => (
-						<Card key={`skeleton-${i}`}>
-							<CardHeader className="pb-2">
-								<Skeleton className="h-4 w-20" />
-							</CardHeader>
-							<CardContent>
-								<Skeleton className="h-8 w-16" />
-							</CardContent>
-						</Card>
+						<div
+							key={`skeleton-${i}`}
+							className="bg-card ring-border/50 rounded-xl p-4 ring-1"
+						>
+							<Skeleton className="h-4 w-20" />
+							<Skeleton className="mt-2 h-8 w-16" />
+						</div>
 					))
 				) : (
 					<>
