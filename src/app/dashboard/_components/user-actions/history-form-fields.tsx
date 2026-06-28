@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
@@ -68,17 +70,20 @@ export function StatusSelect<T extends FieldValues>({
 						disabled={disabled}
 					>
 						<FormControl>
-							<SelectTrigger disabled={disabled}>
+							<SelectTrigger className="w-full" disabled={disabled}>
 								<SelectValue placeholder="Select status" />
 							</SelectTrigger>
 						</FormControl>
 						<SelectContent>
-							<SelectItem value="FINISHED">Finished</SelectItem>
-							<SelectItem value="WATCHING">Watching</SelectItem>
-							<SelectItem value="PLANNED">Planned</SelectItem>
-							<SelectItem value="ON_HOLD">On Hold</SelectItem>
-							<SelectItem value="DROPPED">Dropped</SelectItem>
-							<SelectItem value="REWATCHING">Rewatching</SelectItem>
+							<SelectGroup>
+								<SelectLabel>Status</SelectLabel>
+								<SelectItem value="FINISHED">Finished</SelectItem>
+								<SelectItem value="WATCHING">Watching</SelectItem>
+								<SelectItem value="PLANNED">Planned</SelectItem>
+								<SelectItem value="ON_HOLD">On Hold</SelectItem>
+								<SelectItem value="DROPPED">Dropped</SelectItem>
+								<SelectItem value="REWATCHING">Rewatching</SelectItem>
+							</SelectGroup>
 						</SelectContent>
 					</Select>
 					<FormMessage />
@@ -124,25 +129,28 @@ export function SeasonSelect<T extends FieldValues>({
 						disabled={disabled}
 					>
 						<FormControl>
-							<SelectTrigger disabled={disabled}>
+							<SelectTrigger className="w-full" disabled={disabled}>
 								<SelectValue placeholder="Select season" />
 							</SelectTrigger>
 						</FormControl>
 						<SelectContent>
-							{titleDetails?.seasons
-								?.filter((season) => season.episodeCount > 0)
-								.map((season) => {
-									const year = getSeasonYear(season.airDate);
-									return (
-										<SelectItem
-											key={season.seasonNumber}
-											value={season.seasonNumber.toString()}
-										>
-											{season.name}
-											{year && ` (${year})`} ({season.episodeCount} episodes)
-										</SelectItem>
-									);
-								})}
+							<SelectGroup>
+								<SelectLabel>Season</SelectLabel>
+								{titleDetails?.seasons
+									?.filter((season) => season.episodeCount > 0)
+									.map((season) => {
+										const year = getSeasonYear(season.airDate);
+										return (
+											<SelectItem
+												key={season.seasonNumber}
+												value={season.seasonNumber.toString()}
+											>
+												{season.name}
+												{year && ` (${year})`} ({season.episodeCount} episodes)
+											</SelectItem>
+										);
+									})}
+							</SelectGroup>
 						</SelectContent>
 					</Select>
 					<FormMessage />
@@ -181,23 +189,26 @@ export function EpisodeSelect<T extends FieldValues>({
 							disabled={disabled}
 						>
 							<FormControl>
-								<SelectTrigger disabled={disabled}>
+								<SelectTrigger className="w-full" disabled={disabled}>
 									<SelectValue placeholder="Select episode" />
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
-								{episodes.map((ep) => {
-									const dateStr = formatEpisodeDate(ep.airDate);
-									return (
-										<SelectItem
-											key={ep.episodeNumber}
-											value={ep.episodeNumber.toString()}
-										>
-											{ep.episodeNumber}. {ep.name}
-											{dateStr && ` - ${dateStr}`}
-										</SelectItem>
-									);
-								})}
+								<SelectGroup>
+									<SelectLabel>Episode</SelectLabel>
+									{episodes.map((ep) => {
+										const dateStr = formatEpisodeDate(ep.airDate);
+										return (
+											<SelectItem
+												key={ep.episodeNumber}
+												value={ep.episodeNumber.toString()}
+											>
+												{ep.episodeNumber}. {ep.name}
+												{dateStr && ` - ${dateStr}`}
+											</SelectItem>
+										);
+									})}
+								</SelectGroup>
 							</SelectContent>
 						</Select>
 					)}

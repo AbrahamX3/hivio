@@ -37,8 +37,7 @@ export function HowItWorks() {
 					</h2>
 				</div>
 
-				<div className="relative mt-16">
-					<div className="absolute top-6 left-[calc(16.67%+1rem)] hidden h-px w-[calc(66.67%-2rem)] bg-border sm:block" />
+				<div className="mt-16">
 					<div className="grid gap-8 sm:grid-cols-3">
 						{steps.map((step, idx) => (
 							<div

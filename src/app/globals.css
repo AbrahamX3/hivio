@@ -226,6 +226,11 @@
 		overflow-x: hidden;
 	}
 
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
+	}
+
 	/* Modal and dialog scroll behavior */
 	[data-state="open"][data-radix-dialog-overlay],
 	[data-state="open"][data-radix-sheet-overlay] {

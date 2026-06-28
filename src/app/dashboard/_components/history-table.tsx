@@ -505,7 +505,7 @@ export function HistoryTable({
 				</div>
 
 				<div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain rounded-md border">
-					<Table noWrapper className="min-w-max">
+					<Table className="min-w-max">
 						<TableHeader>
 							<TableRow className="hover:bg-transparent">
 								<TableHead className="h-10 px-3 py-2">

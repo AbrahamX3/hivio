@@ -5,10 +5,14 @@ import { useState } from "react";
 
 import { createQueryClient } from "@/lib/query/client";
 
+import { TooltipProvider } from "./ui/tooltip";
+
 export function Providers({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(() => createQueryClient());
 
 	return (
-		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		<TooltipProvider>
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		</TooltipProvider>
 	);
 }

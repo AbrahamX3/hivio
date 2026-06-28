@@ -109,11 +109,18 @@ function WatchingShowCard({
 	let progressValue = 0;
 	let progressLabel = "";
 
-	if (isSeries && seasonProgress) {
-		progressValue = Math.round(
-			(seasonProgress.current / seasonProgress.total) * 100,
-		);
-		progressLabel = `S${String(item.currentSeason || 0).padStart(2, "0")} • E${String(item.currentEpisode || 0).padStart(2, "0")} of ${seasonProgress.total}`;
+	if (isSeries && item.currentSeason && item.currentEpisode) {
+		const ep = String(item.currentEpisode).padStart(2, "0");
+		const season = String(item.currentSeason).padStart(2, "0");
+		if (seasonProgress) {
+			progressValue = Math.round(
+				(seasonProgress.current / seasonProgress.total) * 100,
+			);
+			progressLabel = `S${season} • E${ep} of ${seasonProgress.total}`;
+		} else {
+			progressValue = 100;
+			progressLabel = `S${season} • E${ep}`;
+		}
 	} else if (isMovie && item.currentRuntime && movieRuntime) {
 		progressValue = Math.round((item.currentRuntime / movieRuntime) * 100);
 		progressLabel = `${convertMinutesToHrMin(item.currentRuntime)} / ${convertMinutesToHrMin(movieRuntime)}`;
