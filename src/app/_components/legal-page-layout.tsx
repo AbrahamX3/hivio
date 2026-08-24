@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { HivioLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
+const LAST_UPDATED = "August 24, 2026";
+
 interface LegalPageLayoutProps {
 	title: string;
 	children: ReactNode;
@@ -41,12 +43,7 @@ export function LegalPageLayout({ title, children }: LegalPageLayoutProps) {
 						</p>
 						<h1 className="mt-2 text-3xl font-semibold sm:text-4xl">{title}</h1>
 						<p className="text-muted-foreground mt-4">
-							Last updated:{" "}
-							{new Date().toLocaleDateString("en-US", {
-								year: "numeric",
-								month: "long",
-								day: "numeric",
-							})}
+							Last updated: {LAST_UPDATED}
 						</p>
 					</div>
 
