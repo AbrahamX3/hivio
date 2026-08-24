@@ -381,6 +381,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 			{
 				id: "actions",
 				enableHiding: false,
+				size: 56,
 				cell: ({ row }) => (
 					<HistoryTableActions
 						item={row.original}
@@ -443,17 +444,10 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 	const total = result.data?.total ?? 0;
 	const pageCount =
 		total > 0 ? Math.ceil(total / (queryArgs.perPage || 10)) : 1;
-	const isLoading = result.isPending;
 	const hasData = dataArray.length > 0;
 
-	const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
-
-	React.useEffect(() => {
-		setHasLoadedOnce((prev) => (hasData && !prev ? true : prev));
-	}, [hasData]);
-
-	const shouldShowSkeleton = isLoading && !hasLoadedOnce;
-	const isSearching = isLoading && hasLoadedOnce;
+	const shouldShowSkeleton = result.isFetching && result.isPending;
+	const isSearching = result.isFetching && !result.isPending;
 
 	const { table } = useDataTableWithUrl({
 		data: dataArray,

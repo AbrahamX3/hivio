@@ -127,7 +127,7 @@ export function HistoryContent() {
 	});
 
 	return (
-		<div className="space-y-6">
+		<div className="min-w-0 space-y-6">
 			<div>
 				<CardTitle>History</CardTitle>
 				<p className="text-muted-foreground text-sm">

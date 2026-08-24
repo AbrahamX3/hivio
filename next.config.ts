@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
 	experimental: {
 		optimizePackageImports: ["lucide-react"],
 	},
+	cacheComponents: true,
+	partialPrefetching: true,
 	images: {
 		remotePatterns: [
 			{

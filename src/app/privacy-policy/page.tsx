@@ -113,8 +113,9 @@ export default function PrivacyPolicy() {
 						<strong className="text-foreground font-medium">
 							Service Providers
 						</strong>{" "}
-						- We use Convex and TMDB APIs to power our application. These
-						providers have access to data necessary to provide their services.
+						- We use a PostgreSQL database and TMDB APIs to power our
+						application. These providers have access to data necessary to
+						provide their services.
 					</li>
 					<li>
 						<strong className="text-foreground font-medium">
@@ -245,10 +246,6 @@ export default function PrivacyPolicy() {
 							The Movie Database (TMDB)
 						</strong>{" "}
 						- For movie and TV show data
-					</li>
-					<li>
-						<strong className="text-foreground font-medium">Convex</strong> -
-						For data storage and real-time synchronization
 					</li>
 				</ul>
 				<p>

@@ -229,10 +229,13 @@ export function useDataTableUrl<TData>(
 
 	const [columnFilters, setColumnFilters] =
 		React.useState<ColumnFiltersState>(initialColumnFilters);
+	const [prevInitialFilters, setPrevInitialFilters] =
+		React.useState(initialColumnFilters);
 
-	React.useEffect(() => {
+	if (prevInitialFilters !== initialColumnFilters) {
+		setPrevInitialFilters(initialColumnFilters);
 		setColumnFilters(initialColumnFilters);
-	}, [initialColumnFilters]);
+	}
 
 	const [debouncedColumnFilters, setDebouncedColumnFilters] =
 		React.useState<ColumnFiltersState>(initialColumnFilters);
@@ -365,6 +368,7 @@ export function useDataTableWithUrl<TData>(
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
+	// oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable functions by design; React Compiler safely skips optimizing this hook.
 	const table = useReactTable({
 		...tableProps,
 		columns,

@@ -39,7 +39,10 @@ export function useAddHistoryDialog({
 
 	const { selectedResult } = state;
 	const selectedResultRef = useRef(selectedResult);
-	selectedResultRef.current = selectedResult;
+
+	useEffect(() => {
+		selectedResultRef.current = selectedResult;
+	}, [selectedResult]);
 
 	const { data: currentUser } = useQuery({
 		queryKey: ["user", "getCurrentUser"],

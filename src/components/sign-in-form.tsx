@@ -2,7 +2,7 @@
 
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 
 import { DoubleBezel } from "@/components/double-bezel";
 import { HivioLogo } from "@/components/icons";
@@ -59,17 +59,27 @@ function DiscordIcon({ className }: { className?: string }) {
 	);
 }
 
+function subscribeToStorage(onStoreChange: () => void) {
+	window.addEventListener("storage", onStoreChange);
+	return () => window.removeEventListener("storage", onStoreChange);
+}
+
+function getLastUsedLoginMethodSnapshot() {
+	return authClient.getLastUsedLoginMethod();
+}
+
 export default function SignInForm() {
 	const [isPending, startTransition] = useTransition();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState("");
-	const [lastMethod, setLastMethod] = useState<string | null>(null);
 
-	useEffect(() => {
-		setLastMethod(authClient.getLastUsedLoginMethod());
-	}, []);
+	const lastMethod = useSyncExternalStore(
+		subscribeToStorage,
+		getLastUsedLoginMethodSnapshot,
+		() => null,
+	);
 
 	const handleEmailSignIn = (e: React.FormEvent) => {
 		e.preventDefault();

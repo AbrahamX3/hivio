@@ -213,6 +213,7 @@ export function RecommendationsDialog({
 		[],
 	);
 
+	// oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable functions by design; React Compiler safely skips optimizing this component.
 	const table = useReactTable({
 		data,
 		columns,

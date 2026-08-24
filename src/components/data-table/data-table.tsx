@@ -3,7 +3,6 @@ import type * as React from "react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import {
-	Table,
 	TableBody,
 	TableCell,
 	TableHead,
@@ -36,78 +35,80 @@ export function DataTable<TData>({
 			{...props}
 		>
 			{children}
-			<div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain rounded-md border">
-				<Table className="min-w-max">
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => (
-									<TableHead
-										key={header.id}
-										colSpan={header.colSpan}
-										className="h-10 px-3 py-2"
-										style={{
-											...getColumnPinningStyle({ column: header.column }),
-										}}
-									>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
-												)}
-									</TableHead>
-								))}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell
-											key={cell.id}
-											className="px-3 py-2"
+			<div className="overflow-hidden rounded-md border">
+				<div className="relative w-full max-w-full overflow-x-auto">
+					<table className="w-full max-w-full min-w-max caption-bottom text-sm">
+						<TableHeader>
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id}>
+									{headerGroup.headers.map((header) => (
+										<TableHead
+											key={header.id}
+											colSpan={header.colSpan}
+											className="h-10 px-3 py-2"
 											style={{
-												...getColumnPinningStyle({ column: cell.column }),
+												...getColumnPinningStyle({ column: header.column }),
 											}}
 										>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext(),
+													)}
+										</TableHead>
 									))}
 								</TableRow>
-							))
-						) : isLoading ? (
-							<TableRow>
-								<TableCell
-									colSpan={table.getAllColumns().length}
-									className="h-24 text-center"
-								>
-									<p className="text-muted-foreground">Searching...</p>
-								</TableCell>
-							</TableRow>
-						) : (
-							<TableRow>
-								<TableCell
-									colSpan={table.getAllColumns().length}
-									className="h-24 text-center"
-								>
-									<p className="text-muted-foreground">
-										No results found. Try adjusting your filters or try
-										searching again.
-									</p>
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
+							))}
+						</TableHeader>
+						<TableBody>
+							{table.getRowModel().rows?.length ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow
+										key={row.id}
+										data-state={row.getIsSelected() && "selected"}
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell
+												key={cell.id}
+												className="px-3 py-2"
+												style={{
+													...getColumnPinningStyle({ column: cell.column }),
+												}}
+											>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
+												)}
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							) : isLoading ? (
+								<TableRow>
+									<TableCell
+										colSpan={table.getAllColumns().length}
+										className="h-24 text-center"
+									>
+										<p className="text-muted-foreground">Searching...</p>
+									</TableCell>
+								</TableRow>
+							) : (
+								<TableRow>
+									<TableCell
+										colSpan={table.getAllColumns().length}
+										className="h-24 text-center"
+									>
+										<p className="text-muted-foreground">
+											No results found. Try adjusting your filters or try
+											searching again.
+										</p>
+									</TableCell>
+								</TableRow>
+							)}
+						</TableBody>
+					</table>
+				</div>
 			</div>
 			<div className="flex min-w-0 max-w-full flex-col gap-2.5">
 				<DataTablePagination table={table} />

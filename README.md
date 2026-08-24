@@ -12,7 +12,8 @@ Built with:
 
 - **Next.js** for the app and routing
 - **React** for the UI
-- **Convex** for the backend, data, and actions
+- **Drizzle ORM + Neon PostgreSQL** for data and migrations
+- **oRPC** for type-safe server procedures
 - **Tailwind CSS** for styling
 - **TMDB** for movie and series metadata
 - **Better Auth + Discord OAuth** for authentication
@@ -37,33 +38,39 @@ cd hivio
 pnpm install
 ```
 
-### 2. Run Convex setup (`predev`)
+### 2. Set up the database
 
-Run the Convex dashboard + dev server once to create or link a Convex project
-and generate `.env.local`:
-
-```bash
-pnpm run predev
-```
-
-The CLI will ask whether you want to **create a new Convex project** or **choose
-an existing one**. Completing this step creates or updates `.env.local` with the
-Convex connection variables.
-
-### 3. Update `.env.local` for the frontend
-
-Open `.env.local` and add/update the following variables (use `.env.example` as
+Create a free PostgreSQL database on [Neon](https://neon.com/) (or use your
+own), then set the connection string in your `.env` file (see `.env.example` as
 a reference):
 
-- `NEXT_PUBLIC_CONVEX_SITE_URL`
+```bash
+DATABASE_URL="postgresql://user:password@host/dbname"
+```
+
+Apply the schema with Drizzle Kit:
+
+```bash
+pnpm db:push
+```
+
+Or generate and run SQL migrations instead:
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+### 3. Update `.env` for the frontend
+
+Copy `.env.example` to `.env` and fill in the values. At minimum you need:
+
+- `DATABASE_URL`
 - `NEXT_PUBLIC_SITE_URL=http://localhost:3000`
-
-You can get `NEXT_PUBLIC_CONVEX_SITE_URL` from the Convex dashboard:
-
-- Go to **URL & Deploy Key**
-- Click **Show development credentials**
-- Copy the **HTTP Actions URL** (the URL that ends in `.site`)
-- Paste it as the value for `NEXT_PUBLIC_CONVEX_SITE_URL`
+- `BETTER_AUTH_SECRET` (generate one with `openssl rand -base64 32`)
+- `TMDB_API_KEY`
+- OAuth credentials (`DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET`, optionally
+  Google)
 
 Optional analytics:
 
@@ -72,32 +79,13 @@ Optional analytics:
   [`https://umami.is/docs/collect-data`](https://umami.is/docs/collect-data),
   and copy the `data-website-id` from the script they provide.
 
-### 4. Set Convex environment variables
-
-The following environment variables are stored in Convex, not in `.env.local`.
-Run these commands once (using your own values for the placeholders):
-
-```bash
-pnpm dlx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
-pnpm dlx convex env set SITE_URL=http://localhost:3000
-pnpm dlx convex env set DISCORD_CLIENT_ID=<your_client_id>
-pnpm dlx convex env set DISCORD_CLIENT_SECRET=<your_client_secret>
-pnpm dlx convex env set TMDB_API_KEY=<your_tmdb_api_key>
-```
-
-### 5. Start the app in development
-
-This project runs the frontend and Convex backend together.
+### 4. Start the app in development
 
 ```bash
 pnpm dev
 ```
 
-By default:
-
-- The Next.js app runs on `http://localhost:3000`
-- Convex runs on its own dev port and connects using `CONVEX_DEPLOYMENT` /
-  `NEXT_PUBLIC_CONVEX_URL`
+By default the Next.js app runs on `http://localhost:3000`.
 
 ---
 
@@ -106,24 +94,16 @@ By default:
 All available variables are documented in `.env.example`. Here is a quick
 reference:
 
-### Convex / backend
+### Database
 
-- **`CONVEX_DEPLOY_KEY`**: Used for Production and Preview deployments when
-  running `convex deploy`. Create it in the Convex dashboard under project
-  settings.
-- **`CONVEX_DEPLOYMENT`**: Name/ID of the Convex deployment used by
-  `npx convex dev` (for example, the dev deployment created in your Convex
-  dashboard).
-- **`NEXT_PUBLIC_CONVEX_URL`**: The Convex `.cloud` URL for your deployment.
-- **`NEXT_PUBLIC_CONVEX_SITE_URL`**: The Convex `.site` URL for your deployment.
+- **`DATABASE_URL`**: PostgreSQL connection string used by Drizzle ORM and
+  Drizzle Kit. A Neon connection string works out of the box.
 
 ### App URLs
 
 - **`NEXT_PUBLIC_SITE_URL`**: The base URL of your app.
   - Local: `http://localhost:3000`
   - Production: your deployed site domain.
-- **`SITE_URL`**: Used by Convex / auth flows and the dashboard; set this to the
-  public URL of your app in production.
 
 ### Analytics
 
@@ -143,6 +123,8 @@ reference:
   openssl rand -base64 32
   ```
 
+- **`BETTER_AUTH_URL`**: Base URL used by Better Auth (defaults to
+  `http://localhost:3000` locally).
 - **`DISCORD_CLIENT_ID`**: Discord OAuth client ID from the
   [Discord Developer Portal](https://discord.com/developers/applications).
 - **`DISCORD_CLIENT_SECRET`**: Discord OAuth client secret from the
@@ -165,26 +147,26 @@ Make sure to restart the dev server after changing environment variables.
 
 Useful package scripts from `package.json`:
 
-- **`dev`**: Runs Next.js and Convex dev servers in parallel.
-- **`dev:frontend`**: Runs the Next.js dev server only.
-- **`dev:backend`**: Runs `convex dev` only.
-- **`predev`**: Ensures Convex dev is ready and opens the Convex dashboard.
+- **`dev`**: Runs the Next.js dev server.
 - **`build`**: Builds the Next.js app.
 - **`start`**: Starts the built Next.js app.
+- **`db:generate`**: Generates SQL migrations from the Drizzle schema.
+- **`db:migrate`**: Applies generated migrations to the database.
+- **`db:push`**: Pushes schema changes directly to the database.
+- **`db:studio`**: Opens Drizzle Studio to browse your data.
 - **`lint`**: Runs Oxlint.
 - **`typecheck`**: Runs TypeScript type checking.
 - **`check`**: Runs linting, type checking, and formatting.
 - **`format`**: Formats the codebase with Oxfmt.
-- **`deploy`**: Deploys the Convex backend.
 
 ---
 
 ## Tech stack
 
 - **Framework**: Next.js 16, React 19
-- **Backend**: Convex
+- **Database**: PostgreSQL (Neon) via Drizzle ORM
+- **APIs**: oRPC + TMDB API
 - **Styling**: Tailwind CSS + custom components
-- **Data & APIs**: TMDB API
 - **Auth**: Better Auth with Discord OAuth
 - **Analytics**: Umami
 
@@ -193,8 +175,8 @@ Useful package scripts from `package.json`:
 ## Deploying to Production
 
 Guidance for deploying Hivio to a production environment (including hosting the
-Next.js app and configuring the Convex production deployment and environment
-variables) will be documented here soon. Stay tuned!
+Next.js app and configuring the production database and environment variables)
+will be documented here soon. Stay tuned!
 
 ---
 
@@ -209,5 +191,5 @@ pnpm run check
 ```
 
 This command runs linting, type checking, and formatting to keep the codebase
-consistent. If you run into setup issues, double‑check your `.env.local` values
-first, then open an issue with details about your environment.
+consistent. If you run into setup issues, double‑check your `.env` values first,
+then open an issue with details about your environment.

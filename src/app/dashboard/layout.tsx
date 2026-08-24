@@ -8,10 +8,11 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/server/auth";
 
 export const metadata: Metadata = {
-	title: "Dashboard",
 	description:
 		"Manage your watch history and track your favorite movies and series",
 };
+
+export const instant = false;
 
 export default async function DashboardLayout({
 	children,
@@ -38,7 +39,7 @@ export default async function DashboardLayout({
 			<AppSidebar />
 			<SidebarInset>
 				<SiteHeader />
-				<div className="bg-muted/10 flex min-h-0 min-w-0 flex-1 flex-col gap-6 overflow-x-hidden p-4 md:p-6">
+				<div className="bg-muted/10 flex min-h-0 min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
 					{children}
 				</div>
 			</SidebarInset>

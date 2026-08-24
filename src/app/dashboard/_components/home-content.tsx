@@ -24,7 +24,7 @@ export function HomeContent() {
 	const watchingItems = dashboardData.data?.watchingItems ?? [];
 
 	return (
-		<div className="space-y-6">
+		<div className="min-w-0 space-y-6">
 			<div>
 				<CardTitle>Home</CardTitle>
 				<p className="text-muted-foreground text-sm">

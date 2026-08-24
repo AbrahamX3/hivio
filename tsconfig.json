@@ -29,12 +29,5 @@
 		".next/types/**/*.ts",
 		".next/dev/types/**/*.ts"
 	],
-	"exclude": [
-		"node_modules",
-		".next",
-		".agents",
-		".gemini",
-		".cursor",
-		"convex"
-	]
+	"exclude": ["node_modules", ".next", ".agents", ".gemini", ".cursor"]
 }

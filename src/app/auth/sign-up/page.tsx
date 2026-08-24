@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 	description: "Create a Hivio account to start tracking your watch history",
 };
 
+export const instant = false;
+
 export default async function SignUp() {
 	const session = await auth.api.getSession({
 		headers: await headers(),

@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 	description: "Discover trending movies and TV shows",
 };
 
+export const instant = false;
+
 export default async function DiscoverPage() {
 	const session = await auth.api.getSession({
 		headers: await headers(),

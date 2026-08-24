@@ -49,26 +49,26 @@ export function SiteHeader() {
 
 	return (
 		<header className="bg-background/80 sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b backdrop-blur-xl transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-			<div className="flex w-full items-center gap-4 px-4">
-				<SidebarTrigger className="-ml-1" />
-				<Separator orientation="vertical" />
-				<Breadcrumb>
-					<BreadcrumbList className="gap-2">
+			<div className="flex w-full min-w-0 items-center gap-4 px-4">
+				<SidebarTrigger className="-ml-1 shrink-0" />
+				<Separator orientation="vertical" className="shrink-0" />
+				<Breadcrumb className="min-w-0">
+					<BreadcrumbList className="flex-nowrap min-w-0 gap-2">
 						{parts.length === 0 ||
 						(parts.length === 1 && parts[0] === "dashboard") ? (
-							<BreadcrumbPage className="flex items-center gap-2">
+							<BreadcrumbPage className="flex min-w-0 items-center gap-2">
 								{icons.dashboard}
-								{labels.dashboard}
+								<span className="truncate">{labels.dashboard}</span>
 							</BreadcrumbPage>
 						) : (
 							<>
-								<BreadcrumbItem>
+								<BreadcrumbItem className="min-w-0">
 									<BreadcrumbLink
 										href="/dashboard"
-										className="flex items-center gap-1.5"
+										className="flex min-w-0 items-center gap-1.5"
 									>
 										{icons.dashboard}
-										{labels.dashboard}
+										<span className="truncate">{labels.dashboard}</span>
 									</BreadcrumbLink>
 								</BreadcrumbItem>
 								{parts.slice(1).map((part, index) => {
@@ -81,20 +81,20 @@ export function SiteHeader() {
 
 									return (
 										<React.Fragment key={part}>
-											<BreadcrumbSeparator />
-											<BreadcrumbItem>
+											<BreadcrumbSeparator className="shrink-0" />
+											<BreadcrumbItem className="min-w-0">
 												{isLast ? (
-													<BreadcrumbPage className="flex items-center gap-1.5">
+													<BreadcrumbPage className="flex min-w-0 items-center gap-1.5">
 														{icon}
-														{label}
+														<span className="truncate">{label}</span>
 													</BreadcrumbPage>
 												) : (
 													<BreadcrumbLink
 														href={href}
-														className="flex items-center gap-1.5"
+														className="flex min-w-0 items-center gap-1.5"
 														asChild
 													>
-														<Link href={href}>
+														<Link href={href} className="truncate">
 															{icon}
 															{label}
 														</Link>

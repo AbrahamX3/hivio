@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 	description: "View and manage your complete watch history library",
 };
 
+export const instant = false;
+
 export default async function HistoryPage() {
 	const session = await auth.api.getSession({
 		headers: await headers(),
