@@ -3,6 +3,8 @@ import Link from "next/link";
 import { HivioLogo, TMDBIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
+const currentYear = new Date().getFullYear();
+
 export function Footer() {
 	return (
 		<footer className="bg-muted/20 from-border/30 to-transparent border-t bg-linear-to-r">
@@ -65,8 +67,7 @@ export function Footer() {
 						</div>
 
 						<p className="text-muted-foreground text-sm">
-							&copy; {new Date().getFullYear()} Hivio. Open source media
-							tracker.
+							&copy; {currentYear} Hivio. Open source media tracker.
 						</p>
 					</div>
 				</div>
