@@ -67,7 +67,7 @@ function DatePickerButton({
 	dateStr: string;
 	setDateStr: (d: string) => void;
 }) {
-	const date = parse(dateStr, "yyyy-MM-dd", new Date());
+	const date = parse(dateStr, "yyyy-MM-dd", today);
 
 	return (
 		<Popover>

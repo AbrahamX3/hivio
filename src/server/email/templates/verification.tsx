@@ -13,6 +13,8 @@ import {
 
 import { APP_NAME, BRAND_COLOR } from "../lib/constants";
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 interface Props {
 	username: string;
 	url: string;
@@ -93,8 +95,7 @@ export default function VerificationEmail({
 									Enviado por {APP_NAME}
 								</Text>
 								<Text className="text-[#cccccc] text-[11px] m-0 mt-1">
-									© {new Date().getFullYear()} {APP_NAME}. Todos los derechos
-									reservados.
+									© {CURRENT_YEAR} {APP_NAME}. Todos los derechos reservados.
 								</Text>
 							</Section>
 						</Container>

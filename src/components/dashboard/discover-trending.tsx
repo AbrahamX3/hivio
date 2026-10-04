@@ -21,6 +21,8 @@ import { cn, tmdbImageLoader } from "@/lib/utils";
 
 import { TitleDetailsDialog } from "../title-details-dialog";
 
+const TODAY_ISO = new Date().toISOString().split("T")[0];
+
 type TrendingTitle = {
 	id: number;
 	name: string;
@@ -473,9 +475,7 @@ export function DiscoverTrending() {
 						backdropUrl: addTitleInitialData.title.backdropUrl || undefined,
 						description: addTitleInitialData.title.description || undefined,
 						mediaType: addTitleInitialData.title.mediaType,
-						releaseDate:
-							addTitleInitialData.title.releaseDate ||
-							new Date().toISOString().split("T")[0],
+						releaseDate: addTitleInitialData.title.releaseDate || TODAY_ISO,
 						genres: addTitleInitialData.title.genres || [],
 					}}
 					onSuccess={() => {
