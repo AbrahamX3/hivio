@@ -1,11 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type {
-	ColumnDef,
-	ColumnFiltersState,
-	Table as TanstackTable,
-} from "@tanstack/react-table";
+import type { ColumnFiltersState } from "@tanstack/react-table";
 import {
 	CircleArrowUpIcon,
 	CircleCheckIcon,
@@ -45,6 +41,10 @@ import {
 import { useDataTableUrl, useDataTableWithUrl } from "@/hooks/use-data-table";
 import { getAllGenres, getGenreName } from "@/lib/genres";
 import { client } from "@/lib/orpc";
+import type {
+	DataTableColumnDef,
+	DataTableInstance,
+} from "@/lib/table-features";
 import { convertMinutesToHrMin } from "@/lib/utils";
 import type { HistoryItem, HistoryStatus, MediaType } from "@/types/history";
 
@@ -54,7 +54,7 @@ export type { HistoryItem };
 
 function historyColumnFiltersToApi(
 	columnFilters: ColumnFiltersState,
-	columns: ColumnDef<HistoryItem>[],
+	columns: DataTableColumnDef<HistoryItem>[],
 ) {
 	return columnFilters
 		.map((cf) => {
@@ -99,7 +99,7 @@ export const typeColors: Record<MediaType, string> = {
 };
 
 interface HistoryTableProps {
-	table: TanstackTable<HistoryItem>;
+	table: DataTableInstance<HistoryItem>;
 	isLoading: boolean;
 	isSearching?: boolean;
 	hasData: boolean;
@@ -125,7 +125,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 			}));
 	}, []);
 
-	const columns = React.useMemo<ColumnDef<HistoryItem>[]>(
+	const columns = React.useMemo<DataTableColumnDef<HistoryItem>[]>(
 		() => [
 			{
 				id: "title",
@@ -449,7 +449,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 	const shouldShowSkeleton = result.isFetching && result.isPending;
 	const isSearching = result.isFetching && !result.isPending;
 
-	const { table } = useDataTableWithUrl({
+	const { table } = useDataTableWithUrl<HistoryItem>({
 		data: dataArray,
 		columns,
 		pageCount,
@@ -463,7 +463,7 @@ export function useHistoryTable({ onEdit, onDelete }: HistoryTableStateProps) {
 		},
 		initialState: {
 			sorting: [],
-			columnPinning: { right: ["actions"] },
+			columnPinning: { start: [], end: ["actions"] },
 			pagination: {
 				pageIndex: 0,
 				pageSize: 10,

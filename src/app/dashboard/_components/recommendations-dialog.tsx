@@ -1,18 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-	getCoreRowModel,
-	getFacetedMinMaxValues,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable,
-	type ColumnDef,
-	type ColumnFiltersState,
-} from "@tanstack/react-table";
+import { useTable, type ColumnFiltersState } from "@tanstack/react-table";
 import { Star } from "lucide-react";
 import * as React from "react";
 
@@ -32,6 +21,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { getGenreName } from "@/lib/genres";
 import { client } from "@/lib/orpc";
+import {
+	dataTableFeatures,
+	type DataTableColumnDef,
+} from "@/lib/table-features";
 
 interface RecommendationItem {
 	id: number;
@@ -88,7 +81,7 @@ export function RecommendationsDialog({
 		return all.sort((a, b) => a.label.localeCompare(b.label));
 	}, [data]);
 
-	const columns = React.useMemo<ColumnDef<RecommendationItem>[]>(
+	const columns = React.useMemo<DataTableColumnDef<RecommendationItem>[]>(
 		() => [
 			{
 				id: "title",
@@ -213,27 +206,20 @@ export function RecommendationsDialog({
 		[],
 	);
 
-	// oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable functions by design; React Compiler safely skips optimizing this component.
-	const table = useReactTable({
+	const table = useTable({
+		features: dataTableFeatures,
 		data,
 		columns,
 		state: { columnFilters },
 		onColumnFiltersChange: setColumnFilters,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
-		getFacetedMinMaxValues: getFacetedMinMaxValues(),
-		initialState: { pagination: { pageSize: 10 } },
+		initialState: { pagination: { pageIndex: 0, pageSize: 10 } },
 	});
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-h-full w-full sm:max-w-3xl overflow-y-auto">
+			<DialogContent className="sm:max-w-3xl">
 				<DialogHeader>
-					<div className="flex items-center gap-2">
+					<div className="flex flex-wrap items-center gap-2 pr-8">
 						<DialogTitle>Recommendations</DialogTitle>
 						<Badge className={typeColors[sourceMediaType]}>
 							{sourceMediaType === "MOVIE" ? "Movie" : "Series"}

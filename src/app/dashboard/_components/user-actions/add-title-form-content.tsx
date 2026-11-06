@@ -51,7 +51,10 @@ export function AddTitleFormContent({
 }: AddTitleFormContentProps) {
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+			<form
+				onSubmit={form.handleSubmit(onSubmit)}
+				className="min-w-0 space-y-4"
+			>
 				<StatusSelect control={form.control} disabled={isPending} />
 
 				{isLoadingDetails && (

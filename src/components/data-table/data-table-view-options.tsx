@@ -1,6 +1,6 @@
 "use client";
 
-import type { Table } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import { Check, Settings2 } from "lucide-react";
 import * as React from "react";
 
@@ -18,16 +18,17 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import type { DataTableInstance } from "@/lib/table-features";
 import { cn } from "@/lib/utils";
 
-interface DataTableViewOptionsProps<TData> extends React.ComponentProps<
-	typeof PopoverContent
-> {
-	table: Table<TData>;
+interface DataTableViewOptionsProps<
+	TData extends RowData,
+> extends React.ComponentProps<typeof PopoverContent> {
+	table: DataTableInstance<TData>;
 	disabled?: boolean;
 }
 
-export function DataTableViewOptions<TData>({
+export function DataTableViewOptions<TData extends RowData>({
 	table,
 	disabled,
 	...props

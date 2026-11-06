@@ -2,12 +2,16 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { lastLoginMethod } from "better-auth/plugins";
+import { eq } from "drizzle-orm";
 import { render } from "react-email";
 
 import { db } from "@/db";
 import { authSchema } from "@/db/auth-schema";
+import { verifications } from "@/db/schema";
 import { env } from "@/env";
+import { deleteAvatarObject } from "@/lib/r2";
 import {
+	DeleteAccountEmail,
 	ResetPasswordEmail,
 	sendEmail,
 	VerificationEmail,
@@ -39,6 +43,43 @@ export const auth = betterAuth({
 	account: {
 		accountLinking: {
 			enabled: true,
+		},
+	},
+	user: {
+		deleteUser: {
+			enabled: true,
+			sendDeleteAccountVerification: async ({ user, url }) => {
+				const body = await render(
+					DeleteAccountEmail({
+						username: user.name,
+						url,
+						email: user.email,
+					}),
+				);
+				await sendEmail({
+					to: user.email,
+					subject: "Confirma la eliminación de tu cuenta",
+					body,
+				});
+			},
+			afterDelete: async (user) => {
+				// Avatars stored in R2 are keyed by user id and are not removed by
+				// the database cascade.
+				if (user.image && !user.image.startsWith("http")) {
+					await deleteAvatarObject(user.image).catch((error) => {
+						console.error("Failed to delete avatar object", error);
+					});
+				}
+
+				// Password-reset and account-deletion tokens store the user id as
+				// their value and are not linked by a foreign key.
+				await db
+					.delete(verifications)
+					.where(eq(verifications.value, user.id))
+					.catch((error) => {
+						console.error("Failed to delete verification tokens", error);
+					});
+			},
 		},
 	},
 	emailVerification: {

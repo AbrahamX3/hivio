@@ -1,22 +1,21 @@
-import type { ColumnSort, RowData } from "@tanstack/react-table";
+import type { ColumnSort } from "@tanstack/react-table";
+import type * as React from "react";
 
 import { DataTableConfig } from "@/config/data-table";
 import type { FilterItemSchema } from "@/lib/parsers";
 
-declare module "@tanstack/react-table" {
-	interface TableMeta<TData extends RowData> {
-		queryKeys?: QueryKeys;
-	}
+export interface DataTableMeta {
+	queryKeys?: QueryKeys;
+}
 
-	interface ColumnMeta<TData extends RowData, TValue> {
-		label?: string;
-		placeholder?: string;
-		variant?: FilterVariant;
-		options?: Option[];
-		range?: [number, number];
-		unit?: string;
-		icon?: React.FC<React.SVGProps<SVGSVGElement>>;
-	}
+export interface DataTableColumnMeta {
+	label?: string;
+	placeholder?: string;
+	variant?: FilterVariant;
+	options?: Option[];
+	range?: [number, number];
+	unit?: string;
+	icon?: React.FC<React.SVGProps<SVGSVGElement>>;
 }
 
 export interface QueryKeys {

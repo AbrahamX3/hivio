@@ -1,20 +1,14 @@
 import {
 	type ColumnFiltersState,
-	getCoreRowModel,
-	getFacetedMinMaxValues,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
+	type ColumnVisibilityState,
 	type PaginationState,
+	type RowData,
 	type RowSelectionState,
 	type SortingState,
 	type TableOptions,
 	type TableState,
 	type Updater,
-	useReactTable,
-	type VisibilityState,
+	useTable,
 } from "@tanstack/react-table";
 import {
 	parseAsArrayOf,
@@ -29,6 +23,10 @@ import * as React from "react";
 
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { getSortingStateParser } from "@/lib/parsers";
+import {
+	dataTableFeatures,
+	type DataTableFeatures,
+} from "@/lib/table-features";
 import type { ExtendedColumnSort, QueryKeys } from "@/types/data-table";
 
 /** @see https://github.com/sadmann7/tablecn/blob/main/src/hooks/use-data-table.ts */
@@ -41,7 +39,7 @@ export const ARRAY_SEPARATOR = ",";
 const DEBOUNCE_MS = 300;
 const THROTTLE_MS = 50;
 
-export type DataTableUrlState<TData> = {
+export type DataTableUrlState<TData extends RowData> = {
 	page: number;
 	perPage: number;
 	pagination: PaginationState;
@@ -53,9 +51,9 @@ export type DataTableUrlState<TData> = {
 	onColumnFiltersChange: (updaterOrValue: Updater<ColumnFiltersState>) => void;
 };
 
-type UrlSyncOptions<TData> = {
-	columns: TableOptions<TData>["columns"];
-	initialState?: Omit<Partial<TableState>, "sorting"> & {
+type UrlSyncOptions<TData extends RowData> = {
+	columns: TableOptions<DataTableFeatures, TData>["columns"];
+	initialState?: Omit<Partial<TableState<DataTableFeatures>>, "sorting"> & {
 		sorting?: ExtendedColumnSort<TData>[];
 	};
 	queryKeys?: Partial<QueryKeys>;
@@ -74,7 +72,7 @@ type UrlSyncOptions<TData> = {
  * Use this **before** `useQuery` when the server needs the same params, then pass the result to
  * `useDataTableWithUrl`.
  */
-export function useDataTableUrl<TData>(
+export function useDataTableUrl<TData extends RowData>(
 	props: UrlSyncOptions<TData>,
 ): DataTableUrlState<TData> {
 	const {
@@ -306,19 +304,19 @@ export function useDataTableUrl<TData>(
 	);
 }
 
-interface UseDataTableWithUrlProps<TData>
+interface UseDataTableWithUrlProps<TData extends RowData>
 	extends
 		Omit<
-			TableOptions<TData>,
+			TableOptions<DataTableFeatures, TData>,
 			| "state"
 			| "pageCount"
-			| "getCoreRowModel"
+			| "features"
 			| "manualFiltering"
 			| "manualPagination"
 			| "manualSorting"
 		>,
-		Required<Pick<TableOptions<TData>, "pageCount">> {
-	initialState?: Omit<Partial<TableState>, "sorting"> & {
+		Required<Pick<TableOptions<DataTableFeatures, TData>, "pageCount">> {
+	initialState?: Omit<Partial<TableState<DataTableFeatures>>, "sorting"> & {
 		sorting?: ExtendedColumnSort<TData>[];
 	};
 	queryKeys?: Partial<QueryKeys>;
@@ -333,7 +331,7 @@ interface UseDataTableWithUrlProps<TData>
  * TanStack Table wired to URL state from `useDataTableUrl`. For server-paginated tables, call
  * `useDataTableUrl` → `useQuery` → this hook.
  */
-export function useDataTableWithUrl<TData>(
+export function useDataTableWithUrl<TData extends RowData>(
 	props: UseDataTableWithUrlProps<TData>,
 ) {
 	const {
@@ -366,11 +364,11 @@ export function useDataTableWithUrl<TData>(
 		initialState?.rowSelection ?? {},
 	);
 	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
+		React.useState<ColumnVisibilityState>(initialState?.columnVisibility ?? {});
 
-	// oxlint-disable-next-line react/incompatible-library -- TanStack Table returns unstable functions by design; React Compiler safely skips optimizing this hook.
-	const table = useReactTable({
+	const table = useTable<DataTableFeatures, TData>({
 		...tableProps,
+		features: dataTableFeatures,
 		columns,
 		initialState,
 		pageCount,
@@ -391,13 +389,6 @@ export function useDataTableWithUrl<TData>(
 		onSortingChange,
 		onColumnFiltersChange,
 		onColumnVisibilityChange: setColumnVisibility,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
-		getFacetedMinMaxValues: getFacetedMinMaxValues(),
 		manualPagination: true,
 		manualSorting: true,
 		manualFiltering: true,

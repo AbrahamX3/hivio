@@ -36,8 +36,8 @@ export function SelectedTitlePreview({
 					}}
 				/>
 			)}
-			<div>
-				<div className="font-medium">{result.name}</div>
+			<div className="min-w-0 flex-1">
+				<div className="truncate font-medium">{result.name}</div>
 				<div className="text-muted-foreground text-sm">
 					{result.mediaType === "MOVIE" ? "Movie" : "Series"}
 				</div>

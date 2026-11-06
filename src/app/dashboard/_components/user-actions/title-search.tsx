@@ -41,7 +41,7 @@ export function TitleSearch({
 }: TitleSearchProps) {
 	return (
 		<>
-			<div className="flex gap-2">
+			<div className="flex flex-wrap gap-2">
 				<Input
 					placeholder="Search..."
 					value={searchQuery}
@@ -52,7 +52,7 @@ export function TitleSearch({
 							onSearch();
 						}
 					}}
-					className="flex-1"
+					className="min-w-0 flex-1 basis-full sm:basis-0"
 				/>
 				<Select
 					value={mediaTypeFilter}

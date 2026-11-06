@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { AvatarManager } from "@/components/avatar-manager";
+import { DeleteAccountDialog } from "@/components/delete-account-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -71,6 +72,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 	const queryClient = useQueryClient();
 	const { data: session } = authClient.useSession();
 	const [isUploading, setIsUploading] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	const { data: userData } = useQuery({
 		queryKey: ["user", "getCurrentUser"],
@@ -128,90 +130,124 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 	const canSave = !updateDefaultStatus.isPending && !isPending;
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={(newOpen) => {
-				if (!isPending && !isUploading) {
-					onOpenChange(newOpen);
-				}
-			}}
-		>
-			<DialogContent className="max-w-md">
-				<DialogHeader>
-					<DialogTitle>Settings</DialogTitle>
-					<DialogDescription>Update your preferences</DialogDescription>
-				</DialogHeader>
+		<>
+			<Dialog
+				open={open}
+				onOpenChange={(newOpen) => {
+					if (!isPending && !isUploading) {
+						onOpenChange(newOpen);
+					}
+				}}
+			>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle>Settings</DialogTitle>
+						<DialogDescription>Update your preferences</DialogDescription>
+					</DialogHeader>
 
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<AvatarManager
-							userName={user?.name}
-							userEmail={user?.email}
-							userImage={user?.image}
-							userUpdatedAt={userData?.updatedAt}
-							onUploadingChange={setIsUploading}
-						/>
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="min-w-0 space-y-4"
+						>
+							<AvatarManager
+								userName={user?.name}
+								userEmail={user?.email}
+								userImage={user?.image}
+								userUpdatedAt={userData?.updatedAt}
+								onUploadingChange={setIsUploading}
+							/>
 
-						<FormField
-							control={form.control}
-							name="defaultStatus"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Default Status</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-										disabled={isPending}
-									>
-										<FormControl>
-											<SelectTrigger disabled={isPending}>
-												<SelectValue placeholder="Select default status" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectGroup>
-												<SelectLabel>Status</SelectLabel>
-												{STATUS_OPTIONS.map((opt) => (
-													<SelectItem key={opt.value} value={opt.value}>
-														{opt.label}
-													</SelectItem>
-												))}
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => onOpenChange(false)}
-								disabled={
-									updateDefaultStatus.isPending || isPending || isUploading
-								}
-							>
-								Cancel
-							</Button>
-							<Button
-								type="submit"
-								disabled={!canSave || isPending || isUploading}
-							>
-								{updateDefaultStatus.isPending ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Saving...
-									</>
-								) : (
-									"Save Changes"
+							<FormField
+								control={form.control}
+								name="defaultStatus"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Default Status</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value}
+											disabled={isPending}
+										>
+											<FormControl>
+												<SelectTrigger className="w-full" disabled={isPending}>
+													<SelectValue placeholder="Select default status" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectGroup>
+													<SelectLabel>Status</SelectLabel>
+													{STATUS_OPTIONS.map((opt) => (
+														<SelectItem key={opt.value} value={opt.value}>
+															{opt.label}
+														</SelectItem>
+													))}
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
 								)}
-							</Button>
-						</DialogFooter>
-					</form>
-				</Form>
-			</DialogContent>
-		</Dialog>
+							/>
+
+							<DialogFooter>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => onOpenChange(false)}
+									disabled={
+										updateDefaultStatus.isPending || isPending || isUploading
+									}
+								>
+									Cancel
+								</Button>
+								<Button
+									type="submit"
+									disabled={!canSave || isPending || isUploading}
+								>
+									{updateDefaultStatus.isPending ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Saving...
+										</>
+									) : (
+										"Save Changes"
+									)}
+								</Button>
+							</DialogFooter>
+						</form>
+					</Form>
+
+					<div className="border-destructive/30 bg-destructive/5 rounded-lg border p-4">
+						<h3 className="text-destructive text-sm font-semibold">
+							Danger zone
+						</h3>
+						<p className="text-muted-foreground mt-1 text-sm">
+							Permanently delete your account and all associated data.
+						</p>
+						<Button
+							type="button"
+							variant="destructive"
+							size="sm"
+							className="mt-3"
+							disabled={
+								isPending || updateDefaultStatus.isPending || isUploading
+							}
+							onClick={() => {
+								onOpenChange(false);
+								setDeleteOpen(true);
+							}}
+						>
+							Delete account
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
+			<DeleteAccountDialog
+				open={deleteOpen}
+				onOpenChange={setDeleteOpen}
+				email={user?.email}
+			/>
+		</>
 	);
 }

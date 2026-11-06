@@ -1,7 +1,7 @@
 "use client";
 
 import { DateRange } from "@daypicker/react";
-import type { Column } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import { CalendarIcon, XCircle } from "lucide-react";
 import * as React from "react";
 
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/format";
+import type { DataTableColumn } from "@/lib/table-features";
 
 type DateSelection = Date[] | DateRange;
 
@@ -50,13 +51,13 @@ function parseColumnFilterValue(value: unknown) {
 	return [];
 }
 
-interface DataTableDateFilterProps<TData> {
-	column: Column<TData, unknown>;
+interface DataTableDateFilterProps<TData extends RowData> {
+	column: DataTableColumn<TData, unknown>;
 	title?: string;
 	multiple?: boolean;
 }
 
-export function DataTableDateFilter<TData>({
+export function DataTableDateFilter<TData extends RowData>({
 	column,
 	title,
 	multiple,
