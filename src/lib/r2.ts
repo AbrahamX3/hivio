@@ -42,7 +42,13 @@ export async function getAvatarUploadUrl(
 		ContentType: contentType,
 		ContentLength: contentLength,
 	});
-	return getSignedUrl(r2, command, { expiresIn: 300 });
+	return getSignedUrl(r2, command, {
+		expiresIn: 300,
+		// Bind the declared MIME type to the signature. Without this the
+		// presigner omits content-type, allowing arbitrary content to be
+		// uploaded under an image key.
+		signableHeaders: new Set(["content-type"]),
+	});
 }
 
 export async function deleteAvatarObject(key: string) {
