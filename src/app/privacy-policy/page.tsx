@@ -247,6 +247,11 @@ export default function PrivacyPolicy() {
 						</strong>{" "}
 						- For movie and TV show data
 					</li>
+					<li>
+						<strong className="text-foreground font-medium">Umami</strong> - For
+						usage analytics. Only a pseudonymous account identifier is sent;
+						your email address, name, and avatar are not shared.
+					</li>
 				</ul>
 				<p>
 					Each of these services has their own privacy policies, which we

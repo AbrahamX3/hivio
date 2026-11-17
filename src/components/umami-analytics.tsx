@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 
 import { env } from "@/env";
 import { authClient } from "@/lib/auth-client";
-import { getAvatarUrl } from "@/lib/utils";
 
 declare global {
 	interface Window {
@@ -18,21 +17,14 @@ declare global {
 	}
 }
 
-function identifyUser(user: {
-	id: string;
-	email: string;
-	name: string;
-	image?: string | null;
-}) {
+function identifyUser(userId: string) {
 	if (typeof window === "undefined" || !window.umami) {
 		return;
 	}
 
-	window.umami.identify(user.id, {
-		email: user.email,
-		name: user.name,
-		...(user.image && { image: getAvatarUrl(user.image) }),
-	});
+	// Send only a pseudonymous identifier. Email, name and avatar are not
+	// shared with the analytics provider.
+	window.umami.identify(userId);
 }
 
 export function UmamiAnalytics() {
@@ -56,7 +48,7 @@ export function UmamiAnalytics() {
 				return;
 			}
 
-			identifyUser(user);
+			identifyUser(user.id);
 			identifiedRef.current = user.id;
 		};
 
