@@ -113,7 +113,7 @@ export const auth = betterAuth({
 			const resetUrl = new URL(url);
 			resetUrl.searchParams.set(
 				"callbackURL",
-				`${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+				`${env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
 			);
 			const body = await render(
 				ResetPasswordEmail({
