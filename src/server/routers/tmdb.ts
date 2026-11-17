@@ -25,7 +25,7 @@ export const tmdbRouter = {
 	search: publicProcedure
 		.input(
 			z.object({
-				query: z.string(),
+				query: z.string().min(1).max(200),
 				mediaType: z.enum(["MOVIE", "SERIES"]).optional(),
 			}),
 		)
@@ -444,13 +444,15 @@ export const tmdbRouter = {
 
 	getNextEpisodeInfoBatch: publicProcedure
 		.input(
-			z.array(
-				z.object({
-					tmdbId: z.number(),
-					currentSeason: z.number(),
-					currentEpisode: z.number(),
-				}),
-			),
+			z
+				.array(
+					z.object({
+						tmdbId: z.number().int().positive(),
+						currentSeason: z.number().int().nonnegative(),
+						currentEpisode: z.number().int().nonnegative(),
+					}),
+				)
+				.max(50),
 		)
 		.handler(async ({ input }) => {
 			const tmdb = getTmdbClient();

@@ -240,5 +240,13 @@ export function getColumn<T extends Table>(
 	table: T,
 	columnKey: string,
 ): AnyColumn | undefined {
-	return (table as unknown as Record<string, AnyColumn>)[columnKey];
+	// Only accept declared columns of the table. A plain indexed lookup also
+	// resolves inherited properties (e.g. "toString"), which are not columns.
+	if (!Object.prototype.hasOwnProperty.call(table, columnKey)) return undefined;
+
+	const value = (table as unknown as Record<string, unknown>)[columnKey];
+	if (typeof value !== "object" || value === null || !("name" in value)) {
+		return undefined;
+	}
+	return value as AnyColumn;
 }

@@ -9,7 +9,7 @@ import { db } from "@/db";
 import { authSchema } from "@/db/auth-schema";
 import { verifications } from "@/db/schema";
 import { env } from "@/env";
-import { deleteAvatarObject } from "@/lib/r2";
+import { deleteAvatarObject, isOwnedAvatarKey } from "@/lib/r2";
 import {
 	DeleteAccountEmail,
 	ResetPasswordEmail,
@@ -43,6 +43,7 @@ export const auth = betterAuth({
 	account: {
 		accountLinking: {
 			enabled: true,
+			trustedProviders: ["google", "discord"],
 		},
 	},
 	user: {
@@ -63,9 +64,10 @@ export const auth = betterAuth({
 				});
 			},
 			afterDelete: async (user) => {
-				// Avatars stored in R2 are keyed by user id and are not removed by
-				// the database cascade.
-				if (user.image && !user.image.startsWith("http")) {
+				// Only remove objects under the user's own R2 prefix. The image
+				// field can be set through Better Auth's updateUser endpoint, so
+				// it must not be trusted as an owned key without this check.
+				if (user.image && isOwnedAvatarKey(user.image, user.id)) {
 					await deleteAvatarObject(user.image).catch((error) => {
 						console.error("Failed to delete avatar object", error);
 					});
@@ -92,7 +94,7 @@ export const auth = betterAuth({
 			const body = await render(
 				VerificationEmail({ username: user.name, url: verifyUrl.toString() }),
 			);
-			sendEmail({
+			await sendEmail({
 				to: user.email,
 				subject: "Verifica tu correo electrónico",
 				body,
@@ -116,7 +118,7 @@ export const auth = betterAuth({
 					url: resetUrl.toString(),
 				}),
 			);
-			sendEmail({
+			await sendEmail({
 				to: user.email,
 				subject: "Restablece tu contraseña",
 				body,

@@ -11,8 +11,8 @@ import type { ExtendedColumnFilter, JoinOperator } from "@/types/data-table";
 import { protectedProcedure, publicProcedure } from "../procedures";
 
 const filterSchema = z.object({
-	id: z.string(),
-	value: z.union([z.string(), z.array(z.string())]),
+	id: z.string().max(100),
+	value: z.union([z.string().max(500), z.array(z.string().max(500)).max(50)]),
 	variant: z.enum([
 		"text",
 		"number",
@@ -41,7 +41,7 @@ const filterSchema = z.object({
 });
 
 const sortSchema = z.object({
-	id: z.string(),
+	id: z.string().max(100),
 	desc: z.boolean(),
 });
 
@@ -53,7 +53,7 @@ const getHistoryInputSchema = z.object({
 });
 
 const updateHistoryInputSchema = z.object({
-	id: z.string(),
+	id: z.string().min(1).max(100),
 	status: z
 		.enum([
 			"FINISHED",
@@ -64,9 +64,9 @@ const updateHistoryInputSchema = z.object({
 			"REWATCHING",
 		])
 		.optional(),
-	currentEpisode: z.number().optional(),
-	currentSeason: z.number().optional(),
-	currentRuntime: z.number().optional(),
+	currentEpisode: z.number().int().nonnegative().optional(),
+	currentSeason: z.number().int().nonnegative().optional(),
+	currentRuntime: z.number().int().nonnegative().optional(),
 	isFavourite: z.boolean().optional(),
 });
 
@@ -159,7 +159,7 @@ function buildHistoryListOrderBy(sort: {
 }
 
 const addHistoryInputSchema = z.object({
-	tmdbId: z.number(),
+	tmdbId: z.number().int().positive(),
 	mediaType: z.enum(["MOVIE", "SERIES"]),
 	status: z.enum([
 		"FINISHED",
@@ -169,17 +169,17 @@ const addHistoryInputSchema = z.object({
 		"DROPPED",
 		"REWATCHING",
 	]),
-	name: z.string(),
-	posterPath: z.string().nullish(),
-	backdropPath: z.string().nullish(),
-	overview: z.string().nullish(),
-	releaseDate: z.string().nullish(),
-	genres: z.array(z.number()).optional(),
-	imdbId: z.string().nullish(),
-	directors: z.array(z.string()).optional(),
-	currentEpisode: z.number().optional(),
-	currentSeason: z.number().optional(),
-	currentRuntime: z.number().optional(),
+	name: z.string().min(1).max(500),
+	posterPath: z.string().max(2000).nullish(),
+	backdropPath: z.string().max(2000).nullish(),
+	overview: z.string().max(5000).nullish(),
+	releaseDate: z.string().max(20).nullish(),
+	genres: z.array(z.number().int().nonnegative()).max(50).optional(),
+	imdbId: z.string().max(20).nullish(),
+	directors: z.array(z.string().max(200)).max(50).optional(),
+	currentEpisode: z.number().int().nonnegative().optional(),
+	currentSeason: z.number().int().nonnegative().optional(),
+	currentRuntime: z.number().int().nonnegative().optional(),
 	isFavourite: z.boolean().optional(),
 });
 
