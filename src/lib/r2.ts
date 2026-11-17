@@ -21,7 +21,9 @@ export const BUCKET_NAME = env.CLOUDFLARE_BUCKET_NAME;
 export const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 
 export function getAvatarKey(userId: string, ext: string) {
-	return `avatars/${userId}/${Date.now()}.${ext}`;
+	// One stable key per user (and extension). Repeated presigned uploads
+	// overwrite the same object instead of accumulating unbounded new keys.
+	return `avatars/${userId}/avatar.${ext}`;
 }
 
 /** Only keys under the user's own prefix may be uploaded or deleted. */

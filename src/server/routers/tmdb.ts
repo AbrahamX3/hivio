@@ -1,25 +1,39 @@
 import { eq } from "drizzle-orm";
 import type { Movie, TV } from "tmdb-ts";
-import { TMDB } from "tmdb-ts";
 import { z } from "zod";
 
 import { db } from "@/db";
 import { history, titles } from "@/db/schema";
-import { env } from "@/env";
 import { redis } from "@/lib/redis";
+import { getTmdbClient } from "@/server/tmdb-client";
 
-import { publicProcedure } from "../procedures";
-
-const getTmdbClient = () => {
-	const apiKey = env.TMDB_API_KEY;
-	if (!apiKey) throw new Error("TMDB_API_KEY not configured");
-	return new TMDB(apiKey);
-};
+import { protectedProcedure, publicProcedure } from "../procedures";
 
 const tmdbInputSchema = z.object({
 	tmdbId: z.number(),
 	mediaType: z.enum(["MOVIE", "SERIES"]),
 });
+
+async function mapWithConcurrency<T, R>(
+	items: T[],
+	limit: number,
+	fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+	const results = new Array<R>(items.length);
+	let next = 0;
+	const workers = Array.from(
+		{ length: Math.min(limit, items.length) },
+		async () => {
+			while (true) {
+				const index = next++;
+				if (index >= items.length) return;
+				results[index] = await fn(items[index], index);
+			}
+		},
+	);
+	await Promise.all(workers);
+	return results;
+}
 
 export const tmdbRouter = {
 	search: publicProcedure
@@ -240,7 +254,7 @@ export const tmdbRouter = {
 			return list;
 		}),
 
-	getDiscoverTrending: publicProcedure
+	getDiscoverTrending: protectedProcedure
 		.input(
 			z.object({
 				pages: z.number().min(1).max(10).default(2),
@@ -343,29 +357,34 @@ export const tmdbRouter = {
 					}
 				}
 
-				const rawList = Array.from(trendingItemsMap.values());
+				// Bound the per-request paid-API fan-out: cap the item list and
+				// run provider lookups with limited concurrency.
+				const rawList = Array.from(trendingItemsMap.values()).slice(0, 40);
 
-				const providerResults = await Promise.allSettled(
-					rawList.map(async (item) => {
-						const providersResults =
-							item.mediaType === "MOVIE"
-								? await tmdb.movies.watchProviders(item.tmdbId)
-								: await tmdb.tvShows.watchProviders(item.tmdbId);
+				const providerResults = await mapWithConcurrency(
+					rawList,
+					8,
+					async (item) => {
+						try {
+							const providersResults =
+								item.mediaType === "MOVIE"
+									? await tmdb.movies.watchProviders(item.tmdbId)
+									: await tmdb.tvShows.watchProviders(item.tmdbId);
 
-						const flatrate = providersResults.results?.US?.flatrate ?? [];
-						return flatrate
-							.slice(0, 3)
-							.map((p) => p.logo_path)
-							.filter((path): path is string => Boolean(path));
-					}),
+							const flatrate = providersResults.results?.US?.flatrate ?? [];
+							return flatrate
+								.slice(0, 3)
+								.map((p) => p.logo_path)
+								.filter((path): path is string => Boolean(path));
+						} catch {
+							return [] as string[];
+						}
+					},
 				);
 
 				list = rawList.map((item, index) => ({
 					...item,
-					providers:
-						providerResults[index].status === "fulfilled"
-							? providerResults[index].value
-							: [],
+					providers: providerResults[index],
 				}));
 
 				await redis.set(cacheKey, list, { ex: 60 * 60 * 24 });
@@ -442,7 +461,7 @@ export const tmdbRouter = {
 			return results;
 		}),
 
-	getNextEpisodeInfoBatch: publicProcedure
+	getNextEpisodeInfoBatch: protectedProcedure
 		.input(
 			z
 				.array(
@@ -452,7 +471,7 @@ export const tmdbRouter = {
 						currentEpisode: z.number().int().nonnegative(),
 					}),
 				)
-				.max(50),
+				.max(20),
 		)
 		.handler(async ({ input }) => {
 			const tmdb = getTmdbClient();
@@ -556,11 +575,15 @@ export const tmdbRouter = {
 						await redis.set(cacheKey, result, { ex: 60 * 60 * 24 });
 						return result;
 					} catch {
-						return {
+						// Negative-cache failures so repeated requests for an invalid
+						// key do not re-issue the same paid TMDB calls.
+						const empty = {
 							nextEpisode: null,
 							seasonProgress: null,
 							lastAired: null,
 						};
+						await redis.set(cacheKey, empty, { ex: 60 * 5 });
+						return empty;
 					}
 				}),
 			);

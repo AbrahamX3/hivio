@@ -106,24 +106,6 @@ export function useAddHistoryDialog({
 				tmdbId: selectedResult.id,
 				mediaType: selectedResult.mediaType,
 				status: data.status,
-				name: selectedResult.name,
-				posterPath: selectedResult.posterUrl
-					? selectedResult.posterUrl.replace(
-							"https://image.tmdb.org/t/p/w500",
-							"",
-						)
-					: null,
-				backdropPath: selectedResult.backdropUrl
-					? selectedResult.backdropUrl.replace(
-							"https://image.tmdb.org/t/p/w780",
-							"",
-						)
-					: null,
-				overview: selectedResult.description ?? null,
-				releaseDate: selectedResult.releaseDate || null,
-				genres: selectedResult.genres,
-				imdbId: state.titleDetails.imdbId,
-				directors: state.titleDetails.directors,
 				currentEpisode: finalEpisode,
 				currentSeason: finalSeason,
 				currentRuntime: finalRuntime,

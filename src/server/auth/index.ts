@@ -37,12 +37,15 @@ export const auth = betterAuth({
 	session: {
 		cookieCache: {
 			enabled: true,
-			maxAge: 5 * 60, // 5 minutes
+			maxAge: 60, // 1 minute — bounds the window for stale sessions after revocation
 		},
 	},
 	account: {
 		accountLinking: {
 			enabled: true,
+			// Never auto-link a social identity by email match during sign-in.
+			// Linking requires an authenticated, explicit linkSocial() flow.
+			disableImplicitLinking: true,
 			trustedProviders: ["google", "discord"],
 		},
 	},
