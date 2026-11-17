@@ -9,7 +9,8 @@ import { db } from "@/db";
 import { authSchema } from "@/db/auth-schema";
 import { verifications } from "@/db/schema";
 import { env } from "@/env";
-import { deleteAvatarObject } from "@/lib/r2";
+import { deleteAvatarObject, isOwnedAvatarKey } from "@/lib/r2";
+import { rateLimitStorage } from "@/lib/rate-limit-storage";
 import {
 	DeleteAccountEmail,
 	ResetPasswordEmail,
@@ -37,12 +38,29 @@ export const auth = betterAuth({
 	session: {
 		cookieCache: {
 			enabled: true,
-			maxAge: 5 * 60, // 5 minutes
+			maxAge: 60, // 1 minute — bounds the window for stale sessions after revocation
+		},
+	},
+	// Shared across Vercel instances via the existing Upstash Redis. Rate
+	// limiting stays production-only (Better Auth's default) and uses a
+	// dedicated customStorage, so sessions and verification tokens remain in
+	// the database.
+	rateLimit: {
+		customStorage: rateLimitStorage,
+		customRules: {
+			"/send-verification-email": { window: 60, max: 5 },
+			"/request-password-reset": { window: 60, max: 5 },
+			"/sign-in/email": { window: 60, max: 10 },
+			"/sign-up/email": { window: 60, max: 5 },
 		},
 	},
 	account: {
 		accountLinking: {
 			enabled: true,
+			// Never auto-link a social identity by email match during sign-in.
+			// Linking requires an authenticated, explicit linkSocial() flow.
+			disableImplicitLinking: true,
+			trustedProviders: ["google", "discord"],
 		},
 	},
 	user: {
@@ -63,9 +81,10 @@ export const auth = betterAuth({
 				});
 			},
 			afterDelete: async (user) => {
-				// Avatars stored in R2 are keyed by user id and are not removed by
-				// the database cascade.
-				if (user.image && !user.image.startsWith("http")) {
+				// Only remove objects under the user's own R2 prefix. The image
+				// field can be set through Better Auth's updateUser endpoint, so
+				// it must not be trusted as an owned key without this check.
+				if (user.image && isOwnedAvatarKey(user.image, user.id)) {
 					await deleteAvatarObject(user.image).catch((error) => {
 						console.error("Failed to delete avatar object", error);
 					});
@@ -92,7 +111,7 @@ export const auth = betterAuth({
 			const body = await render(
 				VerificationEmail({ username: user.name, url: verifyUrl.toString() }),
 			);
-			sendEmail({
+			await sendEmail({
 				to: user.email,
 				subject: "Verifica tu correo electrónico",
 				body,
@@ -108,7 +127,7 @@ export const auth = betterAuth({
 			const resetUrl = new URL(url);
 			resetUrl.searchParams.set(
 				"callbackURL",
-				`${env.NEXT_PUBLIC_SITE_URL}/dashboard`,
+				`${env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
 			);
 			const body = await render(
 				ResetPasswordEmail({
@@ -116,7 +135,7 @@ export const auth = betterAuth({
 					url: resetUrl.toString(),
 				}),
 			);
-			sendEmail({
+			await sendEmail({
 				to: user.email,
 				subject: "Restablece tu contraseña",
 				body,

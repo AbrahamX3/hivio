@@ -6,10 +6,19 @@ import { history, historyAuditLog, titles } from "@/db/schema";
 
 import { protectedProcedure } from "../procedures";
 
-const dateRangeInput = z.object({
-	startDate: z.string(),
-	endDate: z.string(),
-});
+const dateRangeInput = z
+	.object({
+		startDate: z.iso.date(),
+		endDate: z.iso.date(),
+	})
+	.refine(({ startDate, endDate }) => startDate <= endDate, {
+		message: "startDate must be on or before endDate",
+	})
+	.refine(
+		({ startDate, endDate }) =>
+			(Date.parse(endDate) - Date.parse(startDate)) / 86_400_000 <= 366,
+		{ message: "Date range cannot exceed one year" },
+	);
 
 const activityDate = sql`COALESCE(${history.updatedAt}, ${history.createdAt})`;
 

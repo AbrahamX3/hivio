@@ -6,13 +6,14 @@ import { z } from "zod";
 import { db } from "@/db";
 import { history, historyAuditLog, titles } from "@/db/schema";
 import { filterColumns } from "@/lib/filter-columns";
+import { getTmdbClient } from "@/server/tmdb-client";
 import type { ExtendedColumnFilter, JoinOperator } from "@/types/data-table";
 
 import { protectedProcedure, publicProcedure } from "../procedures";
 
 const filterSchema = z.object({
-	id: z.string(),
-	value: z.union([z.string(), z.array(z.string())]),
+	id: z.string().max(100),
+	value: z.union([z.string().max(500), z.array(z.string().max(500)).max(50)]),
 	variant: z.enum([
 		"text",
 		"number",
@@ -41,7 +42,7 @@ const filterSchema = z.object({
 });
 
 const sortSchema = z.object({
-	id: z.string(),
+	id: z.string().max(100),
 	desc: z.boolean(),
 });
 
@@ -53,7 +54,7 @@ const getHistoryInputSchema = z.object({
 });
 
 const updateHistoryInputSchema = z.object({
-	id: z.string(),
+	id: z.string().min(1).max(100),
 	status: z
 		.enum([
 			"FINISHED",
@@ -64,9 +65,9 @@ const updateHistoryInputSchema = z.object({
 			"REWATCHING",
 		])
 		.optional(),
-	currentEpisode: z.number().optional(),
-	currentSeason: z.number().optional(),
-	currentRuntime: z.number().optional(),
+	currentEpisode: z.number().int().nonnegative().optional(),
+	currentSeason: z.number().int().nonnegative().optional(),
+	currentRuntime: z.number().int().nonnegative().optional(),
 	isFavourite: z.boolean().optional(),
 });
 
@@ -158,8 +159,10 @@ function buildHistoryListOrderBy(sort: {
 	}
 }
 
+// Shared catalog metadata is fetched server-side from TMDB. The client may
+// only choose the title and its own per-user history fields.
 const addHistoryInputSchema = z.object({
-	tmdbId: z.number(),
+	tmdbId: z.number().int().positive(),
 	mediaType: z.enum(["MOVIE", "SERIES"]),
 	status: z.enum([
 		"FINISHED",
@@ -169,19 +172,48 @@ const addHistoryInputSchema = z.object({
 		"DROPPED",
 		"REWATCHING",
 	]),
-	name: z.string(),
-	posterPath: z.string().nullish(),
-	backdropPath: z.string().nullish(),
-	overview: z.string().nullish(),
-	releaseDate: z.string().nullish(),
-	genres: z.array(z.number()).optional(),
-	imdbId: z.string().nullish(),
-	directors: z.array(z.string()).optional(),
-	currentEpisode: z.number().optional(),
-	currentSeason: z.number().optional(),
-	currentRuntime: z.number().optional(),
+	currentEpisode: z.number().int().nonnegative().optional(),
+	currentSeason: z.number().int().nonnegative().optional(),
+	currentRuntime: z.number().int().nonnegative().optional(),
 	isFavourite: z.boolean().optional(),
 });
+
+async function fetchTitleMetadata(
+	tmdbId: number,
+	mediaType: "MOVIE" | "SERIES",
+) {
+	const tmdb = getTmdbClient();
+	if (mediaType === "MOVIE") {
+		const [movie, credits] = await Promise.all([
+			tmdb.movies.details(tmdbId, ["external_ids"]),
+			tmdb.movies.credits(tmdbId),
+		]);
+		return {
+			name: movie.title ?? "",
+			posterUrl: movie.poster_path ?? null,
+			backdropUrl: movie.backdrop_path ?? null,
+			description: movie.overview ?? null,
+			releaseDate: movie.release_date ?? null,
+			genres: movie.genres?.map((g) => g.id) ?? [],
+			imdbId: movie.external_ids?.imdb_id ?? "",
+			directors:
+				credits.crew?.filter((c) => c.job === "Director").map((c) => c.name) ??
+				[],
+		};
+	}
+
+	const tv = await tmdb.tvShows.details(tmdbId, ["external_ids"]);
+	return {
+		name: tv.name ?? "",
+		posterUrl: tv.poster_path ?? null,
+		backdropUrl: tv.backdrop_path ?? null,
+		description: tv.overview ?? null,
+		releaseDate: tv.first_air_date ?? null,
+		genres: tv.genres?.map((g) => g.id) ?? [],
+		imdbId: tv.external_ids?.imdb_id ?? "",
+		directors: tv.created_by?.map((c) => c.name) ?? [],
+	};
+}
 
 export const historyRouter = {
 	getAll: publicProcedure
@@ -369,9 +401,9 @@ export const historyRouter = {
 		.handler(async ({ input, context }) => {
 			const userId = context.session!.userId;
 
-			// Convert TMDB paths to full URLs
-			const posterUrl = input.posterPath;
-			const backdropUrl = input.backdropPath;
+			// The shared catalog is authoritative only when populated here from
+			// TMDB, never from client-supplied metadata.
+			const metadata = await fetchTitleMetadata(input.tmdbId, input.mediaType);
 
 			// Upsert title - check if title exists by tmdbId + mediaType
 			const [existingTitle] = await db
@@ -392,14 +424,14 @@ export const historyRouter = {
 				const [updatedTitle] = await db
 					.update(titles)
 					.set({
-						name: input.name,
-						posterUrl: posterUrl ?? existingTitle.posterUrl,
-						backdropUrl: backdropUrl ?? existingTitle.backdropUrl,
-						description: input.overview ?? existingTitle.description,
-						releaseDate: input.releaseDate ?? existingTitle.releaseDate,
-						genres: input.genres ?? existingTitle.genres,
-						imdbId: input.imdbId ?? existingTitle.imdbId,
-						directors: input.directors ?? existingTitle.directors,
+						name: metadata.name,
+						posterUrl: metadata.posterUrl,
+						backdropUrl: metadata.backdropUrl,
+						description: metadata.description,
+						releaseDate: metadata.releaseDate,
+						genres: metadata.genres,
+						imdbId: metadata.imdbId,
+						directors: metadata.directors,
 						updatedAt: new Date(),
 					})
 					.where(eq(titles.id, existingTitle.id))
@@ -412,14 +444,14 @@ export const historyRouter = {
 					.values({
 						tmdbId: input.tmdbId,
 						mediaType: input.mediaType,
-						name: input.name,
-						posterUrl,
-						backdropUrl,
-						description: input.overview,
-						releaseDate: input.releaseDate,
-						genres: input.genres,
-						imdbId: input.imdbId ?? "",
-						directors: input.directors,
+						name: metadata.name,
+						posterUrl: metadata.posterUrl,
+						backdropUrl: metadata.backdropUrl,
+						description: metadata.description,
+						releaseDate: metadata.releaseDate,
+						genres: metadata.genres,
+						imdbId: metadata.imdbId,
+						directors: metadata.directors,
 					})
 					.returning();
 				titleId = newTitle.id;
@@ -545,7 +577,7 @@ export const historyRouter = {
 			const [updated] = await db
 				.update(history)
 				.set(updates)
-				.where(eq(history.id, input.id))
+				.where(and(eq(history.id, input.id), eq(history.userId, userId)))
 				.returning();
 
 			const prev = existing[0];
@@ -611,7 +643,9 @@ export const historyRouter = {
 				throw new ORPCError("NOT_FOUND", { message: "History item not found" });
 			}
 
-			await db.delete(history).where(eq(history.id, input.id));
+			await db
+				.delete(history)
+				.where(and(eq(history.id, input.id), eq(history.userId, userId)));
 			return { success: true };
 		}),
 };

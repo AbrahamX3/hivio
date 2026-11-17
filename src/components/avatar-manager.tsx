@@ -85,6 +85,7 @@ export function AvatarManager({
 		try {
 			const { uploadUrl, key } = await client.user.getAvatarUploadUrl({
 				contentType: selectedFile.type,
+				contentLength: selectedFile.size,
 			});
 
 			const r2Res = await fetch(uploadUrl, {

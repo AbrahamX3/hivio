@@ -16,7 +16,7 @@ export const env = createEnv({
 	server: {
 		DATABASE_URL: z.url(),
 		TMDB_API_KEY: z.string().min(1),
-		BETTER_AUTH_SECRET: z.string().min(1),
+		BETTER_AUTH_SECRET: z.string().min(32),
 		DISCORD_CLIENT_ID: z.string().min(1),
 		DISCORD_CLIENT_SECRET: z.string().min(1),
 		OPENCODE_API_KEY: z.string().min(1),
