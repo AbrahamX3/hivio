@@ -10,6 +10,7 @@ import { authSchema } from "@/db/auth-schema";
 import { verifications } from "@/db/schema";
 import { env } from "@/env";
 import { deleteAvatarObject, isOwnedAvatarKey } from "@/lib/r2";
+import { rateLimitStorage } from "@/lib/rate-limit-storage";
 import {
 	DeleteAccountEmail,
 	ResetPasswordEmail,
@@ -38,6 +39,19 @@ export const auth = betterAuth({
 		cookieCache: {
 			enabled: true,
 			maxAge: 60, // 1 minute — bounds the window for stale sessions after revocation
+		},
+	},
+	// Shared across Vercel instances via the existing Upstash Redis. Rate
+	// limiting stays production-only (Better Auth's default) and uses a
+	// dedicated customStorage, so sessions and verification tokens remain in
+	// the database.
+	rateLimit: {
+		customStorage: rateLimitStorage,
+		customRules: {
+			"/send-verification-email": { window: 60, max: 5 },
+			"/request-password-reset": { window: 60, max: 5 },
+			"/sign-in/email": { window: 60, max: 10 },
+			"/sign-up/email": { window: 60, max: 5 },
 		},
 	},
 	account: {
